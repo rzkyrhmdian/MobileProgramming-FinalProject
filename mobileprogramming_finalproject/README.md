@@ -4,7 +4,7 @@
 
 SiPatuh merupakan aplikasi monitoring kendaraan dan pelaporan masyarakat berbasis AI yang dirancang untuk membantu pengguna dalam mengelola administrasi kendaraan sekaligus mendukung penataan lalu lintas dan lingkungan kota yang lebih tertib.
 
-Aplikasi ini memanfaatkan teknologi **Computer Vision**, **YOLO Object Detection**, dan **OCR (Optical Character Recognition)** untuk mendeteksi serta membaca plat nomor kendaraan secara otomatis dari gambar.
+Aplikasi ini memanfaatkan teknologi **YOLO Object Detection** dan **OCR (Optical Character Recognition)** untuk mendeteksi serta membaca plat nomor kendaraan secara otomatis dari gambar.
 
 ---
 
@@ -186,7 +186,6 @@ Sistem memisahkan:
 
 - YOLOv8
 - EasyOCR
-- OpenCV
 
 ## Notification Service
 
@@ -212,30 +211,6 @@ Endpoint utama:
 - `/parse-plate`
 - `/submit-report`
 - `/update-report-status`
-
----
-
-# Struktur Database
-
-## Users
-
-Menyimpan data pengguna aplikasi.
-
-## Vehicles
-
-Menyimpan data kendaraan pribadi pengguna.
-
-## Reports
-
-Menyimpan laporan kendaraan dari masyarakat.
-
-## OCRResults
-
-Menyimpan hasil OCR dan parsing kendaraan.
-
-## Notifications
-
-Menyimpan data notifikasi reminder dan laporan.
 
 ---
 
@@ -278,7 +253,6 @@ Pendekatan ini bertujuan menjaga:
 - FastAPI
 - YOLOv8
 - EasyOCR
-- OpenCV
 - Awesome Notifications
 
 ---
