@@ -13,7 +13,7 @@ class LandingPage extends StatelessWidget {
       body: Container(
         decoration: const BoxDecoration(
           image: DecorationImage(
-            image: AssetImage('assets/images/startingpage.png'),
+            image: AssetImage('assets/images/startingpage2.jpg'),
             fit: BoxFit.cover,
           ),
         ),
@@ -29,7 +29,7 @@ class LandingPage extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   Text(
-                    "STEGO SNAP",
+                    "SiPatuh",
                     style: TextStyle(
                       fontFamily: "ZenDots",
                       fontSize: 36,
@@ -40,7 +40,7 @@ class LandingPage extends StatelessWidget {
                   Column(
                     children: [
                       Text(
-                        "The best way to hide your",
+                        "Bersama Warga,",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontFamily: "Poppins",
@@ -50,7 +50,7 @@ class LandingPage extends StatelessWidget {
                       ),
                       SizedBox(height: 4),
                       Text(
-                        "message",
+                        "Membangun Kota Tertib.",
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           fontFamily: "Poppins",

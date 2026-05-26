@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:stego_snap/utils/colors.dart';
+import 'package:mobileprogramming_finalproject/utils/colors.dart';
 
 class BottomSheetContainer extends StatelessWidget {
   final Widget child;

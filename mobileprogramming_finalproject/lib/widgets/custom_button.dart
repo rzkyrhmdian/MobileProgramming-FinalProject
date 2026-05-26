@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:stego_snap/utils/colors.dart';
+import 'package:mobileprogramming_finalproject/utils/colors.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class CustomButton extends StatelessWidget {
