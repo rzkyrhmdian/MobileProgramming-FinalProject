@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:mobileprogramming_finalproject/ui/auth/login_screen.dart';
+import 'package:mobileprogramming_finalproject/ui/auth/signup_screen.dart';
+import 'package:mobileprogramming_finalproject/ui/shared_widgets/custom_link.dart';
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
-import 'package:mobileprogramming_finalproject/screens/login_page.dart';
-import 'package:mobileprogramming_finalproject/screens/signup_page.dart';
-import 'package:mobileprogramming_finalproject/widgets/custom_link.dart';
 
-class LandingPage extends StatelessWidget {
-  const LandingPage({super.key});
+class LandingScreen extends StatelessWidget {
+  const LandingScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return (Scaffold(
@@ -18,42 +19,42 @@ class LandingPage extends StatelessWidget {
           ),
         ),
         child: Padding(
-          padding: EdgeInsets.all(36.0),
+          padding: const EdgeInsets.all(36.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
-                    "SiPatuh",
+                  const Text(
+                    'SiPatuh',
                     style: TextStyle(
-                      fontFamily: "ZenDots",
+                      fontFamily: 'ZenDots',
                       fontSize: 36,
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Column(
-                    children: [
+                    children: const [
                       Text(
-                        "Bersama Warga,",
+                        'Bersama Warga,',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontFamily: "Poppins",
+                          fontFamily: 'Poppins',
                           fontSize: 16,
                           color: Colors.white,
                         ),
                       ),
                       SizedBox(height: 4),
                       Text(
-                        "Membangun Kota Tertib.",
+                        'Membangun Kota Tertib.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
-                          fontFamily: "Poppins",
+                          fontFamily: 'Poppins',
                           fontWeight: FontWeight.w600,
                           fontStyle: FontStyle.italic,
                           fontSize: 16,
@@ -71,38 +72,42 @@ class LandingPage extends StatelessWidget {
                   ElevatedButton(
                     onPressed: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => SignupPage()),
+                      MaterialPageRoute(
+                        builder: (context) => const SignupScreen(),
+                      ),
                     ),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.purpleButton,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(16),
                       ),
-                      padding: EdgeInsets.symmetric(vertical: 16),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                       elevation: 4,
                     ),
-                    child: Text(
-                      "Get Started",
+                    child: const Text(
+                      'Get Started',
                       style: TextStyle(
-                        fontFamily: "Poppins",
+                        fontFamily: 'Poppins',
                         fontSize: 16,
                         fontWeight: FontWeight.w500,
                         color: AppColors.darkPurpleText,
                       ),
                     ),
                   ),
-                  SizedBox(height: 6),
+                  const SizedBox(height: 6),
                   CustomLink(
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => LoginPage()),
+                        MaterialPageRoute(
+                          builder: (context) => const LoginScreen(),
+                        ),
                       );
                     },
-                    label: "Already have an account?",
-                    labelLink: "Log In",
+                    label: 'Already have an account?',
+                    labelLink: 'Log In',
                     fontSize: 16,
-                    fontFamily: "Poppins",
+                    fontFamily: 'Poppins',
                   ),
                 ],
               ),

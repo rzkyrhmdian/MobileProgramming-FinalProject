@@ -1,15 +1,17 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
-import 'package:mobileprogramming_finalproject/services/notification_service.dart';
+import 'package:mobileprogramming_finalproject/data/remote/notification_datasource.dart';
+import 'package:mobileprogramming_finalproject/data/remote/user_api_model.dart';
 
-class AuthService {
+class AuthRemoteDatasource {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final NotificationDatasource _notificationDatasource = NotificationDatasource();
 
   Future<void> _notify({required String title, required String body}) async {
     try {
-      await NotificationService.createNotification(
+      await _notificationDatasource.createNotification(
         id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
         title: title,
         body: body,
@@ -51,10 +53,7 @@ class AuthService {
     await userRef.set(data, SetOptions(merge: true));
   }
 
-  Future<bool> _isStegoIdAvailable(
-    String idStegoSnap,
-    String currentUid,
-  ) async {
+  Future<bool> _isStegoIdAvailable(String idStegoSnap, String currentUid) async {
     final normalized = idStegoSnap.trim();
     if (normalized.isEmpty) {
       return false;
@@ -73,12 +72,12 @@ class AuthService {
     return query.docs.first.id == currentUid;
   }
 
-  Future<User?> signInWithEmailAndPassword(
+  Future<UserApiModel?> signInWithEmailAndPassword(
     String email,
     String password,
   ) async {
     try {
-      UserCredential result = await _firebaseAuth.signInWithEmailAndPassword(
+      final result = await _firebaseAuth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
@@ -104,7 +103,15 @@ class AuthService {
         }
       }
 
-      return result.user;
+      return result.user == null
+          ? null
+          : UserApiModel.fromMap({
+              'uid': result.user!.uid,
+              'email': result.user!.email ?? '',
+              'displayName': result.user!.displayName ?? '',
+              'idStegoSnap': '',
+              'profileImage': '',
+            }, uid: result.user!.uid);
     } on FirebaseAuthException catch (e) {
       await _notify(
         title: 'Login Failed',
@@ -123,14 +130,16 @@ class AuthService {
     }
   }
 
-  Future<User?> registerWithEmailAndPassword(
+  Future<UserApiModel?> registerWithEmailAndPassword(
     String fullName,
     String email,
     String password,
   ) async {
     try {
-      UserCredential result = await _firebaseAuth
-          .createUserWithEmailAndPassword(email: email, password: password);
+      final result = await _firebaseAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
       User? user = result.user;
 
       if (user != null) {
@@ -163,7 +172,17 @@ class AuthService {
         }
       }
 
-      return user;
+      if (user == null) {
+        return null;
+      }
+
+      return UserApiModel(
+        uid: user.uid,
+        email: user.email ?? '',
+        displayName: user.displayName ?? fullName,
+        idStegoSnap: '',
+        profileImage: '',
+      );
     } on FirebaseAuthException catch (e) {
       await _notify(
         title: 'Sign Up Failed',
@@ -227,6 +246,23 @@ class AuthService {
 
   Future<void> signOut() async {
     await _firebaseAuth.signOut();
+  }
+
+  Future<UserApiModel?> getCurrentUser() async {
+    final user = _firebaseAuth.currentUser;
+    if (user == null) {
+      return null;
+    }
+
+    final userDoc = await _firestore.collection('users').doc(user.uid).get();
+    final userData = userDoc.data() ?? <String, dynamic>{};
+
+    return UserApiModel.fromMap({
+      ...userData,
+      'uid': user.uid,
+      'email': user.email ?? userData['email'] ?? '',
+      'displayName': user.displayName ?? userData['displayName'] ?? '',
+    }, uid: user.uid);
   }
 
   Future<bool> updateUserProfile({

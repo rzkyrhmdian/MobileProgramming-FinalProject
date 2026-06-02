@@ -1,14 +1,15 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:mobileprogramming_finalproject/services/notification_service.dart';
+import 'package:mobileprogramming_finalproject/data/remote/notification_datasource.dart';
 
-class FirestoreService {
+class FirestoreDatasource {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
+  final NotificationDatasource _notificationDatasource = NotificationDatasource();
 
   User? get _currentUser => FirebaseAuth.instance.currentUser;
 
   Future<void> _notify({required String title, required String body}) async {
-    await NotificationService.createNotification(
+    await _notificationDatasource.createNotification(
       id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
       title: title,
       body: body,
