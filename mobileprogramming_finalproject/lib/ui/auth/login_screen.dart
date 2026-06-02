@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:mobileprogramming_finalproject/ui/auth/auth_viewmodel.dart';
 import 'package:mobileprogramming_finalproject/ui/auth/signup_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/navigation/landing_screen.dart';
-import 'package:mobileprogramming_finalproject/ui/navigation/nav_screen.dart';
+// import 'package:mobileprogramming_finalproject/ui/navigation/nav_screen.dart';
+import 'package:mobileprogramming_finalproject/ui/main/main_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/shared_widgets/custom_button.dart';
 import 'package:mobileprogramming_finalproject/ui/shared_widgets/custom_link.dart';
 import 'package:mobileprogramming_finalproject/ui/shared_widgets/custom_textfield.dart';
@@ -35,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const NavScreen()),
+        MaterialPageRoute(builder: (context) => const MainScreen()),
       );
     }
   }
