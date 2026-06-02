@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobileprogramming_finalproject/screens/landing_page.dart';
+import 'package:mobileprogramming_finalproject/ui/navigation/landing_screen.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'firebase_options.dart';
@@ -22,7 +22,7 @@ class MyApp extends StatelessWidget {
     return (MaterialApp(
       title: 'SiPatuh',
       theme: ThemeData(visualDensity: VisualDensity.adaptivePlatformDensity),
-      home: LandingPage(),
+      home: const LandingScreen(),
       debugShowCheckedModeBanner: false,
     ));
   }

@@ -1,16 +1,15 @@
+import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
-import 'package:awesome_notifications/awesome_notifications.dart';
 
-class NotificationService {
+class NotificationDatasource {
   static bool _isInitialized = false;
 
-  static Future<void> initializeNotification() async {
+  Future<void> initializeNotification() async {
     if (_isInitialized) {
       return;
     }
 
-    // Initialize Awesome Notifications
     await AwesomeNotifications().initialize(
       null,
       [
@@ -36,7 +35,6 @@ class NotificationService {
       debug: true,
     );
 
-    // Set notification listeners
     await AwesomeNotifications().setListeners(
       onActionReceivedMethod: _onActionReceivedMethod,
       onNotificationCreatedMethod: _onNotificationCreateMethod,
@@ -45,12 +43,10 @@ class NotificationService {
     );
 
     _isInitialized = true;
-
-    // Ask permission once during startup.
     await _ensurePermission(promptIfNeeded: true);
   }
 
-  static Future<bool> _ensurePermission({required bool promptIfNeeded}) async {
+  Future<bool> _ensurePermission({required bool promptIfNeeded}) async {
     final isAllowed = await AwesomeNotifications().isNotificationAllowed();
     if (isAllowed) {
       return true;
@@ -64,7 +60,6 @@ class NotificationService {
     return AwesomeNotifications().isNotificationAllowed();
   }
 
-  // Listeners
   static Future<void> _onNotificationCreateMethod(
     ReceivedNotification receivedNotification,
   ) async {
@@ -89,7 +84,7 @@ class NotificationService {
     debugPrint('Notification action received: ${receivedNotification.title}');
   }
 
-  static Future<void> createNotification({
+  Future<void> createNotification({
     required final int id,
     required final String title,
     required final String body,
@@ -131,8 +126,7 @@ class NotificationService {
       schedule: scheduled
           ? NotificationInterval(
               interval: interval,
-              timeZone: await AwesomeNotifications()
-                  .getLocalTimeZoneIdentifier(),
+              timeZone: await AwesomeNotifications().getLocalTimeZoneIdentifier(),
               preciseAlarm: true,
             )
           : null,

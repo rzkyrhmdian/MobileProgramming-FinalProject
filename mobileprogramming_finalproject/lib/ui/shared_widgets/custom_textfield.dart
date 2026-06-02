@@ -25,9 +25,9 @@ class CustomTextField extends StatelessWidget {
     this.validator,
     this.keyboardType = TextInputType.text,
     this.suffixIcon,
-    this.fontSize = 16,
-    this.backgroundColor = AppColors.surface,
-    this.foregroundColor = Colors.white,
+    this.fontSize = 14,
+    this.backgroundColor = Colors.white,
+    this.foregroundColor = AppColors.primary,
   });
 
   @override
@@ -55,7 +55,7 @@ class CustomTextField extends StatelessWidget {
         fillColor: backgroundColor,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(30.0),
-          borderSide: BorderSide.none,
+          borderSide: BorderSide(color: AppColors.primary),
         ),
         contentPadding: const EdgeInsets.symmetric(vertical: 20.0),
       ),

@@ -1,0 +1,81 @@
+import 'package:mobileprogramming_finalproject/domain/model/user_info.dart';
+
+class UserApiModel {
+  final String uid;
+  final String email;
+  final String displayName;
+  final String idStegoSnap;
+  final String profileImage;
+  final DateTime? createdAt;
+  final DateTime? updatedAt;
+  final DateTime? lastLoginAt;
+
+  const UserApiModel({
+    required this.uid,
+    required this.email,
+    required this.displayName,
+    required this.idStegoSnap,
+    required this.profileImage,
+    this.createdAt,
+    this.updatedAt,
+    this.lastLoginAt,
+  });
+
+  factory UserApiModel.fromMap(
+    Map<String, dynamic> map, {
+    String? uid,
+  }) {
+    return UserApiModel(
+      uid: uid ?? (map['uid'] ?? '').toString(),
+      email: (map['email'] ?? '').toString(),
+      displayName: (map['displayName'] ?? '').toString(),
+      idStegoSnap: (map['idStegoSnap'] ?? '').toString(),
+      profileImage: (map['profileImage'] ?? '').toString(),
+      createdAt: _toDateTime(map['createdAt']),
+      updatedAt: _toDateTime(map['updatedAt']),
+      lastLoginAt: _toDateTime(map['lastLoginAt']),
+    );
+  }
+
+  UserInfo toEntity() {
+    return UserInfo(
+      uid: uid,
+      email: email,
+      displayName: displayName,
+      idStegoSnap: idStegoSnap,
+      profileImage: profileImage,
+      createdAt: createdAt,
+      updatedAt: updatedAt,
+      lastLoginAt: lastLoginAt,
+    );
+  }
+
+  Map<String, dynamic> toMap() {
+    return {
+      'uid': uid,
+      'email': email,
+      'displayName': displayName,
+      'idStegoSnap': idStegoSnap,
+      'profileImage': profileImage,
+      'createdAt': createdAt,
+      'updatedAt': updatedAt,
+      'lastLoginAt': lastLoginAt,
+    };
+  }
+
+  static DateTime? _toDateTime(dynamic value) {
+    if (value == null) {
+      return null;
+    }
+
+    if (value is DateTime) {
+      return value;
+    }
+
+    try {
+      return value.toDate() as DateTime;
+    } catch (_) {
+      return null;
+    }
+  }
+}
