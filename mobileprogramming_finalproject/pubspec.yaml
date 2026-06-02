@@ -39,6 +39,8 @@ dependencies:
   google_fonts: ^8.1.0
   firebase_auth: ^6.5.1
   awesome_notifications: 0.10.1
+  lottie: ^3.3.3
+  supabase_flutter: ^2.12.4
 
 dev_dependencies:
   flutter_test:
@@ -64,6 +66,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - assets/lottie/SiPatuh/a/MainScene.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
@@ -96,6 +99,9 @@ flutter:
     - family: ZenDots
       fonts:
         - asset: assets/fonts/ZenDots-Regular.ttf
+    - family: CalSans
+      fonts:
+        - asset: assets/fonts/Cal-Sans-Regular.ttf
 
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package

@@ -23,7 +23,7 @@ class ProfileWidget extends StatelessWidget {
       height: size,
       decoration: BoxDecoration(
         shape: BoxShape.circle,
-        color: AppColors.grayBackgroundProfile,
+        color: AppColors.primary,
         boxShadow: [
           BoxShadow(color: Colors.black12, blurRadius: 8, spreadRadius: 2),
         ],

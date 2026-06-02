@@ -26,7 +26,7 @@ class CustomTextField extends StatelessWidget {
     this.keyboardType = TextInputType.text,
     this.suffixIcon,
     this.fontSize = 16,
-    this.backgroundColor = AppColors.whiteField,
+    this.backgroundColor = AppColors.surface,
     this.foregroundColor = Colors.white,
   });
 

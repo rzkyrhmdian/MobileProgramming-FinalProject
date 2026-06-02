@@ -58,7 +58,7 @@ class _NavPageState extends State<NavPage> {
     return Container(
       height: 80,
       decoration: BoxDecoration(
-        color: AppColors.navBottom,
+        color: AppColors.primary.withValues(alpha: 0.9),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.05),
@@ -78,7 +78,7 @@ class _NavPageState extends State<NavPage> {
             height: 65,
             shape: BoxShape.circle,
             gradient: LinearGradient(
-              colors: [AppColors.purpleNavButton, AppColors.purpleButton],
+              colors: [AppColors.accent, AppColors.surface],
               begin: Alignment.center,
               end: Alignment.center,
             ),
@@ -167,7 +167,7 @@ class _NavPageState extends State<NavPage> {
       onTap: onTap,
       height: 75,
       width: 75,
-      backgroundColor: AppColors.purpleField,
+      backgroundColor: AppColors.accent,
       borderRadius: 20,
       fontColor: Colors.white,
       iconSize: 28,

@@ -176,9 +176,9 @@ class _SignupPageState extends State<SignupPage> {
                     borderRadius: 50.0,
                     label: 'Sign Up',
                     fontSize: 18,
-                    fontColor: AppColors.darkPurpleText,
+                    fontColor: AppColors.primary,
                     gradient: const LinearGradient(
-                      colors: [Colors.white, AppColors.purpleButton],
+                      colors: [Colors.white, AppColors.accent],
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                     ),

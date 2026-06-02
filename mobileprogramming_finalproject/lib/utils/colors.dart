@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const Color navBottom = Color.fromARGB(255, 15, 9, 20);
-  static const Color purpleButton = Color.fromARGB(255, 190, 147, 255);
-  static const Color purpleNavButton = Color.fromARGB(204, 181, 84, 237);
-  static const Color darkPurpleText = Color.fromARGB(255, 37, 9, 52);
-  static const Color purpleField = Color.fromARGB(38, 190, 147, 255);
-  static const Color transparentPurpleButton = Color.fromARGB( 76, 190, 147, 255);
-  static const Color grayBackgroundProfile = Color.fromARGB(255, 201, 201, 201);
-  static const Color notificationPurple = Color.fromARGB(255, 219, 194, 255);
-  static const Color whiteField = Colors.white24;
+  static const Color primary = Color(0xFF031632);
+  static const Color secondary = Color(0xFF0054CD);
+  static const Color accent = Color(0xFFFD5D1D);
+  static const Color background = Color(0xFFF8F9FF);
+  static const Color surface = Color(0xFFE6EEFF);
+  static const Color textPrimary = Color(0xFF0D1C2E);
+  static const Color textSecondary = Color(0xFF44474D);
+  static const Color border = Color(0xFF75777E);
+  static const Color error = Color(0xFFBA1A1A);
 }

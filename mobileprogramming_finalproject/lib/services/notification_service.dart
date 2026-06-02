@@ -19,7 +19,7 @@ class NotificationService {
           channelKey: 'basic_channel',
           channelName: 'Basic notifications',
           channelDescription: 'Notification channel for basic tests',
-          defaultColor: AppColors.notificationPurple,
+          defaultColor: AppColors.accent,
           ledColor: Colors.white,
           importance: NotificationImportance.Max,
           channelShowBadge: true,

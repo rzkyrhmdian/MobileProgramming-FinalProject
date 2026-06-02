@@ -25,7 +25,7 @@ class CustomButton extends StatelessWidget {
     this.borderRadius = 50.0,
     this.icon,
     this.fontSize = 16,
-    this.fontColor = AppColors.darkPurpleText,
+    this.fontColor = AppColors.primary,
   });
 
   @override

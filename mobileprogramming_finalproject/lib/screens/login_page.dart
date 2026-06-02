@@ -128,9 +128,9 @@ class _LoginPageState extends State<LoginPage> {
                     borderRadius: 50.0,
                     label: 'Log In',
                     fontSize: 18,
-                    fontColor: AppColors.darkPurpleText,
+                    fontColor: AppColors.primary,
                     gradient: const LinearGradient(
-                      colors: [Colors.white, AppColors.purpleButton],
+                      colors: [Colors.white, AppColors.accent],
                       begin: Alignment.centerLeft,
                       end: Alignment.centerRight,
                     ),
