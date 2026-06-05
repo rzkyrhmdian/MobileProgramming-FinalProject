@@ -4,7 +4,7 @@ class UserApiModel {
   final String uid;
   final String email;
   final String displayName;
-  final String idStegoSnap;
+  final String idSipatuh;
   final String profileImage;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -14,22 +14,19 @@ class UserApiModel {
     required this.uid,
     required this.email,
     required this.displayName,
-    required this.idStegoSnap,
+    required this.idSipatuh,
     required this.profileImage,
     this.createdAt,
     this.updatedAt,
     this.lastLoginAt,
   });
 
-  factory UserApiModel.fromMap(
-    Map<String, dynamic> map, {
-    String? uid,
-  }) {
+  factory UserApiModel.fromMap(Map<String, dynamic> map, {String? uid}) {
     return UserApiModel(
       uid: uid ?? (map['uid'] ?? '').toString(),
       email: (map['email'] ?? '').toString(),
       displayName: (map['displayName'] ?? '').toString(),
-      idStegoSnap: (map['idStegoSnap'] ?? '').toString(),
+      idSipatuh: (map['idSipatuh'] ?? '').toString(),
       profileImage: (map['profileImage'] ?? '').toString(),
       createdAt: _toDateTime(map['createdAt']),
       updatedAt: _toDateTime(map['updatedAt']),
@@ -42,7 +39,7 @@ class UserApiModel {
       uid: uid,
       email: email,
       displayName: displayName,
-      idStegoSnap: idStegoSnap,
+      idSipatuh: idSipatuh,
       profileImage: profileImage,
       createdAt: createdAt,
       updatedAt: updatedAt,
@@ -55,7 +52,7 @@ class UserApiModel {
       'uid': uid,
       'email': email,
       'displayName': displayName,
-      'idStegoSnap': idStegoSnap,
+      'idSipatuh': idSipatuh,
       'profileImage': profileImage,
       'createdAt': createdAt,
       'updatedAt': updatedAt,

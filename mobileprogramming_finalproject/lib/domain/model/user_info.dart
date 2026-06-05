@@ -2,7 +2,7 @@ class UserInfo {
   final String uid;
   final String email;
   final String displayName;
-  final String idStegoSnap;
+  final String idSipatuh;
   final String profileImage;
   final DateTime? createdAt;
   final DateTime? updatedAt;
@@ -12,22 +12,19 @@ class UserInfo {
     required this.uid,
     required this.email,
     required this.displayName,
-    required this.idStegoSnap,
+    required this.idSipatuh,
     required this.profileImage,
     this.createdAt,
     this.updatedAt,
     this.lastLoginAt,
   });
 
-  factory UserInfo.fromMap(
-    Map<String, dynamic> map, {
-    String? uid,
-  }) {
+  factory UserInfo.fromMap(Map<String, dynamic> map, {String? uid}) {
     return UserInfo(
       uid: uid ?? (map['uid'] ?? '').toString(),
       email: (map['email'] ?? '').toString(),
       displayName: (map['displayName'] ?? '').toString(),
-      idStegoSnap: (map['idStegoSnap'] ?? '').toString(),
+      idSipatuh: (map['idSipatuh'] ?? '').toString(),
       profileImage: (map['profileImage'] ?? '').toString(),
       createdAt: _toDateTime(map['createdAt']),
       updatedAt: _toDateTime(map['updatedAt']),
@@ -40,7 +37,7 @@ class UserInfo {
       'uid': uid,
       'email': email,
       'displayName': displayName,
-      'idStegoSnap': idStegoSnap,
+      'idSipatuh': idSipatuh,
       'profileImage': profileImage,
       'createdAt': createdAt,
       'updatedAt': updatedAt,

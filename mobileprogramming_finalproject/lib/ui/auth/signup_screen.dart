@@ -88,29 +88,29 @@ class _SignupScreenState extends State<SignupScreen> {
                   child: Column(
                     children: [
                       CustomTextField(
-                        hint: 'Full Name',
+                        hint: 'Nama Lengkap',
                         icon: Icons.person_outline,
                         onChanged: _viewModel.updateFullName,
                         validator: (val) =>
-                            val!.isEmpty ? 'Enter your full name' : null,
+                            val!.isEmpty ? 'Masukkan nama lengkap' : null,
                       ),
                       const SizedBox(height: 16),
                       CustomTextField(
-                        hint: 'Enter your email',
+                        hint: 'Masukkan email',
                         icon: Icons.email_outlined,
                         onChanged: _viewModel.updateEmail,
                         validator: (val) =>
-                            val!.isEmpty ? 'Enter an email' : null,
+                            val!.isEmpty ? 'Masukkan email' : null,
                         keyboardType: TextInputType.emailAddress,
                       ),
                       const SizedBox(height: 16),
                       CustomTextField(
-                        hint: 'Enter password',
+                        hint: 'Masukkan password',
                         icon: Icons.lock_outline,
                         obscureText: _viewModel.isPasswordObscure,
                         onChanged: _viewModel.updatePassword,
                         validator: (val) => val!.length < 6
-                            ? 'Password must be 6+ characters'
+                            ? 'Password harus minimal 6 karakter'
                             : null,
                         suffixIcon: Padding(
                           padding: const EdgeInsets.only(right: 12.0),
@@ -119,7 +119,6 @@ class _SignupScreenState extends State<SignupScreen> {
                               _viewModel.isPasswordObscure
                                   ? Icons.visibility_off
                                   : Icons.visibility,
-                              color: Colors.white,
                             ),
                             onPressed: _viewModel.togglePasswordObscure,
                           ),
@@ -127,12 +126,12 @@ class _SignupScreenState extends State<SignupScreen> {
                       ),
                       const SizedBox(height: 16),
                       CustomTextField(
-                        hint: 'Confirm password',
+                        hint: 'Konfirmasi password',
                         icon: Icons.lock_outline,
                         obscureText: _viewModel.isConfirmPasswordObscure,
                         onChanged: _viewModel.updateConfirmPassword,
                         validator: (val) =>
-                            val!.isEmpty ? 'Confirm your password' : null,
+                            val!.isEmpty ? 'Konfirmasi password Anda' : null,
                         suffixIcon: Padding(
                           padding: const EdgeInsets.only(right: 12.0),
                           child: IconButton(
@@ -140,7 +139,6 @@ class _SignupScreenState extends State<SignupScreen> {
                               _viewModel.isConfirmPasswordObscure
                                   ? Icons.visibility_off
                                   : Icons.visibility,
-                              color: Colors.white,
                             ),
                             onPressed: _viewModel.toggleConfirmPasswordObscure,
                           ),
@@ -167,7 +165,7 @@ class _SignupScreenState extends State<SignupScreen> {
                             ),
                           );
                         },
-                        label: 'Already have an account?',
+                        label: 'Sudah punya akun?',
                         labelLink: 'Log In',
                         fontSize: 14,
                         fontFamily: 'Poppins',

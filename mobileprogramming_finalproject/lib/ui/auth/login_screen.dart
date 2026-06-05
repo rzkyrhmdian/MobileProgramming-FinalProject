@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:mobileprogramming_finalproject/ui/auth/auth_viewmodel.dart';
 import 'package:mobileprogramming_finalproject/ui/auth/signup_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/navigation/landing_screen.dart';
-// import 'package:mobileprogramming_finalproject/ui/navigation/nav_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/main/main_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/shared_widgets/custom_button.dart';
 import 'package:mobileprogramming_finalproject/ui/shared_widgets/custom_link.dart';
@@ -90,21 +89,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: Column(
                     children: [
                       CustomTextField(
-                        hint: 'Enter your email',
+                        hint: 'Masukkan email',
                         icon: Icons.email_outlined,
                         onChanged: _viewModel.updateEmail,
                         validator: (val) =>
-                            val!.isEmpty ? 'Enter an email' : null,
+                            val!.isEmpty ? 'Masukkan email' : null,
                         keyboardType: TextInputType.emailAddress,
                       ),
                       const SizedBox(height: 16),
                       CustomTextField(
-                        hint: 'Enter password',
+                        hint: 'Masukkan password',
                         icon: Icons.lock_outline,
                         obscureText: _viewModel.isPasswordObscure,
                         onChanged: _viewModel.updatePassword,
                         validator: (val) => val!.length < 6
-                            ? 'Password must be 6+ characters'
+                            ? 'Password harus minimal 6 karakter'
                             : null,
                         suffixIcon: Padding(
                           padding: const EdgeInsets.only(right: 12.0),
@@ -113,7 +112,6 @@ class _LoginScreenState extends State<LoginScreen> {
                               _viewModel.isPasswordObscure
                                   ? Icons.visibility_off
                                   : Icons.visibility,
-                              color: Colors.white,
                             ),
                             onPressed: _viewModel.togglePasswordObscure,
                           ),
@@ -140,7 +138,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           );
                         },
-                        label: "Don't have an account?",
+                        label: "Belum punya akun?",
                         labelLink: 'Sign Up',
                         fontSize: 14,
                         fontFamily: 'Poppins',

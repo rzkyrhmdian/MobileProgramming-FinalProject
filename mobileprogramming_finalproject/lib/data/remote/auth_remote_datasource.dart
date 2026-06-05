@@ -7,7 +7,8 @@ import 'package:mobileprogramming_finalproject/data/remote/user_api_model.dart';
 class AuthRemoteDatasource {
   final FirebaseAuth _firebaseAuth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-  final NotificationDatasource _notificationDatasource = NotificationDatasource();
+  final NotificationDatasource _notificationDatasource =
+      NotificationDatasource();
 
   Future<void> _notify({required String title, required String body}) async {
     try {
@@ -22,7 +23,7 @@ class AuthRemoteDatasource {
   Future<void> _upsertUserDocument(
     User user, {
     String? displayName,
-    String? idStegoSnap,
+    String? idSipatuh,
     String? profileImageUrl,
     bool isNewUser = false,
   }) async {
@@ -38,12 +39,12 @@ class AuthRemoteDatasource {
 
     if (isNewUser) {
       data['createdAt'] = FieldValue.serverTimestamp();
-      data['idStegoSnap'] = '';
+      data['idSipatuh'] = '';
       data['profileImage'] = '';
     }
 
-    if (idStegoSnap != null) {
-      data['idStegoSnap'] = idStegoSnap.trim();
+    if (idSipatuh != null) {
+      data['idSipatuh'] = idSipatuh.trim();
     }
 
     if (profileImageUrl != null) {
@@ -53,15 +54,15 @@ class AuthRemoteDatasource {
     await userRef.set(data, SetOptions(merge: true));
   }
 
-  Future<bool> _isStegoIdAvailable(String idStegoSnap, String currentUid) async {
-    final normalized = idStegoSnap.trim();
+  Future<bool> _isStegoIdAvailable(String idSipatuh, String currentUid) async {
+    final normalized = idSipatuh.trim();
     if (normalized.isEmpty) {
       return false;
     }
 
     final query = await _firestore
         .collection('users')
-        .where('idStegoSnap', isEqualTo: normalized)
+        .where('idSipatuh', isEqualTo: normalized)
         .limit(1)
         .get();
 
@@ -109,7 +110,7 @@ class AuthRemoteDatasource {
               'uid': result.user!.uid,
               'email': result.user!.email ?? '',
               'displayName': result.user!.displayName ?? '',
-              'idStegoSnap': '',
+              'idSipatuh': '',
               'profileImage': '',
             }, uid: result.user!.uid);
     } on FirebaseAuthException catch (e) {
@@ -180,7 +181,7 @@ class AuthRemoteDatasource {
         uid: user.uid,
         email: user.email ?? '',
         displayName: user.displayName ?? fullName,
-        idStegoSnap: '',
+        idSipatuh: '',
         profileImage: '',
       );
     } on FirebaseAuthException catch (e) {
@@ -267,7 +268,7 @@ class AuthRemoteDatasource {
 
   Future<bool> updateUserProfile({
     required String displayName,
-    required String idStegoSnap,
+    required String idSipatuh,
     String? profileImageUrl,
   }) async {
     try {
@@ -281,14 +282,14 @@ class AuthRemoteDatasource {
       }
 
       final normalizedName = displayName.trim();
-      final normalizedStegoId = idStegoSnap.trim();
+      final normalizedStegoId = idSipatuh.trim();
       final normalizedProfileImage = profileImageUrl?.trim() ?? '';
 
       if (normalizedName.isEmpty || normalizedStegoId.isEmpty) {
         await _notify(
           title: 'Update Profile Failed',
           body:
-              'Display name dan idStegoSnap must be provided and cannot be empty.',
+              'Display name dan idSipatuh must be provided and cannot be empty.',
         );
         return false;
       }
@@ -301,7 +302,7 @@ class AuthRemoteDatasource {
         await _notify(
           title: 'Update Profile Failed',
           body:
-              'idStegoSnap has already been taken by another user. Please choose a different one.',
+              'idSipatuh has already been taken by another user. Please choose a different one.',
         );
         return false;
       }
@@ -313,7 +314,7 @@ class AuthRemoteDatasource {
       await _upsertUserDocument(
         latestUser,
         displayName: normalizedName,
-        idStegoSnap: normalizedStegoId,
+        idSipatuh: normalizedStegoId,
         profileImageUrl: normalizedProfileImage,
       );
 

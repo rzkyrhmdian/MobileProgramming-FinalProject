@@ -4,7 +4,8 @@ import 'package:mobileprogramming_finalproject/data/remote/notification_datasour
 
 class FirestoreDatasource {
   final FirebaseFirestore _db = FirebaseFirestore.instance;
-  final NotificationDatasource _notificationDatasource = NotificationDatasource();
+  final NotificationDatasource _notificationDatasource =
+      NotificationDatasource();
 
   User? get _currentUser => FirebaseAuth.instance.currentUser;
 
@@ -113,7 +114,7 @@ class FirestoreDatasource {
 
     final userDoc = await _db.collection('users').doc(user.uid).get();
     final userData = userDoc.data();
-    return (userData?['idStegoSnap'] ?? '').toString().trim();
+    return (userData?['idSipatuh'] ?? '').toString().trim();
   }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> getPendingShareFiles(
