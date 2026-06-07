@@ -4,18 +4,18 @@ import 'package:mobileprogramming_finalproject/domain/repository/database_reposi
 
 class DatabaseRepositoryImpl implements DatabaseRepository {
   DatabaseRepositoryImpl({FirestoreDatasource? datasource})
-      : _datasource = datasource ?? FirestoreDatasource();
+    : _datasource = datasource ?? FirestoreDatasource();
 
   final FirestoreDatasource _datasource;
 
   @override
   Future<String> createSnap({
     required String title,
-    required String stegoImageUrl,
+    required String siPatuhImageUrl,
   }) {
     return _datasource.createSnap(
       title: title,
-      stegoImageUrl: stegoImageUrl,
+      siPatuhImageUrl: siPatuhImageUrl,
     );
   }
 
@@ -25,8 +25,8 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
   }
 
   @override
-  Future<void> deleteSnap(String stegoFilesId) {
-    return _datasource.deleteSnap(stegoFilesId);
+  Future<void> deleteSnap(String siPatuhFilesId) {
+    return _datasource.deleteSnap(siPatuhFilesId);
   }
 
   @override
@@ -45,15 +45,15 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
   }
 
   @override
-  Future<String?> getCurrentUserStegoId() {
-    return _datasource.getCurrentUserStegoId();
+  Future<String?> getCurrentUserSiPatuhId() {
+    return _datasource.getCurrentUserSiPatuhId();
   }
 
   @override
   Stream<QuerySnapshot<Map<String, dynamic>>> getPendingShareFiles(
-    String recipientStegoId,
+    String recipientSiPatuhId,
   ) {
-    return _datasource.getPendingShareFiles(recipientStegoId);
+    return _datasource.getPendingShareFiles(recipientSiPatuhId);
   }
 
   @override
@@ -65,22 +65,22 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
 
   @override
   Future<void> renameSnapById({
-    required String stegoFileId,
+    required String siPatuhFileId,
     required String newTitle,
   }) {
     return _datasource.renameSnapById(
-      stegoFileId: stegoFileId,
+      siPatuhFileId: siPatuhFileId,
       newTitle: newTitle,
     );
   }
 
   @override
   Future<void> shareSnapToUserId({
-    required String stegoFileId,
+    required String siPatuhFileId,
     required String toUserId,
   }) {
     return _datasource.shareSnapToUserId(
-      stegoFileId: stegoFileId,
+      siPatuhFileId: siPatuhFileId,
       toUserId: toUserId,
     );
   }
@@ -92,9 +92,9 @@ class DatabaseRepositoryImpl implements DatabaseRepository {
 
   @override
   Future<void> updateSnap(
-    String stegoFilesId,
+    String siPatuhFilesId,
     Map<String, dynamic> updatedData,
   ) {
-    return _datasource.updateSnap(stegoFilesId, updatedData);
+    return _datasource.updateSnap(siPatuhFilesId, updatedData);
   }
 }

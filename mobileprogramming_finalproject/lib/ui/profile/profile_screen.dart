@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:mobileprogramming_finalproject/ui/navigation/landing_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/profile/profile_viewmodel.dart';
 import 'package:mobileprogramming_finalproject/ui/profile/edit_profile_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/change_password/change_password_screen.dart';
@@ -49,7 +50,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             decoration: const BoxDecoration(
               color: Colors.white,
               image: DecorationImage(
-                image: AssetImage('assets/images/backgroundProfile.png'),
+                image: AssetImage('assets/images/backgroundGeneral.png'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -98,9 +99,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           label: const Text('Edit Profil'),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.black,
-                            side: BorderSide(color: AppColors.primary),
+                            side: BorderSide(
+                              color: AppColors.primary,
+                              width: 1.5,
+                            ),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(15),
+                            ),
+                            backgroundColor: Colors.white.withValues(
+                              alpha: 0.5,
                             ),
                           ),
                         ),
@@ -118,9 +125,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     decoration: BoxDecoration(
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(20),
+                      // border: Border.all(color: AppColors.primary),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
+                          color: Colors.black.withValues(alpha: 0.03),
                           blurRadius: 16,
                           spreadRadius: 2,
                           offset: const Offset(0, 4),
@@ -166,6 +174,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
+                        // border: Border.all(color: AppColors.primary),
                         boxShadow: [
                           BoxShadow(
                             color: Colors.black.withValues(alpha: 0.05),
@@ -184,32 +193,71 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 15),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const AboutScreen(),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      // border: Border.all(color: AppColors.primary),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          blurRadius: 16,
+                          spreadRadius: 2,
+                          offset: const Offset(0, 4),
                         ),
-                      );
-                    },
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 16,
-                            spreadRadius: 2,
-                            offset: const Offset(0, 4),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const AboutScreen(),
+                              ),
+                            );
+                          },
+                          child: _buildTile(
+                            Icons.info_outline,
+                            'Tentang Aplikasi',
                           ),
-                        ],
-                      ),
-                      child: _buildTile(Icons.info_outline, 'Tentang Aplikasi'),
+                        ),
+                        GestureDetector(
+                          onTap: () {
+                            _showLogoutDialog(context);
+                          },
+                          child: ListTile(
+                            leading: Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.red.shade50,
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: Icon(
+                                Icons.logout_rounded,
+                                color: Colors.red.shade700,
+                              ),
+                            ),
+                            title: Text(
+                              'Keluar Akun',
+                              style: TextStyle(
+                                color: Colors.red.shade700,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                            trailing: Icon(
+                              Icons.arrow_forward_ios_rounded,
+                              size: 14,
+                              color: Colors.red.shade700,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 30),
+                  const SizedBox(height: 40),
                 ],
               ),
             ),
@@ -266,6 +314,35 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Icons.arrow_forward_ios_rounded,
         size: 14,
         color: Colors.grey[400],
+      ),
+    );
+  }
+
+  void _showLogoutDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Konfirmasi Logout'),
+        content: const Text('Apakah Anda yakin ingin keluar dari akun ini?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Batal', style: TextStyle(color: Colors.grey[600])),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const LandingScreen()),
+              );
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red.shade700,
+            ),
+            child: Text('Keluar', style: TextStyle(color: Colors.white)),
+          ),
+        ],
+        backgroundColor: Colors.white,
       ),
     );
   }

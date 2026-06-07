@@ -3,23 +3,23 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 abstract class DatabaseRepository {
   Future<String> createSnap({
     required String title,
-    required String stegoImageUrl,
+    required String siPatuhImageUrl,
   });
 
   Future<void> renameSnapById({
-    required String stegoFileId,
+    required String siPatuhFileId,
     required String newTitle,
   });
 
   Future<void> shareSnapToUserId({
-    required String stegoFileId,
+    required String siPatuhFileId,
     required String toUserId,
   });
 
-  Future<String?> getCurrentUserStegoId();
+  Future<String?> getCurrentUserSiPatuhId();
 
   Stream<QuerySnapshot<Map<String, dynamic>>> getPendingShareFiles(
-    String recipientStegoId,
+    String recipientSiPatuhId,
   );
 
   Future<void> declineSharedFiles(String shareFileId);
@@ -36,10 +36,10 @@ abstract class DatabaseRepository {
 
   Future<Map<String, dynamic>?> getLatestSnapForCurrentUser();
 
-  Future<void> deleteSnap(String stegoFilesId);
+  Future<void> deleteSnap(String siPatuhFilesId);
 
   Future<void> updateSnap(
-    String stegoFilesId,
+    String siPatuhFilesId,
     Map<String, dynamic> updatedData,
   );
 }

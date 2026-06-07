@@ -51,12 +51,12 @@ class CustomTextField extends StatelessWidget {
           fontSize: fontSize,
           color: foregroundColor.withAlpha(179),
         ),
-        filled: true,
-        fillColor: backgroundColor,
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(30.0),
-          borderSide: BorderSide(color: AppColors.primary),
-        ),
+        // filled: true,
+        // fillColor: backgroundColor,
+        // border: OutlineInputBorder(
+        //   borderRadius: BorderRadius.circular(30.0),
+        //   borderSide: BorderSide(color: AppColors.primary, width: 1.5),
+        // ),
         contentPadding: const EdgeInsets.symmetric(vertical: 20.0),
       ),
     );

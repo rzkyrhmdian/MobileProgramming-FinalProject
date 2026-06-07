@@ -19,43 +19,44 @@ class FirestoreDatasource {
 
   Future<String> createSnap({
     required String title,
-    required String stegoImageUrl,
+    required String siPatuhImageUrl,
   }) async {
     final user = _currentUser;
     if (user == null) {
       throw Exception('User not logged in');
     }
 
-    final stegoFilesRef = _db.collection('stego_files').doc();
+    final siPatuhFilesRef = _db.collection('siPatuh_files').doc();
     final userRef = _db.collection('users').doc(user.uid);
 
-    await stegoFilesRef.set({
+    await siPatuhFilesRef.set({
       'ownerId': user.uid,
       'userId': user.uid,
       'ownerRef': userRef,
       'title': title.trim(),
-      'stegoImageUrl': stegoImageUrl.trim(),
+      'siPatuhImageUrl': siPatuhImageUrl.trim(),
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
 
     await _notify(
       title: 'Snap Saved',
-      body: 'Snap saved to collection stegoFiles with id: ${stegoFilesRef.id}',
+      body:
+          'Snap saved to collection siPatuhFiles with id: ${siPatuhFilesRef.id}',
     );
 
-    return stegoFilesRef.id;
+    return siPatuhFilesRef.id;
   }
 
   Future<void> renameSnapById({
-    required String stegoFileId,
+    required String siPatuhFileId,
     required String newTitle,
   }) async {
-    if (stegoFileId.trim().isEmpty) {
+    if (siPatuhFileId.trim().isEmpty) {
       throw Exception('Snap id is required');
     }
 
-    final docRef = _db.collection('stego_files').doc(stegoFileId);
+    final docRef = _db.collection('siPatuh_files').doc(siPatuhFileId);
 
     await docRef.update({
       'title': newTitle.trim(),
@@ -64,11 +65,11 @@ class FirestoreDatasource {
   }
 
   Future<void> shareSnapToUserId({
-    required String stegoFileId,
+    required String siPatuhFileId,
     required String toUserId,
   }) async {
-    if (stegoFileId.trim().isEmpty) {
-      throw Exception('Stego file id is required');
+    if (siPatuhFileId.trim().isEmpty) {
+      throw Exception('SiPatuh file id is required');
     }
 
     final targetUserId = toUserId.trim();
@@ -85,7 +86,10 @@ class FirestoreDatasource {
       throw Exception('Cannot share snap to yourself');
     }
 
-    final snapDoc = await _db.collection('stego_files').doc(stegoFileId).get();
+    final snapDoc = await _db
+        .collection('siPatuh_files')
+        .doc(siPatuhFileId)
+        .get();
     if (!snapDoc.exists) {
       throw Exception('Snap not found');
     }
@@ -97,16 +101,17 @@ class FirestoreDatasource {
     await sharedFilesRef.set({
       'toUserID': targetUserId,
       'fromUserId': sender.uid,
-      'stegoFileId': stegoFileId,
-      'stegoTitle': snapData['title'],
-      'stegoImageUrl': snapData['stegoImage'] ?? snapData['stegoImageUrl'],
+      'siPatuhFileId': siPatuhFileId,
+      'siPatuhTitle': snapData['title'],
+      'siPatuhImageUrl':
+          snapData['siPatuhImage'] ?? snapData['siPatuhImageUrl'],
       'status': 'pending',
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
   }
 
-  Future<String?> getCurrentUserStegoId() async {
+  Future<String?> getCurrentUserSiPatuhId() async {
     final user = _currentUser;
     if (user == null) {
       return null;
@@ -118,16 +123,16 @@ class FirestoreDatasource {
   }
 
   Stream<QuerySnapshot<Map<String, dynamic>>> getPendingShareFiles(
-    String recipientStegoId,
+    String recipientSiPatuhId,
   ) {
-    final normalizedRecipientStegoId = recipientStegoId.trim();
-    if (normalizedRecipientStegoId.isEmpty) {
+    final normalizedRecipientSiPatuhId = recipientSiPatuhId.trim();
+    if (normalizedRecipientSiPatuhId.isEmpty) {
       return const Stream<QuerySnapshot<Map<String, dynamic>>>.empty();
     }
 
     return _db
         .collection('shared_files')
-        .where('toUserID', isEqualTo: normalizedRecipientStegoId)
+        .where('toUserID', isEqualTo: normalizedRecipientSiPatuhId)
         .where('status', isEqualTo: 'pending')
         .snapshots();
   }
@@ -159,15 +164,15 @@ class FirestoreDatasource {
     }
 
     final shareData = shareFileDoc.data() ?? <String, dynamic>{};
-    final stegoFileId = (shareData['stegoFileId'] ?? '').toString();
-    if (stegoFileId.isEmpty) {
-      throw Exception('Stego file id is missing');
+    final siPatuhFileId = (shareData['siPatuhFileId'] ?? '').toString();
+    if (siPatuhFileId.isEmpty) {
+      throw Exception('SiPatuh file id is missing');
     }
 
-    final stegoFileRef = _db.collection('stego_files').doc(stegoFileId);
-    final stegoFileDoc = await stegoFileRef.get();
-    if (!stegoFileDoc.exists) {
-      throw Exception('Stego file not found');
+    final siPatuhFileRef = _db.collection('siPatuh_files').doc(siPatuhFileId);
+    final siPatuhFileDoc = await siPatuhFileRef.get();
+    if (!siPatuhFileDoc.exists) {
+      throw Exception('SiPatuh file not found');
     }
 
     await sharedFilesRef.update({
@@ -180,17 +185,17 @@ class FirestoreDatasource {
     Map<String, dynamic> notification,
   ) async {
     final senderId = (notification['fromUserId'] ?? '').toString();
-    final stegoFileId = (notification['stegoFileId'] ?? '').toString();
+    final siPatuhFileId = (notification['siPatuhFileId'] ?? '').toString();
 
     final senderDoc = senderId.isEmpty
         ? null
         : await _db.collection('users').doc(senderId).get();
-    final stegoDoc = stegoFileId.isEmpty
+    final siPatuhDoc = siPatuhFileId.isEmpty
         ? null
-        : await _db.collection('stego_files').doc(stegoFileId).get();
+        : await _db.collection('siPatuh_files').doc(siPatuhFileId).get();
 
     final senderData = senderDoc?.data() ?? <String, dynamic>{};
-    final stegoData = stegoDoc?.data() ?? <String, dynamic>{};
+    final siPatuhData = siPatuhDoc?.data() ?? <String, dynamic>{};
 
     final senderName = (senderData['displayName'] ?? senderId).toString();
 
@@ -198,7 +203,7 @@ class FirestoreDatasource {
       ...notification,
       'senderName': senderName.isNotEmpty ? senderName : 'Unknown User',
       'senderProfileImage': senderData['profileImage'] ?? '',
-      'stegoImage': stegoData['stegoImage'] ?? '',
+      'siPatuhImage': siPatuhData['siPatuhImage'] ?? '',
     };
   }
 
@@ -209,7 +214,7 @@ class FirestoreDatasource {
     }
 
     return _db
-        .collection('stego_files')
+        .collection('siPatuh_files')
         .where('ownerId', isEqualTo: currentUserId)
         .snapshots();
   }
@@ -233,7 +238,7 @@ class FirestoreDatasource {
       return null;
     }
 
-    final query = await _db.collection('stego_files').get();
+    final query = await _db.collection('siPatuh_files').get();
 
     for (final doc in query.docs) {
       final data = doc.data();
@@ -246,24 +251,24 @@ class FirestoreDatasource {
     return null;
   }
 
-  Future<void> deleteSnap(String stegoFilesId) async {
-    if (stegoFilesId.trim().isEmpty) {
+  Future<void> deleteSnap(String siPatuhFilesId) async {
+    if (siPatuhFilesId.trim().isEmpty) {
       throw Exception('Snap id is required');
     }
 
-    final docRef = _db.collection('stego_files').doc(stegoFilesId);
+    final docRef = _db.collection('siPatuh_files').doc(siPatuhFilesId);
     await docRef.delete();
   }
 
   Future<void> updateSnap(
-    String stegoFilesId,
+    String siPatuhFilesId,
     Map<String, dynamic> updatedData,
   ) async {
-    if (stegoFilesId.trim().isEmpty) {
+    if (siPatuhFilesId.trim().isEmpty) {
       throw Exception('Snap id is required');
     }
 
-    await _db.collection('stego_files').doc(stegoFilesId).update({
+    await _db.collection('siPatuh_files').doc(siPatuhFilesId).update({
       ...updatedData,
       'updatedAt': FieldValue.serverTimestamp(),
     });

@@ -4,27 +4,37 @@ import 'package:mobileprogramming_finalproject/ui/shared_widgets/custom_textfiel
 import 'package:mobileprogramming_finalproject/ui/shared_widgets/custom_button.dart';
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
 
-class EditProfileScreen extends StatefulWidget {
-  const EditProfileScreen({super.key});
+class EditDetailGarageScreen extends StatefulWidget {
+  final String initialPlate;
+
+  const EditDetailGarageScreen({super.key, required this.initialPlate});
 
   @override
-  State<EditProfileScreen> createState() => _EditProfileScreenState();
+  State<EditDetailGarageScreen> createState() => _EditDetailGarageScreenState();
 }
 
-class _EditProfileScreenState extends State<EditProfileScreen> {
-  final _nameController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _emailController = TextEditingController();
-  final _addressController = TextEditingController();
-  final _idSiPatuhController = TextEditingController();
+class _EditDetailGarageScreenState extends State<EditDetailGarageScreen> {
+  late TextEditingController _plateController;
+  final _brandController = TextEditingController(text: 'Honda CR-V 1.5 Turbo');
+  final _colorController = TextEditingController(
+    text: 'Obsidian Black Metallic',
+  );
+  final _stnkController = TextEditingController(text: '12 Oktober 2028');
+  final _vinController = TextEditingController(text: 'MHRRU1870JKXXXXXX');
+
+  @override
+  void initState() {
+    super.initState();
+    _plateController = TextEditingController(text: widget.initialPlate);
+  }
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _phoneController.dispose();
-    _emailController.dispose();
-    _addressController.dispose();
-    _idSiPatuhController.dispose();
+    _plateController.dispose();
+    _brandController.dispose();
+    _colorController.dispose();
+    _stnkController.dispose();
+    _vinController.dispose();
     super.dispose();
   }
 
@@ -52,7 +62,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             ),
           ),
           title: const Text(
-            'Edit Profil',
+            'Edit Data Kendaraan',
             style: TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -78,106 +88,65 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               ),
               child: Column(
                 children: [
-                  Center(
-                    child: Stack(
-                      children: [
-                        const CircleAvatar(
-                          radius: 60,
-                          backgroundImage: NetworkImage(
-                            'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=400',
-                          ),
-                        ),
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: InkWell(
-                            onTap: () {
-                              // Aksi ganti foto
-                            },
-                            child: const CircleAvatar(
-                              radius: 18,
-                              backgroundColor: Colors.black,
-                              child: Icon(
-                                Icons.camera_alt_outlined,
-                                size: 16,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 25),
                   Container(
                     padding: const EdgeInsets.all(10),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        _buildLabel('Nama Lengkap'),
+                        _buildLabel('Nomor Plat (TNKB)'),
                         CustomTextField(
-                          controller: _nameController,
-                          hint: 'Masukkan Nama Lengkap',
-                          icon: Icons.person_outline,
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black87,
-                          keyboardType: TextInputType.name,
-                          onChanged: (value) {},
-                        ),
-                        const SizedBox(height: 16),
-
-                        _buildLabel('Nomor Telepon'),
-                        CustomTextField(
-                          controller: _phoneController,
-                          hint: 'Masukkan Nomor Telepon',
-                          icon: Icons.phone_outlined,
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black87,
-                          keyboardType: TextInputType.phone,
-                          onChanged: (value) {},
-                        ),
-                        const SizedBox(height: 16),
-
-                        _buildLabel('Email'),
-                        CustomTextField(
-                          controller: _emailController,
-                          hint: 'Masukkan Email',
-                          icon: Icons.email_outlined,
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black87,
-                          keyboardType: TextInputType.emailAddress,
-                          onChanged: (value) {},
-                        ),
-                        const SizedBox(height: 16),
-
-                        _buildLabel('Alamat'),
-                        CustomTextField(
-                          controller: _addressController,
-                          hint: 'Masukkan Alamat',
-                          icon: Icons.location_on_outlined,
-                          backgroundColor: Colors.white,
-                          foregroundColor: Colors.black87,
-                          keyboardType: TextInputType.streetAddress,
-                          onChanged: (value) {},
-                        ),
-                        const SizedBox(height: 16),
-
-                        _buildLabel('ID SiPatuh'),
-                        CustomTextField(
-                          controller: _idSiPatuhController,
-                          hint: 'Masukkan ID SiPatuh',
+                          controller: _plateController,
+                          hint: 'Masukkan Nomor Plat',
                           icon: Icons.badge_outlined,
                           backgroundColor: Colors.white,
                           foregroundColor: Colors.black87,
+                          keyboardType: TextInputType.text,
+                          onChanged: (value) {},
+                        ),
+                        const SizedBox(height: 16),
+
+                        _buildLabel('Merk & Tipe Kendaraan'),
+                        CustomTextField(
+                          controller: _brandController,
+                          hint: 'Contoh: Honda CR-V 1.5 Turbo',
+                          icon: Icons.directions_car_filled_outlined,
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black87,
+                          keyboardType: TextInputType.text,
+                          onChanged: (value) {},
+                        ),
+                        const SizedBox(height: 16),
+
+                        _buildLabel('Warna Kendaraan'),
+                        CustomTextField(
+                          controller: _colorController,
+                          hint: 'Masukkan Warna Kendaraan',
+                          icon: Icons.palette_outlined,
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black87,
+                          keyboardType: TextInputType.text,
+                          onChanged: (value) {},
+                        ),
+                        const SizedBox(height: 16),
+
+                        _buildLabel('Masa Berlaku STNK'),
+                        CustomTextField(
+                          controller: _stnkController,
+                          hint: 'Masukkan Masa Berlaku STNK',
+                          icon: Icons.calendar_today_outlined,
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black87,
+                          keyboardType: TextInputType.datetime,
                           onChanged: (value) {},
                         ),
                       ],
                     ),
                   ),
                   const SizedBox(height: 30),
-
                   CustomButton(
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.pop(context);
+                    },
                     height: 65,
                     width: double.infinity,
                     borderRadius: 50.0,

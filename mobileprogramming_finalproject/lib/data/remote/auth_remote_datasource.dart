@@ -54,7 +54,10 @@ class AuthRemoteDatasource {
     await userRef.set(data, SetOptions(merge: true));
   }
 
-  Future<bool> _isStegoIdAvailable(String idSipatuh, String currentUid) async {
+  Future<bool> _isSiPatuhIdAvailable(
+    String idSipatuh,
+    String currentUid,
+  ) async {
     final normalized = idSipatuh.trim();
     if (normalized.isEmpty) {
       return false;
@@ -282,10 +285,10 @@ class AuthRemoteDatasource {
       }
 
       final normalizedName = displayName.trim();
-      final normalizedStegoId = idSipatuh.trim();
+      final normalizedSiPatuhId = idSipatuh.trim();
       final normalizedProfileImage = profileImageUrl?.trim() ?? '';
 
-      if (normalizedName.isEmpty || normalizedStegoId.isEmpty) {
+      if (normalizedName.isEmpty || normalizedSiPatuhId.isEmpty) {
         await _notify(
           title: 'Update Profile Failed',
           body:
@@ -294,8 +297,8 @@ class AuthRemoteDatasource {
         return false;
       }
 
-      final isAvailable = await _isStegoIdAvailable(
-        normalizedStegoId,
+      final isAvailable = await _isSiPatuhIdAvailable(
+        normalizedSiPatuhId,
         user.uid,
       );
       if (!isAvailable) {
@@ -314,7 +317,7 @@ class AuthRemoteDatasource {
       await _upsertUserDocument(
         latestUser,
         displayName: normalizedName,
-        idSipatuh: normalizedStegoId,
+        idSipatuh: normalizedSiPatuhId,
         profileImageUrl: normalizedProfileImage,
       );
 

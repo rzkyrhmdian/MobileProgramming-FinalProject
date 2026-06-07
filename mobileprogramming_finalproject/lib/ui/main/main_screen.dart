@@ -2,8 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mobileprogramming_finalproject/ui/scan/scan_screen.dart';
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
-// import 'package:sipatuh/ui/history/history_screen.dart';
+import 'package:mobileprogramming_finalproject/ui/garage/garage_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/profile/profile_screen.dart';
+import 'package:mobileprogramming_finalproject/ui/dashboard/dashboard_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -13,15 +14,19 @@ class MainScreen extends StatefulWidget {
 }
 
 class _MainScreenState extends State<MainScreen> {
-  // Index aktif saat ini. Default ke 1 (Tengah/Scan) atau 0 (Riwayat)
-  int _selectedIndex = 1;
+  // Index aktif saat ini. Default ke 0 (Dashboard)
+  int _selectedIndex = 0;
 
-  // Daftar halaman dari masing-masing developer
   final List<Widget> _pages = [
+    const DashboardScreen(),
     const Center(
-      child: Text('Halaman Riwayat (Orang 3)'),
-    ), // Ganti dengan HistoryScreen()
-    const ScanScreen(), // Ganti dengan ScanScreen()
+      child: Text(
+        'Halaman Laporan (orang ketiga)',
+        style: TextStyle(fontSize: 16, color: Colors.black54),
+      ),
+    ),
+    const ScanScreen(),
+    const GarageScreen(),
     const ProfileScreen(),
   ];
 
@@ -59,14 +64,24 @@ class _MainScreenState extends State<MainScreen> {
             labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
             destinations: const [
               NavigationDestination(
+                icon: Icon(Icons.dashboard_outlined),
+                selectedIcon: Icon(Icons.dashboard),
+                label: 'Dashboard',
+              ),
+              NavigationDestination(
                 icon: Icon(Icons.history_outlined),
                 selectedIcon: Icon(Icons.history),
-                label: 'Riwayat',
+                label: 'Laporan',
               ),
               NavigationDestination(
                 icon: Icon(Icons.document_scanner_outlined),
                 selectedIcon: Icon(Icons.document_scanner),
                 label: 'Scan Plat',
+              ),
+              NavigationDestination(
+                icon: Icon(Icons.directions_car_outlined),
+                selectedIcon: Icon(Icons.directions_car),
+                label: 'Garasi',
               ),
               NavigationDestination(
                 icon: Icon(Icons.person_outline),
