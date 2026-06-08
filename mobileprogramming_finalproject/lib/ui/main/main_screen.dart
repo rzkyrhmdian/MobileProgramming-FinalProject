@@ -20,7 +20,7 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _pages = [
     const DashboardScreen(),
-    const ReportHistoryScreen(), // GANTI KE HALAMAN RIWAYAT LAPORAN DI SINI
+    const ReportHistoryScreen(),
     const ScanScreen(),
     const GarageScreen(),
     const ProfileScreen(),
@@ -45,10 +45,7 @@ class _MainScreenState extends State<MainScreen> {
       ),
       child: Scaffold(
         extendBodyBehindAppBar: true,
-        body: IndexedStack(
-          index: _selectedIndex,
-          children: _pages,
-        ),
+        body: IndexedStack(index: _selectedIndex, children: _pages),
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
             boxShadow: [
