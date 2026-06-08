@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:mobileprogramming_finalproject/utils/colors.dart';
+import 'package:provider/provider.dart';
+import 'package:mobileprogramming_finalproject/ui/scan/scan_viewmodel.dart';
+import 'package:mobileprogramming_finalproject/domain/model/garage_vehicle.dart';
 import 'package:mobileprogramming_finalproject/ui/detail_garage/detail_garage_screen.dart';
+import 'package:mobileprogramming_finalproject/ui/garage/garage_viewmodel.dart';
+import 'package:mobileprogramming_finalproject/utils/colors.dart';
 
 class GarageScreen extends StatefulWidget {
   const GarageScreen({super.key});
@@ -11,169 +15,283 @@ class GarageScreen extends StatefulWidget {
 }
 
 class _GarageScreenState extends State<GarageScreen> {
+  Future<void> _showPopUpActions(
+    BuildContext context,
+    TapDownDetails details,
+    GarageVehicle vehicle,
+    GarageViewModel viewModel,
+  ) async {
+    final RenderBox overlay =
+        Overlay.of(context).context.findRenderObject() as RenderBox;
+    final RelativeRect position = RelativeRect.fromRect(
+      Rect.fromPoints(details.globalPosition, details.globalPosition),
+      Offset.zero & overlay.size,
+    );
+
+    final String? selectedAction = await showMenu<String>(
+      context: context,
+      position: position,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      color: Colors.white,
+      items: [
+        PopupMenuItem<String>(
+          value: 'edit',
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: const [
+              Icon(Icons.edit_outlined, size: 20),
+              SizedBox(width: 12),
+              Text('Edit Kendaraan', style: TextStyle(fontSize: 14)),
+            ],
+          ),
+        ),
+        PopupMenuItem<String>(
+          value: 'delete',
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Row(
+            children: const [
+              Icon(Icons.delete_outline_rounded, size: 20),
+              SizedBox(width: 12),
+              Text('Hapus Kendaraan', style: TextStyle(fontSize: 14)),
+            ],
+          ),
+        ),
+      ],
+    );
+
+    if (!context.mounted || selectedAction == null) return;
+    final isSuccess = await viewModel.handleVehicleAction(
+      actionType: selectedAction,
+      vehicle: vehicle,
+    );
+
+    if (!context.mounted) return;
+    if (isSuccess && selectedAction == 'delete') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${vehicle.brand} berhasil dihapus dari garasi.'),
+        ),
+      );
+    } else if (viewModel.error.isNotEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(viewModel.error)));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Theme(
       data: Theme.of(context).copyWith(
         textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
       ),
-      child: Scaffold(
-        extendBodyBehindAppBar: true,
-        appBar: AppBar(
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-          centerTitle: true,
-          leading: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: IconButton(
-              onPressed: () {},
-              icon: const Icon(
-                Icons.arrow_back_ios_rounded,
-                color: Colors.black,
-                size: 20,
-              ),
-            ),
-          ),
-          title: const Text(
-            'Garasi',
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-        ),
-        body: SizedBox.expand(
-          child: Container(
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              image: DecorationImage(
-                image: AssetImage('assets/images/backgroundGeneral.png'),
-                fit: BoxFit.cover,
-              ),
-            ),
-            padding: const EdgeInsets.only(top: kToolbarHeight + 20),
-            child: SingleChildScrollView(
-              physics: const ClampingScrollPhysics(),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 20.0,
-                vertical: 10.0,
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 10),
-                  const Text(
-                    'Garasi Anda',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+      child: ChangeNotifierProvider(
+        create: (_) => GarageViewModel()..loadVehicles(),
+        child: Consumer<GarageViewModel>(
+          builder: (context, viewModel, _) {
+            return Scaffold(
+              extendBodyBehindAppBar: true,
+              appBar: AppBar(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                centerTitle: true,
+                leading: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: IconButton(
+                    onPressed: () {},
+                    icon: const Icon(
+                      Icons.arrow_back_ios_rounded,
+                      color: Colors.black,
+                      size: 20,
                     ),
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    'Kelola aset kendaraan pribadi dengan aman. Pantau status pajak dan masa berlaku STNK.',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: Colors.grey[800],
-                      height: 1.4,
+                ),
+                title: const Text(
+                  'Garasi',
+                  style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ),
+              body: SizedBox.expand(
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    image: DecorationImage(
+                      image: AssetImage('assets/images/backgroundGeneral.png'),
+                      fit: BoxFit.cover,
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    height: 50,
-                    child: OutlinedButton.icon(
-                      onPressed: () {},
-                      icon: const Icon(
-                        Icons.add_circle_outline_rounded,
-                        size: 20,
-                      ),
-                      label: const Text(
-                        'Tambah Kendaraan',
-                        style: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                      style: OutlinedButton.styleFrom(
-                        foregroundColor: AppColors.primary,
-                        side: BorderSide(color: AppColors.primary, width: 1.5),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(15),
+                  padding: const EdgeInsets.only(top: kToolbarHeight + 20),
+                  child: SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20.0,
+                      vertical: 10.0,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 10),
+                        const Text(
+                          'Garasi Anda',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
                         ),
-                        backgroundColor: Colors.white.withValues(alpha: 0.5),
-                      ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Kelola aset kendaraan pribadi dengan aman. Pantau status pajak dan masa berlaku STNK.',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: Colors.grey[800],
+                            height: 1.4,
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: OutlinedButton.icon(
+                            onPressed: () => _showImageSourcePicker(context),
+                            icon: const Icon(
+                              Icons.add_circle_outline_rounded,
+                              size: 20,
+                            ),
+                            label: const Text(
+                              'Tambah Kendaraan',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.primary,
+                              side: BorderSide(
+                                color: AppColors.primary,
+                                width: 1.5,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(15),
+                              ),
+                              backgroundColor: Colors.white.withValues(
+                                alpha: 0.5,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 25),
+                        if (viewModel.isLoading && viewModel.vehicles.isEmpty)
+                          const Center(child: CircularProgressIndicator())
+                        else if (viewModel.error.isNotEmpty)
+                          _buildMessageCard(
+                            icon: Icons.error_outline_rounded,
+                            title: 'Gagal memuat data',
+                            message: viewModel.error,
+                            color: AppColors.errorRed,
+                          )
+                        else if (viewModel.vehicles.isEmpty)
+                          _buildMessageCard(
+                            icon: Icons.directions_car_outlined,
+                            title: 'Belum ada kendaraan',
+                            message:
+                                'Tambahkan kendaraan ke garasi untuk mulai memantau STNK dan status pajaknya.',
+                            color: AppColors.primary,
+                          )
+                        else
+                          ...viewModel.vehicles.expand(
+                            (vehicle) => [
+                              _buildVehicleCard(
+                                context: context,
+                                viewModel: viewModel,
+                                vehicle: vehicle,
+                              ),
+                              const SizedBox(height: 18),
+                            ],
+                          ),
+                        const SizedBox(height: 7),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 25),
-
-                  _buildVehicleCard(
-                    brand: 'Honda CR-V',
-                    type: 'SUV • Obsidian Black',
-                    plateNumber: 'B 1234 PAT',
-                    region: 'METRO JAYA',
-                    stnkExp: '12 Okt 2028',
-                    status: VehicleStatus.aman,
-                    statusText: 'Pajak Aman',
-                    badgeText: 'Aman',
-                  ),
-                  const SizedBox(height: 18),
-                  _buildVehicleCard(
-                    brand: 'Toyota Avanza',
-                    type: 'MPV • Silver Metallic',
-                    plateNumber: 'B 8899 XYZ',
-                    region: 'METRO JAYA',
-                    stnkExp: '15 Mar 2027',
-                    status: VehicleStatus.mendekati,
-                    statusText: 'Pajak Mendekati Jatuh Tempo',
-                    badgeText: '7 Hari Lagi',
-                  ),
-                  const SizedBox(height: 18),
-                  _buildVehicleCard(
-                    brand: 'Yamaha NMAX',
-                    type: 'Motorcycle • Matte Grey',
-                    plateNumber: 'B 5678 TUH',
-                    region: 'METRO JAYA',
-                    stnkExp: '20 Jan 2026',
-                    status: VehicleStatus.terlambat,
-                    statusText: 'Pajak Terlambat / Kedaluwarsa',
-                    badgeText: 'Terlambat',
-                  ),
-                  const SizedBox(height: 25),
-                ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
         ),
       ),
     );
   }
 
+  Widget _buildMessageCard({
+    required IconData icon,
+    required String title,
+    required String message,
+    required Color color,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.92),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: color.withValues(alpha: 0.15)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  message,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[800],
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildVehicleCard({
-    required String brand,
-    required String type,
-    required String plateNumber,
-    required String stnkExp,
-    required String region,
-    required VehicleStatus status,
-    required String statusText,
-    required String badgeText,
+    required BuildContext context,
+    required GarageViewModel viewModel,
+    required GarageVehicle vehicle,
   }) {
     Color statusColor;
     Color statusBg;
     IconData statusIcon;
 
-    switch (status) {
-      case VehicleStatus.aman:
+    switch (vehicle.status) {
+      case GarageVehicleStatus.aman:
         statusColor = AppColors.success;
         statusBg = AppColors.bgSuccess;
         statusIcon = Icons.check_circle_outline_rounded;
         break;
-      case VehicleStatus.mendekati:
+      case GarageVehicleStatus.mendekati:
         statusColor = AppColors.warning;
         statusBg = AppColors.bgWarning;
         statusIcon = Icons.warning_amber_rounded;
         break;
-      case VehicleStatus.terlambat:
+      case GarageVehicleStatus.terlambat:
         statusColor = AppColors.errorRed;
         statusBg = AppColors.bgErrorRed;
         statusIcon = Icons.error_outline_rounded;
@@ -184,7 +302,8 @@ class _GarageScreenState extends State<GarageScreen> {
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => DetailGarageScreen(plateNumber: plateNumber),
+          builder: (context) =>
+              DetailGarageScreen(plateNumber: vehicle.plateNumber),
         ),
       ),
       child: Container(
@@ -204,7 +323,6 @@ class _GarageScreenState extends State<GarageScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Row Atas: Nama Kendaraan & Icon Aksi Menu
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -212,7 +330,7 @@ class _GarageScreenState extends State<GarageScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      brand,
+                      vehicle.brand,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -221,14 +339,15 @@ class _GarageScreenState extends State<GarageScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      type,
+                      vehicle.type,
                       style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                   ],
                 ),
                 GestureDetector(
-                  onTapDown: (details) => _showPopUpActions(context, details),
-                  child: Icon(Icons.more_vert, color: Colors.grey),
+                  onTapDown: (details) =>
+                      _showPopUpActions(context, details, vehicle, viewModel),
+                  child: const Icon(Icons.more_vert, color: Colors.grey),
                 ),
               ],
             ),
@@ -242,7 +361,7 @@ class _GarageScreenState extends State<GarageScreen> {
               ),
               child: Center(
                 child: Text(
-                  plateNumber,
+                  vehicle.plateNumber,
                   style: GoogleFonts.jetBrainsMono(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
@@ -265,7 +384,7 @@ class _GarageScreenState extends State<GarageScreen> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      statusText,
+                      vehicle.statusText,
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
@@ -283,7 +402,7 @@ class _GarageScreenState extends State<GarageScreen> {
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      badgeText,
+                      vehicle.badgeText,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 10,
@@ -312,7 +431,7 @@ class _GarageScreenState extends State<GarageScreen> {
                 ),
                 const Spacer(),
                 Text(
-                  stnkExp,
+                  vehicle.stnkExpiration,
                   style: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -327,52 +446,110 @@ class _GarageScreenState extends State<GarageScreen> {
     );
   }
 
-  void _showPopUpActions(BuildContext context, TapDownDetails details) {
-    final RenderBox overlay =
-        Overlay.of(context).context.findRenderObject() as RenderBox;
-    final RelativeRect position = RelativeRect.fromRect(
-      Rect.fromPoints(details.globalPosition, details.globalPosition),
-      Offset.zero & overlay.size,
-    );
-
-    showMenu<String>(
+  void _showImageSourcePicker(BuildContext context) {
+    showModalBottomSheet(
       context: context,
-      position: position, // Posisi menu melayang muncul
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      color: Colors.white,
-      items: [
-        PopupMenuItem<String>(
-          value: 'edit',
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext bc) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(28),
+              topRight: Radius.circular(28),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Icon(Icons.edit_outlined, size: 20),
-              const SizedBox(width: 12),
-              const Text('Edit Kendaraan', style: TextStyle(fontSize: 14)),
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey.shade300,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 32),
+              const Text(
+                'Pilih Foto Kendaraan',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'Gunakan foto yang memperlihatkan plat nomor dengan jelas untuk verifikasi AI.',
+                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: _buildPickerActionButton(
+                      icon: Icons.camera_enhance_rounded,
+                      label: 'Kamera',
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildPickerActionButton(
+                      icon: Icons.photo_library_rounded,
+                      label: 'Galeri',
+                      onTap: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 32),
             ],
           ),
+        );
+      },
+    );
+  }
+
+  Widget _buildPickerActionButton({
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(20),
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.grey.shade200),
         ),
-        PopupMenuItem<String>(
-          value: 'delete',
-          padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: Row(
-            children: [
-              const Icon(Icons.delete_outline_rounded, size: 20),
-              const SizedBox(width: 12),
-              const Text('Hapus Kendaraan', style: TextStyle(fontSize: 14)),
-            ],
-          ),
+        child: Column(
+          children: [
+            Icon(icon, color: AppColors.primary, size: 28),
+            const SizedBox(height: 8),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+          ],
         ),
-      ],
-    ).then((String? value) {
-      if (value == 'edit') {
-        // Logika edit kendaraan kamu di sini
-      } else if (value == 'delete') {
-        // Logika hapus kendaraan kamu di sini
-      }
-    });
+      ),
+    );
   }
 }
-
-// Enum untuk mempermudah pengaturan status visual
-enum VehicleStatus { aman, mendekati, terlambat }

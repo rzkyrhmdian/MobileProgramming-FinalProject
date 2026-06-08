@@ -41,6 +41,11 @@ class _MainScreenState extends State<MainScreen> {
     return Theme(
       data: Theme.of(context).copyWith(
         textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
+        navigationBarTheme: NavigationBarThemeData(
+          indicatorShape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(8),
+          ),
+        ),
       ),
       child: Scaffold(
         backgroundColor: Colors.white,
@@ -60,32 +65,32 @@ class _MainScreenState extends State<MainScreen> {
             selectedIndex: _selectedIndex,
             onDestinationSelected: _onDestinationSelected,
             backgroundColor: Colors.white,
-            indicatorColor: AppColors.secondary.withValues(alpha: 0.16),
+            indicatorColor: AppColors.accent,
             labelBehavior: NavigationDestinationLabelBehavior.onlyShowSelected,
             destinations: const [
               NavigationDestination(
                 icon: Icon(Icons.dashboard_outlined),
-                selectedIcon: Icon(Icons.dashboard),
+                selectedIcon: Icon(Icons.dashboard, color: Colors.white),
                 label: 'Dashboard',
               ),
               NavigationDestination(
                 icon: Icon(Icons.history_outlined),
-                selectedIcon: Icon(Icons.history),
+                selectedIcon: Icon(Icons.history, color: Colors.white),
                 label: 'Laporan',
               ),
               NavigationDestination(
                 icon: Icon(Icons.document_scanner_outlined),
-                selectedIcon: Icon(Icons.document_scanner),
+                selectedIcon: Icon(Icons.document_scanner, color: Colors.white),
                 label: 'Scan Plat',
               ),
               NavigationDestination(
                 icon: Icon(Icons.directions_car_outlined),
-                selectedIcon: Icon(Icons.directions_car),
+                selectedIcon: Icon(Icons.directions_car, color: Colors.white),
                 label: 'Garasi',
               ),
               NavigationDestination(
                 icon: Icon(Icons.person_outline),
-                selectedIcon: Icon(Icons.person),
+                selectedIcon: Icon(Icons.person, color: Colors.white),
                 label: 'Profil',
               ),
             ],

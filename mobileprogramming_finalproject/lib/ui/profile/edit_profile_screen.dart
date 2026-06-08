@@ -32,46 +32,27 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     super.dispose();
   }
 
-  Future<void> _saveProfile(BuildContext context) async {
-    final displayName = _nameController.text.trim();
-    final idSipatuh = _idSiPatuhController.text.trim();
-
-    if (displayName.isEmpty || idSipatuh.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nama dan ID SiPatuh harus diisi')),
-      );
-      return;
-    }
-
+  Future<void> _handleSave(BuildContext context) async {
     final profileVm = Provider.of<ProfileViewModel>(context, listen: false);
-    final success = await profileVm.updateUserProfile(
-      displayName: displayName,
-      idSipatuh: idSipatuh,
-      phoneNumber: _phoneController.text.trim().isEmpty
-          ? null
-          : _phoneController.text.trim(),
-      address: _addressController.text.trim().isEmpty
-          ? null
-          : _addressController.text.trim(),
-      profileImageUrl: _uploadedProfileImageUrl,
+
+    final isSuccess = await profileVm.saveFormProfile(
+      name: _nameController.text,
+      idSipatuh: _idSiPatuhController.text,
+      phone: _phoneController.text,
+      address: _addressController.text,
+      temporaryUploadedUrl: _uploadedProfileImageUrl,
     );
 
     if (!context.mounted) return;
-    if (success) {
+    if (isSuccess) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Profil berhasil diperbarui')),
       );
       Navigator.pop(context);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            profileVm.error.isNotEmpty
-                ? profileVm.error
-                : 'Gagal memperbarui profil',
-          ),
-        ),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(profileVm.error)));
     }
   }
 
@@ -278,7 +259,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               child: Center(child: CircularProgressIndicator()),
                             )
                           : CustomButton(
-                              onTap: () => _saveProfile(context),
+                              onTap: () => _handleSave(context),
                               height: 65,
                               width: double.infinity,
                               borderRadius: 50.0,

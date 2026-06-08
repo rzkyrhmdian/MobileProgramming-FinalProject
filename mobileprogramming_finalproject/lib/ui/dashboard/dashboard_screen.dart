@@ -15,9 +15,9 @@ class DashboardScreen extends StatefulWidget {
 class _DashboardScreenState extends State<DashboardScreen> {
   String _getGreeting() {
     final hour = DateTime.now().hour;
-    if (hour < 12) return 'Selamat Pagi,';
-    if (hour < 17) return 'Selamat Siang,';
-    return 'Selamat Malam,';
+    if (hour < 12) return 'Pagi,';
+    if (hour < 17) return 'Siang,';
+    return 'Malam,';
   }
 
   @override
@@ -81,21 +81,38 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(
-                                  _getGreeting(),
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    color: Colors.grey.shade600,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                Row(
+                                  children: [
+                                    Text(
+                                      _getGreeting(),
+                                      style: TextStyle(
+                                        fontSize: 24,
+                                        color: AppColors.primary,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: -0.5,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 4),
+                                    const Text(
+                                      'Alex Gilles!',
+                                      style: TextStyle(
+                                        fontSize: 24,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.primary,
+                                        letterSpacing: -0.5,
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                                const Text(
-                                  'Alex Gilles',
+                                const SizedBox(height: 4),
+                                Text(
+                                  'Adakah yang bisa dilaporkan hari ini?',
                                   style: TextStyle(
-                                    fontSize: 24,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black87,
-                                    letterSpacing: -0.5,
+                                    fontSize: 12,
+                                    color: AppColors.primary.withValues(
+                                      alpha: 0.8,
+                                    ),
+                                    fontWeight: FontWeight.w400,
                                   ),
                                 ),
                               ],

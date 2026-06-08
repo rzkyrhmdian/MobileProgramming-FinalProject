@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mobileprogramming_finalproject/domain/model/user_info.dart';
 import 'package:mobileprogramming_finalproject/data/repository/auth_repository_impl.dart';
 import 'package:mobileprogramming_finalproject/domain/repository/auth_repository.dart';
@@ -15,6 +16,7 @@ class ProfileViewModel extends ChangeNotifier {
 
   final AuthRepository _authRepository;
   final ProfileRepository _profileRepository;
+  final ImagePicker _imagePicker = ImagePicker();
 
   UserInfo? userInfo;
   bool isLoading = false;
@@ -95,6 +97,27 @@ class ProfileViewModel extends ChangeNotifier {
     }
   }
 
+  Future<File> pickImageFromGallery() async {
+    try {
+      final XFile? xFile = await _imagePicker.pickImage(
+        source: ImageSource.gallery,
+        imageQuality: 85,
+        maxWidth: 1920,
+        maxHeight: 1080,
+      );
+      if (xFile == null) {
+        throw StateError('No image selected.');
+      }
+      return File(xFile.path);
+    } catch (e) {
+      error = 'Failed to pick image from gallery.';
+      debugPrint('=== DETAIL ERROR PICK IMAGE ===');
+      debugPrint(e.toString());
+      debugPrint('================================');
+      rethrow;
+    }
+  }
+
   Future<String> pickAndUploadImage() async {
     final currentUser = userInfo;
     final userId = currentUser?.uid ?? '';
@@ -106,7 +129,7 @@ class ProfileViewModel extends ChangeNotifier {
     }
 
     try {
-      final newImageFile = await _profileRepository.pickImageFromGallery();
+      final newImageFile = await pickImageFromGallery();
       final newImageUrl = await updatePhoto(newImageFile, userId);
       await _authRepository.updateUserProfile(
         displayName: currentUser.displayName,
@@ -126,5 +149,29 @@ class ProfileViewModel extends ChangeNotifier {
       notifyListeners();
       rethrow;
     }
+  }
+
+  Future<bool> saveFormProfile({
+    required String name,
+    required String idSipatuh,
+    required String phone,
+    required String address,
+    String? temporaryUploadedUrl,
+  }) async {
+    if (name.trim().isEmpty || idSipatuh.trim().isEmpty) {
+      error = 'Nama dan ID SiPatuh harus diisi';
+      notifyListeners();
+      return false;
+    }
+
+    final success = await updateUserProfile(
+      displayName: name.trim(),
+      idSipatuh: idSipatuh.trim(),
+      phoneNumber: phone.trim().isEmpty ? null : phone.trim(),
+      address: address.trim().isEmpty ? null : address.trim(),
+      profileImageUrl: temporaryUploadedUrl ?? userInfo?.profileImage,
+    );
+
+    return success;
   }
 }
