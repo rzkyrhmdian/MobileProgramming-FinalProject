@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:mobileprogramming_finalproject/ui/scan/scan_viewmodel.dart';
+import 'package:mobileprogramming_finalproject/ui/main/main_screen.dart';
 import 'package:mobileprogramming_finalproject/domain/model/garage_vehicle.dart';
 import 'package:mobileprogramming_finalproject/ui/detail_garage/detail_garage_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/garage/garage_viewmodel.dart';
@@ -98,7 +98,12 @@ class _GarageScreenState extends State<GarageScreen> {
                 leading: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: IconButton(
-                    onPressed: () {},
+                    onPressed: () => Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const MainScreen(),
+                      ),
+                    ),
                     icon: const Icon(
                       Icons.arrow_back_ios_rounded,
                       color: Colors.black,
