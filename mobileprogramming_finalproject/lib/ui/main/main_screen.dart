@@ -5,6 +5,7 @@ import 'package:mobileprogramming_finalproject/utils/colors.dart';
 import 'package:mobileprogramming_finalproject/ui/garage/garage_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/profile/profile_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/dashboard/dashboard_screen.dart';
+import 'package:mobileprogramming_finalproject/ui/report/report_history_screen.dart'; // Diubah ke History Screen
 
 class MainScreen extends StatefulWidget {
   const MainScreen({super.key});
@@ -19,12 +20,7 @@ class _MainScreenState extends State<MainScreen> {
 
   final List<Widget> _pages = [
     const DashboardScreen(),
-    const Center(
-      child: Text(
-        'Halaman Laporan (orang ketiga)',
-        style: TextStyle(fontSize: 16, color: Colors.black54),
-      ),
-    ),
+    const ReportHistoryScreen(), // GANTI KE HALAMAN RIWAYAT LAPORAN DI SINI
     const ScanScreen(),
     const GarageScreen(),
     const ProfileScreen(),
@@ -48,16 +44,18 @@ class _MainScreenState extends State<MainScreen> {
         ),
       ),
       child: Scaffold(
-        backgroundColor: Colors.white,
-        body: IndexedStack(index: _selectedIndex, children: _pages),
+        extendBodyBehindAppBar: true,
+        body: IndexedStack(
+          index: _selectedIndex,
+          children: _pages,
+        ),
         bottomNavigationBar: Container(
           decoration: BoxDecoration(
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 25,
-                spreadRadius: 1,
-                offset: const Offset(0, 0),
+                blurRadius: 20,
+                offset: const Offset(0, -4),
               ),
             ],
           ),
