@@ -25,6 +25,8 @@ class AuthRemoteDatasource {
     String? displayName,
     String? idSipatuh,
     String? profileImageUrl,
+    String? phoneNumber,
+    String? address,
     bool isNewUser = false,
   }) async {
     final userRef = _firestore.collection('users').doc(user.uid);
@@ -32,15 +34,19 @@ class AuthRemoteDatasource {
     final data = <String, dynamic>{
       'uid': user.uid,
       'email': user.email,
-      'displayName': displayName ?? user.displayName,
       'updatedAt': FieldValue.serverTimestamp(),
       'lastLoginAt': FieldValue.serverTimestamp(),
     };
 
     if (isNewUser) {
       data['createdAt'] = FieldValue.serverTimestamp();
+      data['displayName'] = displayName ?? user.displayName ?? '';
       data['idSipatuh'] = '';
       data['profileImage'] = '';
+      data['phoneNumber'] = '';
+      data['address'] = '';
+    } else if (displayName != null) {
+      data['displayName'] = displayName.trim();
     }
 
     if (idSipatuh != null) {
@@ -51,6 +57,13 @@ class AuthRemoteDatasource {
       data['profileImage'] = profileImageUrl.trim();
     }
 
+    if (phoneNumber != null) {
+      data['phoneNumber'] = phoneNumber.trim();
+    }
+
+    if (address != null) {
+      data['address'] = address.trim();
+    }
     await userRef.set(data, SetOptions(merge: true));
   }
 
@@ -88,7 +101,10 @@ class AuthRemoteDatasource {
 
       if (result.user != null) {
         try {
-          await _upsertUserDocument(result.user!);
+          await _upsertUserDocument(
+            result.user!,
+            displayName: result.user!.displayName,
+          );
         } on MissingPluginException catch (e) {
           await _notify(
             title: 'Login Warning',
@@ -115,6 +131,8 @@ class AuthRemoteDatasource {
               'displayName': result.user!.displayName ?? '',
               'idSipatuh': '',
               'profileImage': '',
+              'phoneNumber': '',
+              'address': '',
             }, uid: result.user!.uid);
     } on FirebaseAuthException catch (e) {
       await _notify(
@@ -186,6 +204,8 @@ class AuthRemoteDatasource {
         displayName: user.displayName ?? fullName,
         idSipatuh: '',
         profileImage: '',
+        phoneNumber: '',
+        address: '',
       );
     } on FirebaseAuthException catch (e) {
       await _notify(
@@ -266,6 +286,10 @@ class AuthRemoteDatasource {
       'uid': user.uid,
       'email': user.email ?? userData['email'] ?? '',
       'displayName': user.displayName ?? userData['displayName'] ?? '',
+      'idSipatuh': userData['idSipatuh'] ?? '',
+      'profileImage': userData['profileImage'] ?? '',
+      'phoneNumber': userData['phoneNumber'] ?? '',
+      'address': userData['address'] ?? '',
     }, uid: user.uid);
   }
 
@@ -273,6 +297,8 @@ class AuthRemoteDatasource {
     required String displayName,
     required String idSipatuh,
     String? profileImageUrl,
+    String? phoneNumber,
+    String? address,
   }) async {
     try {
       final user = _firebaseAuth.currentUser;
@@ -286,7 +312,7 @@ class AuthRemoteDatasource {
 
       final normalizedName = displayName.trim();
       final normalizedSiPatuhId = idSipatuh.trim();
-      final normalizedProfileImage = profileImageUrl?.trim() ?? '';
+      final normalizedProfileImage = profileImageUrl?.trim();
 
       if (normalizedName.isEmpty || normalizedSiPatuhId.isEmpty) {
         await _notify(
@@ -319,6 +345,8 @@ class AuthRemoteDatasource {
         displayName: normalizedName,
         idSipatuh: normalizedSiPatuhId,
         profileImageUrl: normalizedProfileImage,
+        phoneNumber: phoneNumber,
+        address: address,
       );
 
       await _notify(

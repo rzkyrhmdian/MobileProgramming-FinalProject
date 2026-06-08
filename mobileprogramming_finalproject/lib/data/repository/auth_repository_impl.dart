@@ -4,7 +4,7 @@ import 'package:mobileprogramming_finalproject/domain/repository/auth_repository
 
 class AuthRepositoryImpl implements AuthRepository {
   AuthRepositoryImpl({AuthRemoteDatasource? remoteDatasource})
-      : _remoteDatasource = remoteDatasource ?? AuthRemoteDatasource();
+    : _remoteDatasource = remoteDatasource ?? AuthRemoteDatasource();
 
   final AuthRemoteDatasource _remoteDatasource;
 
@@ -52,5 +52,22 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<UserInfo?> getCurrentUser() async {
     final user = await _remoteDatasource.getCurrentUser();
     return user?.toEntity();
+  }
+
+  @override
+  Future<bool> updateUserProfile({
+    required String displayName,
+    required String idSipatuh,
+    String? phoneNumber,
+    String? address,
+    String? profileImageUrl,
+  }) {
+    return _remoteDatasource.updateUserProfile(
+      displayName: displayName,
+      idSipatuh: idSipatuh,
+      phoneNumber: phoneNumber,
+      address: address,
+      profileImageUrl: profileImageUrl,
+    );
   }
 }

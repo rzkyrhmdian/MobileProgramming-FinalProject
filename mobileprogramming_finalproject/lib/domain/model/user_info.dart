@@ -4,6 +4,8 @@ class UserInfo {
   final String displayName;
   final String idSipatuh;
   final String profileImage;
+  final String phoneNumber;
+  final String address;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final DateTime? lastLoginAt;
@@ -14,6 +16,8 @@ class UserInfo {
     required this.displayName,
     required this.idSipatuh,
     required this.profileImage,
+    this.phoneNumber = '',
+    this.address = '',
     this.createdAt,
     this.updatedAt,
     this.lastLoginAt,
@@ -26,6 +30,8 @@ class UserInfo {
       displayName: (map['displayName'] ?? '').toString(),
       idSipatuh: (map['idSipatuh'] ?? '').toString(),
       profileImage: (map['profileImage'] ?? '').toString(),
+      phoneNumber: (map['phoneNumber'] ?? '').toString(),
+      address: (map['address'] ?? '').toString(),
       createdAt: _toDateTime(map['createdAt']),
       updatedAt: _toDateTime(map['updatedAt']),
       lastLoginAt: _toDateTime(map['lastLoginAt']),
@@ -42,6 +48,8 @@ class UserInfo {
       'createdAt': createdAt,
       'updatedAt': updatedAt,
       'lastLoginAt': lastLoginAt,
+      'phoneNumber': phoneNumber,
+      'address': address,
     };
   }
 

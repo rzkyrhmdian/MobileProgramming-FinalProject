@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:mobileprogramming_finalproject/ui/scan/scan_viewmodel.dart';
 import 'package:mobileprogramming_finalproject/domain/model/plate_info.dart';
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
@@ -9,9 +10,14 @@ class ScanScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => ScanViewModel(),
-      child: const _ScanScreenContent(),
+    return Theme(
+      data: Theme.of(context).copyWith(
+        textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
+      ),
+      child: ChangeNotifierProvider(
+        create: (_) => ScanViewModel(),
+        child: const _ScanScreenContent(),
+      ),
     );
   }
 }
@@ -28,7 +34,10 @@ class _ScanScreenContent extends StatelessWidget {
         elevation: 0,
         leading: Navigator.canPop(context)
             ? IconButton(
-                icon: const Icon(Icons.arrow_back_ios, color: AppColors.primary),
+                icon: const Icon(
+                  Icons.arrow_back_ios,
+                  color: AppColors.primary,
+                ),
                 onPressed: () => Navigator.pop(context),
               )
             : null,
@@ -72,7 +81,9 @@ class _ScanScreenContent extends StatelessWidget {
 
                   // Error Message
                   if (viewModel.state == ScanState.error)
-                    _buildErrorCard(viewModel.errorMessage ?? 'Terjadi kesalahan'),
+                    _buildErrorCard(
+                      viewModel.errorMessage ?? 'Terjadi kesalahan',
+                    ),
 
                   // Reset Button
                   if (viewModel.state == ScanState.success ||
@@ -126,14 +137,9 @@ class _ScanScreenContent extends StatelessWidget {
             ? Stack(
                 fit: StackFit.expand,
                 children: [
-                  Image.file(
-                    viewModel.capturedImage!,
-                    fit: BoxFit.cover,
-                  ),
+                  Image.file(viewModel.capturedImage!, fit: BoxFit.cover),
                   // Overlay kotak pembidik
-                  CustomPaint(
-                    painter: _PlateOverlayPainter(),
-                  ),
+                  CustomPaint(painter: _PlateOverlayPainter()),
                 ],
               )
             : Center(
@@ -236,10 +242,7 @@ class _ScanScreenContent extends StatelessWidget {
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
         gradient: LinearGradient(
-          colors: [
-            AppColors.background,
-            AppColors.surface,
-          ],
+          colors: [AppColors.background, AppColors.surface],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
@@ -444,7 +447,9 @@ class _ResultRow extends StatelessWidget {
               Text(
                 value,
                 style: TextStyle(
-                  color: isDetected ? AppColors.textPrimary : AppColors.textSecondary,
+                  color: isDetected
+                      ? AppColors.textPrimary
+                      : AppColors.textSecondary,
                   fontSize: isDetected ? 18 : 14,
                   fontWeight: isDetected ? FontWeight.w700 : FontWeight.w400,
                   fontFamily: 'Poppins',
@@ -498,20 +503,52 @@ class _PlateOverlayPainter extends CustomPainter {
     const double r = 12; // radius
 
     // Top-left corner
-    canvas.drawLine(Offset(left, top + r + cornerLength), Offset(left, top + r), cornerPaint);
-    canvas.drawLine(Offset(left + r, top), Offset(left + r + cornerLength, top), cornerPaint);
+    canvas.drawLine(
+      Offset(left, top + r + cornerLength),
+      Offset(left, top + r),
+      cornerPaint,
+    );
+    canvas.drawLine(
+      Offset(left + r, top),
+      Offset(left + r + cornerLength, top),
+      cornerPaint,
+    );
 
     // Top-right corner
-    canvas.drawLine(Offset(right, top + r + cornerLength), Offset(right, top + r), cornerPaint);
-    canvas.drawLine(Offset(right - r, top), Offset(right - r - cornerLength, top), cornerPaint);
+    canvas.drawLine(
+      Offset(right, top + r + cornerLength),
+      Offset(right, top + r),
+      cornerPaint,
+    );
+    canvas.drawLine(
+      Offset(right - r, top),
+      Offset(right - r - cornerLength, top),
+      cornerPaint,
+    );
 
     // Bottom-left corner
-    canvas.drawLine(Offset(left, bottom - r - cornerLength), Offset(left, bottom - r), cornerPaint);
-    canvas.drawLine(Offset(left + r, bottom), Offset(left + r + cornerLength, bottom), cornerPaint);
+    canvas.drawLine(
+      Offset(left, bottom - r - cornerLength),
+      Offset(left, bottom - r),
+      cornerPaint,
+    );
+    canvas.drawLine(
+      Offset(left + r, bottom),
+      Offset(left + r + cornerLength, bottom),
+      cornerPaint,
+    );
 
     // Bottom-right corner
-    canvas.drawLine(Offset(right, bottom - r - cornerLength), Offset(right, bottom - r), cornerPaint);
-    canvas.drawLine(Offset(right - r, bottom), Offset(right - r - cornerLength, bottom), cornerPaint);
+    canvas.drawLine(
+      Offset(right, bottom - r - cornerLength),
+      Offset(right, bottom - r),
+      cornerPaint,
+    );
+    canvas.drawLine(
+      Offset(right - r, bottom),
+      Offset(right - r - cornerLength, bottom),
+      cornerPaint,
+    );
   }
 
   @override
