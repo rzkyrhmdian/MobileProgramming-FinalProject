@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:mobileprogramming_finalproject/domain/model/garage_vehicle.dart';
 
 abstract class GarageRepository {
@@ -6,4 +7,6 @@ abstract class GarageRepository {
   Future<GarageVehicle?> getVehicleByPlate(String plateNumber);
 
   Future<bool> deleteVehicle(String plateNumber);
+
+  Future<bool> addVehicle(GarageVehicle vehicle, {File? imageFile});
 }

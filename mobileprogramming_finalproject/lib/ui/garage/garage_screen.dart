@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:mobileprogramming_finalproject/ui/scan/scan_viewmodel.dart';
 import 'package:mobileprogramming_finalproject/domain/model/garage_vehicle.dart';
 import 'package:mobileprogramming_finalproject/ui/detail_garage/detail_garage_screen.dart';
+import 'package:mobileprogramming_finalproject/ui/garage/add_garage_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/garage/garage_viewmodel.dart';
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
 
@@ -157,7 +157,17 @@ class _GarageScreenState extends State<GarageScreen> {
                           width: double.infinity,
                           height: 50,
                           child: OutlinedButton.icon(
-                            onPressed: () => _showImageSourcePicker(context),
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const AddGarageScreen(),
+                                ),
+                              ).then((_) {
+                                // Refresh vehicles after adding
+                                context.read<GarageViewModel>().loadVehicles();
+                              });
+                            },
                             icon: const Icon(
                               Icons.add_circle_outline_rounded,
                               size: 20,
@@ -445,7 +455,7 @@ class _GarageScreenState extends State<GarageScreen> {
       ),
     );
   }
-
+//unused
   void _showImageSourcePicker(BuildContext context) {
     showModalBottomSheet(
       context: context,

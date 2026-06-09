@@ -14,6 +14,8 @@ class CustomTextField extends StatelessWidget {
   final double? fontSize;
   final Color backgroundColor;
   final Color foregroundColor;
+  final bool readOnly;
+  final VoidCallback? onTap;
 
   const CustomTextField({
     super.key,
@@ -28,6 +30,8 @@ class CustomTextField extends StatelessWidget {
     this.fontSize = 14,
     this.backgroundColor = Colors.white,
     this.foregroundColor = AppColors.primary,
+    this.readOnly = false,
+    this.onTap,
   });
 
   @override
@@ -38,6 +42,8 @@ class CustomTextField extends StatelessWidget {
       validator: validator,
       obscureText: obscureText,
       keyboardType: keyboardType,
+      readOnly: readOnly,
+      onTap: onTap,
       style: GoogleFonts.poppins(fontSize: fontSize, color: foregroundColor),
       decoration: InputDecoration(
         prefixIcon: Padding(

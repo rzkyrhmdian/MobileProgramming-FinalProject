@@ -48,6 +48,23 @@ class FirestoreDatasource {
     return siPatuhFilesRef.id;
   }
 
+  Future<void> addGarageVehicle(Map<String, dynamic> vehicleData) async {
+    final user = _currentUser;
+    if (user == null) throw Exception('User not logged in');
+
+    final vehicleRef = _db.collection('vehicles').doc(vehicleData['id']);
+    
+    // override ownerId to ensure it matches current user
+    final dataToSave = {
+      ...vehicleData,
+      'ownerId': user.uid,
+      'createdAt': FieldValue.serverTimestamp(),
+      'updatedAt': FieldValue.serverTimestamp(),
+    };
+
+    await vehicleRef.set(dataToSave);
+  }
+
   Future<void> renameSnapById({
     required String siPatuhFileId,
     required String newTitle,

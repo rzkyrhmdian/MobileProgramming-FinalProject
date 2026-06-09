@@ -53,6 +53,11 @@ class GarageLocalDataSource {
     return List<GarageVehicle>.unmodifiable(_vehicles);
   }
 
+  Future<bool> addVehicle(GarageVehicle vehicle) async {
+    _vehicles.add(vehicle);
+    return true;
+  }
+
   Future<GarageVehicle?> getVehicleByPlate(String plateNumber) async {
     final normalizedPlate = plateNumber.trim().toUpperCase();
     for (final vehicle in _vehicles) {
