@@ -6,7 +6,8 @@ import 'package:mobileprogramming_finalproject/ui/detail_garage/detail_garage_sc
 import 'package:mobileprogramming_finalproject/ui/garage/add_garage_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/garage/garage_viewmodel.dart';
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
-
+import 'package:mobileprogramming_finalproject/ui/main/main_screen.dart';
+  
 class GarageScreen extends StatefulWidget {
   const GarageScreen({super.key});
 
@@ -98,7 +99,12 @@ class _GarageScreenState extends State<GarageScreen> {
                 leading: Padding(
                   padding: const EdgeInsets.all(8.0),
                   child: IconButton(
-                    onPressed: () {},
+                    onPressed: () => Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const MainScreen(),
+                      ),
+                    ),
                     icon: const Icon(
                       Icons.arrow_back_ios_rounded,
                       color: Colors.black,

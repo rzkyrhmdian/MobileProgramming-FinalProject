@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:mobileprogramming_finalproject/ui/scan/scan_screen.dart';
+// import 'package:mobileprogramming_finalproject/ui/scan/scan_screen.dart';
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
 import 'package:mobileprogramming_finalproject/ui/garage/garage_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/profile/profile_screen.dart';
@@ -21,7 +21,6 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _pages = [
     const DashboardScreen(),
     const ReportHistoryScreen(),
-    const ScanScreen(),
     const GarageScreen(),
     const ProfileScreen(),
   ];
@@ -72,11 +71,6 @@ class _MainScreenState extends State<MainScreen> {
                 icon: Icon(Icons.history_outlined),
                 selectedIcon: Icon(Icons.history, color: Colors.white),
                 label: 'Laporan',
-              ),
-              NavigationDestination(
-                icon: Icon(Icons.document_scanner_outlined),
-                selectedIcon: Icon(Icons.document_scanner, color: Colors.white),
-                label: 'Scan Plat',
               ),
               NavigationDestination(
                 icon: Icon(Icons.directions_car_outlined),

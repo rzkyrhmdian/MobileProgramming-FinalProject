@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
+import 'package:mobileprogramming_finalproject/ui/main/main_screen.dart';
 import 'package:mobileprogramming_finalproject/data/repository/report_repository_impl.dart';
 import 'package:mobileprogramming_finalproject/domain/model/report_info.dart';
 import 'package:mobileprogramming_finalproject/ui/report/report_screen.dart';
@@ -38,7 +38,10 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
           leading: Padding(
             padding: const EdgeInsets.all(8.0),
             child: IconButton(
-              onPressed: () => Navigator.maybePop(context),
+              onPressed: () => Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const MainScreen()),
+              ),
               icon: const Icon(
                 Icons.arrow_back_ios_rounded,
                 color: Colors.black,
