@@ -131,7 +131,7 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
+                            color: Colors.black.withOpacity(0.04),
                             blurRadius: 16,
                             offset: const Offset(0, 4),
                           ),
@@ -290,6 +290,77 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
                                     ),
                                   ],
                                 ),
+                                
+                                // FUNGSI BARU: MENAMPILKAN TOMBOL EDIT & BATAL JIKA STATUS PENDING
+                                if (cleanStatus == 'pending') ...[
+                                  const SizedBox(height: 12),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      OutlinedButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => ReportScreen(existingReport: report),
+                                            ),
+                                          );
+                                        },
+                                        style: OutlinedButton.styleFrom(
+                                          foregroundColor: AppColors.primary,
+                                          side: const BorderSide(color: AppColors.primary),
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                          minimumSize: const Size(0, 30),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                        ),
+                                        child: const Text("Edit", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (ctx) => AlertDialog(
+                                              title: const Text("Batalkan Laporan?", style: TextStyle(fontWeight: FontWeight.bold)),
+                                              content: const Text("Laporan ini akan dibatalkan dan dihapus secara permanen dari sistem. Anda yakin?"),
+                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(ctx),
+                                                  child: const Text("Kembali", style: TextStyle(color: Colors.grey)),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () async {
+                                                    Navigator.pop(ctx);
+                                                    await ReportRepositoryImpl().deleteReport(report.id, report.fotoUrl);
+                                                    if (context.mounted) {
+                                                      ScaffoldMessenger.of(context).showSnackBar(
+                                                        const SnackBar(
+                                                          content: Text("Laporan berhasil dibatalkan & dihapus"),
+                                                          backgroundColor: Colors.red,
+                                                        ),
+                                                      );
+                                                    }
+                                                  },
+                                                  child: const Text("Hapus", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: AppColors.errorRed.withOpacity(0.1),
+                                          foregroundColor: AppColors.errorRed,
+                                          elevation: 0,
+                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                                          minimumSize: const Size(0, 30),
+                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                        ),
+                                        child: const Text("Batalkan", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ],
                             ),
                           ),
@@ -335,7 +406,7 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.08),
+                color: color.withOpacity(0.08),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: color, size: 36),
