@@ -42,6 +42,45 @@ class ReportRemoteDataSource {
     });
   }
 
+  // FUNGSI BARU: Update teks laporan di Firestore
+  Future<void> updateReportData({
+    required String id,
+    required String platNomor,
+    required String jenisInsiden,
+    required String deskripsi,
+    required double latitude,
+    required double longitude,
+    required String alamat,
+    required String fotoUrl,
+  }) async {
+    await _firestore.collection('laporan').doc(id).update({
+      'platNomor': platNomor,
+      'jenisInsiden': jenisInsiden,
+      'deskripsi': deskripsi,
+      'latitude': latitude,
+      'longitude': longitude,
+      'alamat': alamat,
+      'fotoUrl': fotoUrl,
+      // Status dan createdAt tidak diubah
+    });
+  }
+
+  // FUNGSI BARU: Hapus Data Laporan di Firestore
+  Future<void> deleteReportData(String id) async {
+    await _firestore.collection('laporan').doc(id).delete();
+  }
+
+  // FUNGSI BARU: Hapus Foto di Supabase (Agar tidak nyampah)
+  Future<void> deleteReportImage(String fotoUrl) async {
+    try {
+      final uri = Uri.parse(fotoUrl);
+      final fileName = uri.pathSegments.last;
+      await _supabase.storage.from('reports').remove([fileName]);
+    } catch (e) {
+      // Abaikan jika foto gagal dihapus di Supabase
+    }
+  }
+
   Stream<QuerySnapshot<Map<String, dynamic>>> getUserReportsStream() {
     final userId = _auth.currentUser?.uid;
     if (userId == null) return const Stream.empty();
@@ -49,7 +88,6 @@ class ReportRemoteDataSource {
     return _firestore
         .collection('laporan')
         .where('userId', isEqualTo: userId)
-        // PERHATIKAN: .orderBy kita hapus dari sini supaya Firebase tidak minta Index!
         .snapshots(includeMetadataChanges: true); 
   }
 }

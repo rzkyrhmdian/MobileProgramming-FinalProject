@@ -4,6 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:mobileprogramming_finalproject/data/repository/report_repository_impl.dart';
+import 'package:mobileprogramming_finalproject/domain/model/report_info.dart';
 
 class ReportViewModel extends ChangeNotifier {
   final ReportRepositoryImpl _repository = ReportRepositoryImpl();
@@ -14,11 +15,13 @@ class ReportViewModel extends ChangeNotifier {
   bool isLoading = false;
   String currentAddress = "Mencari lokasi...";
   
-  // Koordinat untuk map
   double? currentLatitude;
   double? currentLongitude;
-  
   String? selectedJenisInsiden;
+
+  // Variabel untuk menyimpan data bawaan jika mode Edit
+  String? reportId;
+  String? existingFotoUrl;
 
   final List<String> jenisInsidenList = [
     'Parkir Liar', 'Ganjil Genap', 'Pelanggaran Rambu', 'Kecelakaan', 'Lainnya'
@@ -28,6 +31,24 @@ class ReportViewModel extends ChangeNotifier {
   void setJenisInsiden(String? value) {
     selectedJenisInsiden = value;
     notifyListeners();
+  }
+
+  // FUNGSI BARU: Mengecek apakah ini mode Edit atau Bikin Baru
+  void initForm(ReportInfo? existingReport) {
+    if (existingReport != null) {
+      // Mode Edit: Isi form dengan data yang sudah ada
+      reportId = existingReport.id;
+      platController.text = existingReport.platNomor;
+      deskripsiController.text = existingReport.deskripsi;
+      selectedJenisInsiden = existingReport.jenisInsiden;
+      currentLatitude = existingReport.latitude;
+      currentLongitude = existingReport.longitude;
+      currentAddress = existingReport.alamat;
+      existingFotoUrl = existingReport.fotoUrl;
+    } else {
+      // Mode Baru: Cari lokasi GPS sekarang
+      getCurrentLocation();
+    }
   }
 
   Future<void> pickImage() async {
@@ -59,7 +80,10 @@ class ReportViewModel extends ChangeNotifier {
   }
 
   Future<bool> submitReport() async {
-    if (selectedImage == null || platController.text.isEmpty || selectedJenisInsiden == null) {
+    // Validasi Edit membolehkan selectedImage kosong (karena pakai foto lama)
+    if ((selectedImage == null && existingFotoUrl == null) || 
+        platController.text.isEmpty || 
+        selectedJenisInsiden == null) {
       return false;
     }
 
@@ -72,16 +96,31 @@ class ReportViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
-      await _repository.submitReport(
-        platNomor: platController.text,
-        jenisInsiden: selectedJenisInsiden!,
-        deskripsi: deskripsiController.text,
-        latitude: currentLatitude!,
-        longitude: currentLongitude!,
-        alamat: currentAddress,
-        foto: selectedImage!,
-      );
-      
+      if (reportId != null) {
+        // Mode UPDATE (Edit Laporan)
+        await _repository.updateReport(
+          id: reportId!,
+          platNomor: platController.text,
+          jenisInsiden: selectedJenisInsiden!,
+          deskripsi: deskripsiController.text,
+          latitude: currentLatitude!,
+          longitude: currentLongitude!,
+          alamat: currentAddress,
+          fotoBaru: selectedImage,
+          fotoUrlLama: existingFotoUrl!,
+        );
+      } else {
+        // Mode CREATE (Buat Baru)
+        await _repository.submitReport(
+          platNomor: platController.text,
+          jenisInsiden: selectedJenisInsiden!,
+          deskripsi: deskripsiController.text,
+          latitude: currentLatitude!,
+          longitude: currentLongitude!,
+          alamat: currentAddress,
+          foto: selectedImage!,
+        );
+      }
       return true; 
     } catch (e) {
       debugPrint("Error saat kirim laporan: $e");
