@@ -6,7 +6,9 @@ abstract class GarageRepository {
 
   Future<GarageVehicle?> getVehicleByPlate(String plateNumber);
 
-  Future<bool> deleteVehicle(String plateNumber);
+  Future<bool> deleteVehicle(String id);
 
   Future<bool> addVehicle(GarageVehicle vehicle, {File? imageFile});
+
+  Future<bool> updateVehicle(GarageVehicle vehicle);
 }

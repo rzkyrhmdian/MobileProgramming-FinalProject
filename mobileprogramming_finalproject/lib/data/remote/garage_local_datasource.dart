@@ -5,7 +5,6 @@ class GarageLocalDataSource {
     const GarageVehicle(
       id: 'garage-001',
       brand: 'Honda CR-V',
-      type: 'SUV • Obsidian Black',
       plateNumber: 'B 1234 PAT',
       region: 'METRO JAYA',
       stnkExpiration: '12 Okt 2028',
@@ -20,7 +19,6 @@ class GarageLocalDataSource {
     const GarageVehicle(
       id: 'garage-002',
       brand: 'Toyota Avanza',
-      type: 'MPV • Silver Metallic',
       plateNumber: 'B 8899 XYZ',
       region: 'METRO JAYA',
       stnkExpiration: '15 Mar 2027',
@@ -35,7 +33,6 @@ class GarageLocalDataSource {
     const GarageVehicle(
       id: 'garage-003',
       brand: 'Yamaha NMAX',
-      type: 'Motorcycle • Matte Grey',
       plateNumber: 'B 5678 TUH',
       region: 'METRO JAYA',
       stnkExpiration: '20 Jan 2026',
@@ -58,6 +55,15 @@ class GarageLocalDataSource {
     return true;
   }
 
+  Future<bool> updateVehicle(GarageVehicle vehicle) async {
+    final index = _vehicles.indexWhere((v) => v.id == vehicle.id);
+    if (index != -1) {
+      _vehicles[index] = vehicle;
+      return true;
+    }
+    return false;
+  }
+
   Future<GarageVehicle?> getVehicleByPlate(String plateNumber) async {
     final normalizedPlate = plateNumber.trim().toUpperCase();
     for (final vehicle in _vehicles) {
@@ -68,12 +74,9 @@ class GarageLocalDataSource {
     return null;
   }
 
-  Future<bool> deleteVehicle(String plateNumber) async {
-    final normalizedPlate = plateNumber.trim().toUpperCase();
+  Future<bool> deleteVehicle(String id) async {
     final beforeCount = _vehicles.length;
-    _vehicles.removeWhere(
-      (vehicle) => vehicle.plateNumber.toUpperCase() == normalizedPlate,
-    );
+    _vehicles.removeWhere((vehicle) => vehicle.id == id);
     return _vehicles.length < beforeCount;
   }
 }

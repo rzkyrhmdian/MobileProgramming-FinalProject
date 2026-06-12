@@ -65,6 +65,47 @@ class FirestoreDatasource {
     await vehicleRef.set(dataToSave);
   }
 
+  Future<void> updateGarageVehicle(Map<String, dynamic> vehicleData) async {
+    final vehicleRef = _db.collection('vehicles').doc(vehicleData['id']);
+    await vehicleRef.update({
+      ...vehicleData,
+      'updatedAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Future<List<Map<String, dynamic>>> getGarageVehicles() async {
+    final user = _currentUser;
+    if (user == null) return [];
+
+    final querySnapshot = await _db
+        .collection('vehicles')
+        .where('ownerId', isEqualTo: user.uid)
+        .get();
+
+    final docs = querySnapshot.docs
+        .map((doc) => {'id': doc.id, ...doc.data()})
+        .toList();
+
+    // Sort locally to avoid Firestore composite index requirement
+    docs.sort((a, b) {
+      final aTime = a['createdAt'] as Timestamp?;
+      final bTime = b['createdAt'] as Timestamp?;
+      if (aTime == null && bTime == null) return 0;
+      if (aTime == null) return 1;
+      if (bTime == null) return -1;
+      return bTime.compareTo(aTime); // descending
+    });
+
+    return docs;
+  }
+
+  Future<void> deleteGarageVehicle(String id) async {
+    final user = _currentUser;
+    if (user == null) return;
+    
+    await _db.collection('vehicles').doc(id).delete();
+  }
+
   Future<void> renameSnapById({
     required String siPatuhFileId,
     required String newTitle,

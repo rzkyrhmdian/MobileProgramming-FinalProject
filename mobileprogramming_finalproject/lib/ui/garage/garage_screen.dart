@@ -5,10 +5,9 @@ import 'package:mobileprogramming_finalproject/domain/model/garage_vehicle.dart'
 import 'package:mobileprogramming_finalproject/ui/detail_garage/detail_garage_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/garage/add_garage_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/garage/garage_viewmodel.dart';
-import 'package:mobileprogramming_finalproject/ui/shared_widgets/confirm_action_dialog.dart';
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
 import 'package:mobileprogramming_finalproject/ui/main/main_screen.dart';
-
+  
 class GarageScreen extends StatefulWidget {
   const GarageScreen({super.key});
 
@@ -62,43 +61,22 @@ class _GarageScreenState extends State<GarageScreen> {
     );
 
     if (!context.mounted || selectedAction == null) return;
+    final isSuccess = await viewModel.handleVehicleAction(
+      actionType: selectedAction,
+      vehicle: vehicle,
+    );
 
-    if (selectedAction == 'edit') {
-      await viewModel.handleVehicleAction(
-        actionType: selectedAction,
-        vehicle: vehicle,
+    if (!context.mounted) return;
+    if (isSuccess && selectedAction == 'delete') {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('${vehicle.brand} berhasil dihapus dari garasi.'),
+        ),
       );
-      return;
-    }
-
-    if (selectedAction == 'delete') {
-      showConfirmActionDialog(
-        context: context,
-        title: 'Hapus Kendaraan?',
-        message:
-            'Data ${vehicle.brand} dengan plat nomor ${vehicle.plateNumber} akan dihapus permanen dari garasi Anda. Anda yakin?',
-        confirmLabel: 'Hapus',
-        onConfirm: () async {
-          final isSuccess = await viewModel.handleVehicleAction(
-            actionType: 'delete',
-            vehicle: vehicle,
-          );
-
-          if (!context.mounted) return;
-          if (isSuccess) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text('${vehicle.brand} berhasil dihapus dari garasi.'),
-                backgroundColor: AppColors.errorRed,
-              ),
-            );
-          } else if (viewModel.error.isNotEmpty) {
-            ScaffoldMessenger.of(
-              context,
-            ).showSnackBar(SnackBar(content: Text(viewModel.error)));
-          }
-        },
-      );
+    } else if (viewModel.error.isNotEmpty) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(viewModel.error)));
     }
   }
 
@@ -192,8 +170,9 @@ class _GarageScreenState extends State<GarageScreen> {
                                   builder: (context) => const AddGarageScreen(),
                                 ),
                               ).then((_) {
-                                if (!context.mounted) return;
-                                context.read<GarageViewModel>().loadVehicles();
+                                if (context.mounted) {
+                                  context.read<GarageViewModel>().loadVehicles();
+                                }
                               });
                             },
                             icon: const Icon(
@@ -223,14 +202,14 @@ class _GarageScreenState extends State<GarageScreen> {
                         if (viewModel.isLoading && viewModel.vehicles.isEmpty)
                           const Center(child: CircularProgressIndicator())
                         else if (viewModel.error.isNotEmpty)
-                          _buildCenterMessage(
+                          _buildMessageCard(
                             icon: Icons.error_outline_rounded,
                             title: 'Gagal memuat data',
                             message: viewModel.error,
                             color: AppColors.errorRed,
                           )
                         else if (viewModel.vehicles.isEmpty)
-                          _buildCenterMessage(
+                          _buildMessageCard(
                             icon: Icons.directions_car_outlined,
                             title: 'Belum ada kendaraan',
                             message:
@@ -261,47 +240,50 @@ class _GarageScreenState extends State<GarageScreen> {
     );
   }
 
-  Widget _buildCenterMessage({
+  Widget _buildMessageCard({
     required IconData icon,
     required String title,
     required String message,
     required Color color,
   }) {
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          children: [
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: color.withValues(alpha: 0.08),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: color, size: 36),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.92),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: color.withValues(alpha: 0.15)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Icon(icon, color: color),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  message,
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[800],
+                    height: 1.4,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 16),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
-            ),
-            const SizedBox(height: 6),
-            Text(
-              message,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 13,
-                color: Colors.grey.shade600,
-                height: 1.4,
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -340,7 +322,11 @@ class _GarageScreenState extends State<GarageScreen> {
           builder: (context) =>
               DetailGarageScreen(plateNumber: vehicle.plateNumber),
         ),
-      ),
+      ).then((_) {
+        if (context.mounted) {
+          viewModel.loadVehicles();
+        }
+      }),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -374,7 +360,7 @@ class _GarageScreenState extends State<GarageScreen> {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      vehicle.type,
+                      vehicle.category,
                       style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                   ],

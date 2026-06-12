@@ -10,8 +10,12 @@ class DetailGarageViewModel extends ChangeNotifier {
   }) : _plateNumber = plateNumber,
        _repository = repository ?? GarageRepositoryImpl();
 
-  final String _plateNumber;
+  String _plateNumber;
   final GarageRepository _repository;
+
+  void updatePlateNumber(String newPlate) {
+    _plateNumber = newPlate;
+  }
 
   GarageVehicle? vehicle;
   bool isLoading = false;
@@ -38,52 +42,27 @@ class DetailGarageViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> deleteDetailVehicle() async {
-    try {
-      await _repository.deleteVehicle(_plateNumber);
-      return true;
-    } catch (e) {
-      error = 'Gagal menghapus kendaraan.';
-      debugPrint('=== DELETE ERROR GARAGE DETAIL ===');
-      debugPrint(e.toString());
-      debugPrint('==================================');
-      notifyListeners();
-      return false;
-    }
-  }
-
-  Future<bool> handleVehicleAction({
-    required String actionType,
-    required GarageVehicle vehicle,
-  }) async {
+  Future<bool> deleteVehicle() async {
     isLoading = true;
     error = '';
     notifyListeners();
 
     try {
-      if (actionType == 'edit') {
-        error = 'Fitur edit belum tersedia.';
+      if (vehicle == null) {
+        error = 'Data kendaraan tidak tersedia.';
         return false;
       }
-
-      if (actionType == 'delete') {
-        final success = await deleteDetailVehicle();
-        if (success) {
-          await loadVehicle();
-          return true;
-        }
-      } else {
-        error = 'Aksi tidak dikenal.';
-        notifyListeners();
+      final success = await _repository.deleteVehicle(vehicle!.id);
+      if (!success) {
+        error = 'Gagal menghapus kendaraan.';
       }
-      return false;
+      return success;
     } catch (e) {
-      error = 'Gagal melakukan aksi pada kendaraan.';
-      debugPrint('=== ACTION ERROR GARAGE DETAIL ===');
-      debugPrint(e.toString());
-      debugPrint('==================================');
-      notifyListeners();
+      error = 'Terjadi kesalahan saat menghapus.';
       return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
     }
   }
 }

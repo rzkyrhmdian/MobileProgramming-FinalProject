@@ -14,7 +14,7 @@ class AddGarageViewModel extends ChangeNotifier {
         _imagePicker = imagePicker ?? ImagePicker();
 
   String _brand = '';
-  String _type = '';
+  String _category = '';
   String _plateNumber = '';
   String _stnkExp = '';
   String _color = '';
@@ -28,7 +28,7 @@ class AddGarageViewModel extends ChangeNotifier {
   File? get imageFile => _imageFile;
 
   void updateBrand(String val) => _brand = val;
-  void updateType(String val) => _type = val;
+  void updateCategory(String val) => _category = val;
   void updatePlateNumber(String val) => _plateNumber = val;
   void updateStnkExp(String val) => _stnkExp = val;
   void updateColor(String val) => _color = val;
@@ -65,9 +65,8 @@ class AddGarageViewModel extends ChangeNotifier {
 
       // Panggil repository untuk menyimpan data (termasuk upload foto)
       final newVehicle = GarageVehicle(
-        id: 'garage_${DateTime.now().millisecondsSinceEpoch}',
+        id: 'vehicle_${DateTime.now().millisecondsSinceEpoch}',
         brand: _brand,
-        type: _type,
         plateNumber: _plateNumber,
         stnkExpiration: _stnkExp,
         color: _color,
@@ -75,7 +74,7 @@ class AddGarageViewModel extends ChangeNotifier {
         status: GarageVehicleStatus.aman, // Default value for now
         statusText: 'Pajak Aman', // Default value for now
         badgeText: 'Aman', // Default value for now
-        category: _type,
+        category: _category,
         imageUrl: '', // Will be updated in repository after upload
       );
 

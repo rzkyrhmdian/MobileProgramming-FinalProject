@@ -206,11 +206,15 @@ class DetailGarageScreen extends StatelessWidget {
                                           MaterialPageRoute(
                                             builder: (context) =>
                                                 EditDetailGarageScreen(
-                                                  initialPlate:
-                                                      vehicle.plateNumber,
+                                                  vehicle: vehicle,
                                                 ),
                                           ),
-                                        );
+                                        ).then((newPlate) {
+                                          if (newPlate != null && newPlate is String) {
+                                            viewModel.updatePlateNumber(newPlate);
+                                          }
+                                          viewModel.loadVehicle();
+                                        });
                                       },
                                       icon: const Icon(
                                         Icons.edit_note_rounded,
@@ -305,35 +309,6 @@ class DetailGarageScreen extends StatelessWidget {
           ),
         ],
       ),
-      child: Stack(
-        children: [
-          Positioned(
-            bottom: 15,
-            left: 15,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-              decoration: BoxDecoration(
-                color: Colors.black.withValues(alpha: 0.7),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: const Row(
-                children: [
-                  Icon(Icons.auto_awesome, color: Colors.amber, size: 14),
-                  SizedBox(width: 6),
-                  Text(
-                    'AI Verified Plate',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 10,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
     );
   }
 
@@ -377,31 +352,30 @@ class DetailGarageScreen extends StatelessWidget {
     );
   }
 
-  void _showDeleteConfirmation(
-    BuildContext context,
-    GarageVehicle vehicle,
-    DetailGarageViewModel viewModel,
-  ) {
+  void _showDeleteConfirmation(BuildContext context, GarageVehicle vehicle, DetailGarageViewModel viewModel) {
     showConfirmActionDialog(
       context: context,
       title: 'Hapus Kendaraan?',
-      message:
-          'Data kendaraan ${vehicle.plateNumber} akan dihapus secara permanen dari garasi SiPatuh Anda.',
+      message: 'Data kendaraan ${vehicle.plateNumber} akan dihapus secara permanen dari garasi SiPatuh Anda.',
       confirmLabel: 'Hapus',
+      cancelLabel: 'Batal',
       onConfirm: () async {
-        final isSuccess = await viewModel.handleVehicleAction(
-          actionType: 'delete',
-          vehicle: vehicle,
-        );
-
-        if (!context.mounted) return;
-
-        if (isSuccess) {
-          Navigator.pop(context);
-        } else if (viewModel.error.isNotEmpty) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text(viewModel.error)));
+        final success = await viewModel.deleteVehicle();
+        if (success && context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Kendaraan berhasil dihapus'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.pop(context); // Go back to garage screen
+        } else if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(viewModel.error.isNotEmpty ? viewModel.error : 'Gagal menghapus kendaraan'),
+              backgroundColor: Colors.red,
+            ),
+          );
         }
       },
     );

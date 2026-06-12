@@ -4,10 +4,13 @@ import 'package:mobileprogramming_finalproject/ui/shared_widgets/custom_textfiel
 import 'package:mobileprogramming_finalproject/ui/shared_widgets/custom_button.dart';
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
 
-class EditDetailGarageScreen extends StatefulWidget {
-  final String initialPlate;
+import 'package:mobileprogramming_finalproject/domain/model/garage_vehicle.dart';
+import 'package:mobileprogramming_finalproject/data/repository/garage_repository_impl.dart';
 
-  const EditDetailGarageScreen({super.key, required this.initialPlate});
+class EditDetailGarageScreen extends StatefulWidget {
+  final GarageVehicle vehicle;
+
+  const EditDetailGarageScreen({super.key, required this.vehicle});
 
   @override
   State<EditDetailGarageScreen> createState() => _EditDetailGarageScreenState();
@@ -15,17 +18,20 @@ class EditDetailGarageScreen extends StatefulWidget {
 
 class _EditDetailGarageScreenState extends State<EditDetailGarageScreen> {
   late TextEditingController _plateController;
-  final _brandController = TextEditingController(text: 'Honda CR-V 1.5 Turbo');
-  final _colorController = TextEditingController(
-    text: 'Obsidian Black Metallic',
-  );
-  final _stnkController = TextEditingController(text: '12 Oktober 2028');
-  final _vinController = TextEditingController(text: 'MHRRU1870JKXXXXXX');
+  late TextEditingController _brandController;
+  late TextEditingController _colorController;
+  late TextEditingController _stnkController;
+  late TextEditingController _vinController;
+  bool _isLoading = false;
 
   @override
   void initState() {
     super.initState();
-    _plateController = TextEditingController(text: widget.initialPlate);
+    _plateController = TextEditingController(text: widget.vehicle.plateNumber);
+    _brandController = TextEditingController(text: widget.vehicle.brand);
+    _colorController = TextEditingController(text: widget.vehicle.color);
+    _stnkController = TextEditingController(text: widget.vehicle.stnkExpiration);
+    _vinController = TextEditingController(text: 'MHRRU1870JKXXXXXX'); // Dummy
   }
 
   @override
@@ -143,18 +149,55 @@ class _EditDetailGarageScreenState extends State<EditDetailGarageScreen> {
                     ),
                   ),
                   const SizedBox(height: 30),
-                  CustomButton(
-                    onTap: () {
-                      Navigator.pop(context);
-                    },
-                    height: 65,
-                    width: double.infinity,
-                    borderRadius: 50.0,
-                    label: "Simpan Perubahan",
-                    fontSize: 16,
-                    fontColor: Colors.white,
-                    backgroundColor: AppColors.primary,
-                  ),
+                  _isLoading
+                      ? const CircularProgressIndicator()
+                      : CustomButton(
+                          onTap: () async {
+                            setState(() {
+                              _isLoading = true;
+                            });
+
+                            final updatedVehicle = widget.vehicle.copyWith(
+                              plateNumber: _plateController.text,
+                              brand: _brandController.text,
+                              color: _colorController.text,
+                              stnkExpiration: _stnkController.text,
+                            );
+
+                            final repository = GarageRepositoryImpl();
+                            final success = await repository.updateVehicle(updatedVehicle);
+
+                            if (mounted) {
+                              setState(() {
+                                _isLoading = false;
+                              });
+
+                              if (success) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Perubahan berhasil disimpan!'),
+                                    backgroundColor: Colors.green,
+                                  ),
+                                );
+                                Navigator.pop(context, _plateController.text);
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Gagal menyimpan perubahan.'),
+                                    backgroundColor: Colors.red,
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                          height: 65,
+                          width: double.infinity,
+                          borderRadius: 50.0,
+                          label: "Simpan Perubahan",
+                          fontSize: 16,
+                          fontColor: Colors.white,
+                          backgroundColor: AppColors.primary,
+                        ),
                   const SizedBox(height: 20),
                 ],
               ),
