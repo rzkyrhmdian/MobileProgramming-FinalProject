@@ -35,12 +35,12 @@ class GarageViewModel extends ChangeNotifier {
     return _repository.getVehicleByPlate(plateNumber);
   }
 
-  Future<bool> deleteVehicle(String plateNumber) async {
+  Future<bool> deleteVehicle(String id) async {
     error = '';
     notifyListeners();
 
     try {
-      final success = await _repository.deleteVehicle(plateNumber);
+      final success = await _repository.deleteVehicle(id);
       if (!success) {
         error = 'Kendaraan tidak ditemukan.';
         notifyListeners();
@@ -48,7 +48,7 @@ class GarageViewModel extends ChangeNotifier {
       }
 
       vehicles = List<GarageVehicle>.from(
-        vehicles.where((vehicle) => vehicle.plateNumber != plateNumber),
+        vehicles.where((vehicle) => vehicle.id != id),
       );
       notifyListeners();
       return true;
@@ -62,34 +62,5 @@ class GarageViewModel extends ChangeNotifier {
     }
   }
 
-  Future<bool> handleVehicleAction({
-    required String actionType,
-    required GarageVehicle vehicle,
-  }) async {
-    isLoading = true;
-    error = '';
-    notifyListeners();
 
-    try {
-      if (actionType == 'edit') {
-        error = 'Edit kendaraan belum tersedia.';
-        return false;
-      }
-
-      if (actionType == 'delete') {
-        final success = await deleteVehicle(vehicle.plateNumber);
-        if (success) {
-          await loadVehicles();
-          return true;
-        }
-      }
-      return false;
-    } catch (e) {
-      error = 'Terjadi kesalahan: ${e.toString()}';
-      return false;
-    } finally {
-      isLoading = false;
-      notifyListeners();
-    }
-  }
 }
