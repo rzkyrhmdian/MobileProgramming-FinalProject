@@ -4,7 +4,7 @@ import 'package:mobileprogramming_finalproject/domain/model/report_info.dart';
 
 class DashboardViewModel extends ChangeNotifier {
   final ReportRepositoryImpl _repository = ReportRepositoryImpl();
-  
+
   List<ReportInfo> _reports = [];
   bool _isLoading = true;
 
@@ -13,17 +13,16 @@ class DashboardViewModel extends ChangeNotifier {
 
   // Menghitung total seluruh laporan yang dikirim
   int get totalAduan => _reports.length;
-  
+
   // Menghitung laporan yang sudah diproses (Selesai/Terverifikasi)
   int get terverifikasi => _reports.where((r) {
-    final status = r.status.toLowerCase();
-    return status == 'selesai' || status == 'approved' || status == 'terverifikasi';
+    return r.status == ReportStatus.selesai;
   }).length;
 
   // Mengambil 1 laporan paling terbaru (indeks 0 karena sudah di-order by descending di repo)
   ReportInfo? get latestReport {
     if (_reports.isEmpty) return null;
-    return _reports.first; 
+    return _reports.first;
   }
 
   DashboardViewModel() {
@@ -31,14 +30,17 @@ class DashboardViewModel extends ChangeNotifier {
   }
 
   void _listenToReports() {
-    _repository.getUserReports().listen((reportList) {
-      _reports = reportList;
-      _isLoading = false;
-      notifyListeners();
-    }, onError: (error) {
-      debugPrint("Gagal memuat statistik: $error");
-      _isLoading = false;
-      notifyListeners();
-    });
+    _repository.getUserReports().listen(
+      (reportList) {
+        _reports = reportList;
+        _isLoading = false;
+        notifyListeners();
+      },
+      onError: (error) {
+        debugPrint("Gagal memuat statistik: $error");
+        _isLoading = false;
+        notifyListeners();
+      },
+    );
   }
 }

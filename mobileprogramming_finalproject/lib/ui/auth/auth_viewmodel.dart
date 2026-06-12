@@ -4,7 +4,7 @@ import 'package:mobileprogramming_finalproject/domain/repository/auth_repository
 
 class AuthViewModel extends ChangeNotifier {
   AuthViewModel({AuthRepository? authRepository})
-      : _authRepository = authRepository ?? AuthRepositoryImpl();
+    : _authRepository = authRepository ?? AuthRepositoryImpl();
 
   final AuthRepository _authRepository;
 
@@ -55,7 +55,7 @@ class AuthViewModel extends ChangeNotifier {
 
     isLoading = false;
     if (user == null) {
-      error = 'Could not sign in with those credentials.';
+      error = 'Gagal masuk. Pastikan email dan password benar.';
       notifyListeners();
       return false;
     }
@@ -71,7 +71,8 @@ class AuthViewModel extends ChangeNotifier {
 
     if (password != confirmPassword) {
       isLoading = false;
-      error = 'Passwords do not match';
+      error =
+          'Password tidak cocok. Pastikan password dan konfirmasi password sama.';
       notifyListeners();
       return false;
     }
@@ -84,7 +85,8 @@ class AuthViewModel extends ChangeNotifier {
 
     isLoading = false;
     if (user == null) {
-      error = 'Failed to register. Please use a valid email.';
+      error =
+          'Gagal mendaftar akun. Pastikan email belum terdaftar dan coba lagi.';
       notifyListeners();
       return false;
     }

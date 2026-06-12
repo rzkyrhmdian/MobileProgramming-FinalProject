@@ -1,14 +1,13 @@
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../domain/repository/report_repository.dart';
 import '../remote/report_remote_datasource.dart';
-import '../../domain/model/report_info.dart'; 
+import '../../domain/model/report_info.dart';
 
 class ReportRepositoryImpl implements ReportRepository {
   final ReportRemoteDataSource _remoteDataSource;
 
   ReportRepositoryImpl({ReportRemoteDataSource? remoteDataSource})
-      : _remoteDataSource = remoteDataSource ?? ReportRemoteDataSource();
+    : _remoteDataSource = remoteDataSource ?? ReportRemoteDataSource();
 
   @override
   Future<void> submitReport({
@@ -21,7 +20,7 @@ class ReportRepositoryImpl implements ReportRepository {
     required File foto,
   }) async {
     final fotoUrl = await _remoteDataSource.uploadReportImage(foto);
-    
+
     await _remoteDataSource.submitReportData(
       platNomor: platNomor,
       jenisInsiden: jenisInsiden,
@@ -65,6 +64,18 @@ class ReportRepositoryImpl implements ReportRepository {
     );
   }
 
+  Future<void> updateReportStatus({
+    required String reportId,
+    required ReportStatus status,
+    required String adminNotes,
+  }) async {
+    await _remoteDataSource.updateReportStatus(
+      reportId: reportId,
+      status: status,
+      adminNotes: adminNotes,
+    );
+  }
+
   @override
   Future<void> deleteReport(String id, String fotoUrl) async {
     await _remoteDataSource.deleteReportData(id); // Hapus Teks
@@ -76,25 +87,21 @@ class ReportRepositoryImpl implements ReportRepository {
     return _remoteDataSource.getUserReportsStream().map((snapshot) {
       final reports = snapshot.docs.map((doc) {
         final data = doc.data();
-        
-        DateTime createdAtDateTime = DateTime.now();
-        if (data['createdAt'] is Timestamp) {
-          createdAtDateTime = (data['createdAt'] as Timestamp).toDate();
-        }
 
-        return ReportInfo(
-          id: doc.id,
-          userId: data['userId'] ?? '',
-          platNomor: data['platNomor'] ?? '',
-          jenisInsiden: data['jenisInsiden'] ?? '',
-          deskripsi: data['deskripsi'] ?? '',
-          latitude: (data['latitude'] as num?)?.toDouble() ?? 0.0,
-          longitude: (data['longitude'] as num?)?.toDouble() ?? 0.0,
-          alamat: data['alamat'] ?? '',
-          fotoUrl: data['fotoUrl'] ?? '',
-          status: data['status'] ?? 'Pending',
-          createdAt: createdAtDateTime,
-        );
+        return ReportInfo.fromMap(id: doc.id, data: data);
+      }).toList();
+
+      reports.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+      return reports;
+    });
+  }
+
+  Stream<List<ReportInfo>> getAllReports() {
+    return _remoteDataSource.getAllReportsStream().map((snapshot) {
+      final reports = snapshot.docs.map((doc) {
+        final data = doc.data();
+
+        return ReportInfo.fromMap(id: doc.id, data: data);
       }).toList();
 
       reports.sort((a, b) => b.createdAt.compareTo(a.createdAt));

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:mobileprogramming_finalproject/ui/auth/auth_viewmodel.dart';
 import 'package:mobileprogramming_finalproject/ui/auth/signup_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/navigation/landing_screen.dart';
@@ -6,6 +7,7 @@ import 'package:mobileprogramming_finalproject/ui/main/main_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/shared_widgets/custom_button.dart';
 import 'package:mobileprogramming_finalproject/ui/shared_widgets/custom_link.dart';
 import 'package:mobileprogramming_finalproject/ui/shared_widgets/custom_textfield.dart';
+import 'package:mobileprogramming_finalproject/ui/profile/profile_viewmodel.dart';
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -29,10 +31,31 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_formKey.currentState!.validate()) {
       final success = await _viewModel.login();
 
-      if (!mounted || !success) {
+      if (!mounted) return;
+
+      if (!success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              _viewModel.error,
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+                fontFamily: 'Poppins',
+              ),
+            ),
+            backgroundColor: AppColors.errorRed,
+          ),
+        );
         return;
       }
 
+      await Provider.of<ProfileViewModel>(
+        context,
+        listen: false,
+      ).loadUserInfo();
+
+      if (!mounted) return;
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const MainScreen()),

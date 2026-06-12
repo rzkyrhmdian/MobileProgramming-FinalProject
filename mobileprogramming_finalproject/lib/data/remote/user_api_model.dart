@@ -8,6 +8,7 @@ class UserApiModel {
   final String profileImage;
   final String phoneNumber;
   final String address;
+  final String role;
   final DateTime? createdAt;
   final DateTime? updatedAt;
   final DateTime? lastLoginAt;
@@ -20,6 +21,7 @@ class UserApiModel {
     required this.profileImage,
     this.phoneNumber = '',
     this.address = '',
+    this.role = 'user',
     this.createdAt,
     this.updatedAt,
     this.lastLoginAt,
@@ -34,6 +36,7 @@ class UserApiModel {
       profileImage: (map['profileImage'] ?? '').toString(),
       phoneNumber: (map['phoneNumber'] ?? '').toString(),
       address: (map['address'] ?? '').toString(),
+      role: (map['role'] ?? 'user').toString(),
       createdAt: _toDateTime(map['createdAt']),
       updatedAt: _toDateTime(map['updatedAt']),
       lastLoginAt: _toDateTime(map['lastLoginAt']),
@@ -47,6 +50,7 @@ class UserApiModel {
       displayName: displayName,
       idSipatuh: idSipatuh,
       profileImage: profileImage,
+      role: role,
       createdAt: createdAt,
       updatedAt: updatedAt,
       lastLoginAt: lastLoginAt,
@@ -62,6 +66,7 @@ class UserApiModel {
       'displayName': displayName,
       'idSipatuh': idSipatuh,
       'profileImage': profileImage,
+      'role': role,
       'createdAt': createdAt,
       'updatedAt': updatedAt,
       'lastLoginAt': lastLoginAt,

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:mobileprogramming_finalproject/domain/model/garage_vehicle.dart';
 import 'package:mobileprogramming_finalproject/ui/detail_garage/detail_garage_viewmodel.dart';
 import 'package:mobileprogramming_finalproject/ui/detail_garage/edit_detail_garage_screen.dart';
+import 'package:mobileprogramming_finalproject/ui/shared_widgets/confirm_action_dialog.dart';
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
 
 class DetailGarageScreen extends StatelessWidget {
@@ -242,6 +243,7 @@ class DetailGarageScreen extends StatelessWidget {
                                       onPressed: () => _showDeleteConfirmation(
                                         context,
                                         vehicle,
+                                        viewModel,
                                       ),
                                       icon: const Icon(
                                         Icons.delete_outline_rounded,
@@ -375,49 +377,33 @@ class DetailGarageScreen extends StatelessWidget {
     );
   }
 
-  void _showDeleteConfirmation(BuildContext context, GarageVehicle vehicle) {
-    showDialog(
+  void _showDeleteConfirmation(
+    BuildContext context,
+    GarageVehicle vehicle,
+    DetailGarageViewModel viewModel,
+  ) {
+    showConfirmActionDialog(
       context: context,
-      builder: (dialogContext) => Theme(
-        data: Theme.of(context).copyWith(
-          textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
-        ),
-        child: AlertDialog(
-          backgroundColor: Colors.white,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          title: const Text(
-            'Hapus Kendaraan?',
-            style: TextStyle(fontWeight: FontWeight.bold),
-          ),
-          content: Text(
-            'Data kendaraan ${vehicle.plateNumber} akan dihapus secara permanen dari garasi SiPatuh Anda.',
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: const Text(
-                'Batal',
-                style: TextStyle(
-                  color: Colors.grey,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(dialogContext);
-                Navigator.pop(context);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red.shade700,
-              ),
-              child: const Text('Hapus', style: TextStyle(color: Colors.white)),
-            ),
-          ],
-        ),
-      ),
+      title: 'Hapus Kendaraan?',
+      message:
+          'Data kendaraan ${vehicle.plateNumber} akan dihapus secara permanen dari garasi SiPatuh Anda.',
+      confirmLabel: 'Hapus',
+      onConfirm: () async {
+        final isSuccess = await viewModel.handleVehicleAction(
+          actionType: 'delete',
+          vehicle: vehicle,
+        );
+
+        if (!context.mounted) return;
+
+        if (isSuccess) {
+          Navigator.pop(context);
+        } else if (viewModel.error.isNotEmpty) {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(viewModel.error)));
+        }
+      },
     );
   }
 

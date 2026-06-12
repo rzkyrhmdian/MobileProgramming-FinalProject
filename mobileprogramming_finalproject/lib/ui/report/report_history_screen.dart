@@ -5,6 +5,7 @@ import 'package:mobileprogramming_finalproject/data/repository/report_repository
 import 'package:mobileprogramming_finalproject/domain/model/report_info.dart';
 import 'package:mobileprogramming_finalproject/ui/report/report_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/report/report_map_detail_screen.dart';
+import 'package:mobileprogramming_finalproject/ui/shared_widgets/confirm_action_dialog.dart';
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
 
 class ReportHistoryScreen extends StatefulWidget {
@@ -91,7 +92,7 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
                     icon: Icons.history_toggle_off_rounded,
                     title: 'Belum ada laporan',
                     message:
-                        'Semua riwayat pelaporan insiden lalu lintas Anda akan muncul bersih di sini.',
+                        'Semua riwayat pelaporan insiden lalu lintas Anda akan muncul di sini.',
                     color: AppColors.primary,
                   );
                 }
@@ -108,15 +109,16 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
 
                     Color statusColor = AppColors.warning;
                     Color statusBg = AppColors.bgWarning;
+                    String statusText = 'DALAM PROSES';
 
-                    final cleanStatus = report.status.toLowerCase();
-                    if (cleanStatus == 'selesai' || cleanStatus == 'approved') {
+                    if (report.status == ReportStatus.selesai) {
                       statusColor = AppColors.success;
                       statusBg = AppColors.bgSuccess;
-                    } else if (cleanStatus == 'ditolak' ||
-                        cleanStatus == 'rejected') {
+                      statusText = 'SELESAI';
+                    } else if (report.status == ReportStatus.ditolak) {
                       statusColor = AppColors.errorRed;
                       statusBg = AppColors.bgErrorRed;
+                      statusText = 'DITOLAK';
                     }
 
                     final date = report.createdAt;
@@ -131,7 +133,7 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
                         borderRadius: BorderRadius.circular(20),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.04),
+                            color: Colors.black.withValues(alpha: 0.04),
                             blurRadius: 16,
                             offset: const Offset(0, 4),
                           ),
@@ -167,7 +169,6 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
                             ),
                           ),
                           const SizedBox(width: 14),
-
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -194,7 +195,7 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
                                         borderRadius: BorderRadius.circular(8),
                                       ),
                                       child: Text(
-                                        report.status.toUpperCase(),
+                                        statusText,
                                         style: TextStyle(
                                           color: statusColor,
                                           fontWeight: FontWeight.bold,
@@ -206,19 +207,25 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
                                   ],
                                 ),
                                 const SizedBox(height: 4),
-
                                 Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade100,
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
                                   child: Text(
                                     report.platNomor,
                                     style: GoogleFonts.jetBrainsMono(
                                       fontWeight: FontWeight.bold,
-                                      fontSize: 14,
+                                      fontSize: 12,
                                       color: AppColors.primary,
-                                      letterSpacing: 1.5,
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: 6),
                                 Text(
                                   report.deskripsi,
                                   maxLines: 2,
@@ -233,7 +240,6 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
                                 const Divider(color: Colors.black12, height: 1),
                                 const SizedBox(height: 10),
 
-                                // BARIS FOOTER KARTU (AKSI MAPS & TANGGAL)
                                 Row(
                                   mainAxisAlignment:
                                       MainAxisAlignment.spaceBetween,
@@ -251,23 +257,28 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
                                         );
                                       },
                                       borderRadius: BorderRadius.circular(6),
-                                      child: Row(
-                                        children: const [
-                                          Icon(
-                                            Icons.location_on_outlined,
-                                            size: 14,
-                                            color: AppColors.accent,
-                                          ),
-                                          SizedBox(width: 4),
-                                          Text(
-                                            "Lokasi Kejadian",
-                                            style: TextStyle(
-                                              fontSize: 11,
-                                              color: AppColors.primary,
-                                              fontWeight: FontWeight.bold,
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 4.0,
+                                        ),
+                                        child: Row(
+                                          children: const [
+                                            Icon(
+                                              Icons.location_on_outlined,
+                                              size: 14,
+                                              color: AppColors.accent,
                                             ),
-                                          ),
-                                        ],
+                                            SizedBox(width: 4),
+                                            Text(
+                                              "Lokasi Kejadian",
+                                              style: TextStyle(
+                                                fontSize: 11,
+                                                color: AppColors.primary,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                     Row(
@@ -290,9 +301,9 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
                                     ),
                                   ],
                                 ),
-                                
-                                // FUNGSI BARU: MENAMPILKAN TOMBOL EDIT & BATAL JIKA STATUS PENDING
-                                if (cleanStatus == 'pending') ...[
+
+                                if (report.status ==
+                                    ReportStatus.dalamProses) ...[
                                   const SizedBox(height: 12),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
@@ -302,61 +313,97 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
                                           Navigator.push(
                                             context,
                                             MaterialPageRoute(
-                                              builder: (context) => ReportScreen(existingReport: report),
+                                              builder: (context) =>
+                                                  ReportScreen(
+                                                    existingReport: report,
+                                                  ),
                                             ),
                                           );
                                         },
                                         style: OutlinedButton.styleFrom(
                                           foregroundColor: AppColors.primary,
-                                          side: const BorderSide(color: AppColors.primary),
-                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                          minimumSize: const Size(0, 30),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                          side: const BorderSide(
+                                            color: AppColors.primary,
+                                            width: 1.5,
+                                          ),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 14,
+                                            vertical: 8,
+                                          ),
+                                          minimumSize: const Size(0, 32),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
                                         ),
-                                        child: const Text("Edit", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                        child: const Text(
+                                          "Edit",
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                       ),
                                       const SizedBox(width: 8),
                                       ElevatedButton(
                                         onPressed: () {
-                                          showDialog(
+                                          showConfirmActionDialog(
                                             context: context,
-                                            builder: (ctx) => AlertDialog(
-                                              title: const Text("Batalkan Laporan?", style: TextStyle(fontWeight: FontWeight.bold)),
-                                              content: const Text("Laporan ini akan dibatalkan dan dihapus secara permanen dari sistem. Anda yakin?"),
-                                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                                              actions: [
-                                                TextButton(
-                                                  onPressed: () => Navigator.pop(ctx),
-                                                  child: const Text("Kembali", style: TextStyle(color: Colors.grey)),
-                                                ),
-                                                TextButton(
-                                                  onPressed: () async {
-                                                    Navigator.pop(ctx);
-                                                    await ReportRepositoryImpl().deleteReport(report.id, report.fotoUrl);
-                                                    if (context.mounted) {
-                                                      ScaffoldMessenger.of(context).showSnackBar(
-                                                        const SnackBar(
-                                                          content: Text("Laporan berhasil dibatalkan & dihapus"),
-                                                          backgroundColor: Colors.red,
-                                                        ),
-                                                      );
-                                                    }
-                                                  },
-                                                  child: const Text("Hapus", style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
-                                                ),
-                                              ],
-                                            ),
+                                            title: 'Batalkan Laporan?',
+                                            message:
+                                                'Laporan ini akan dibatalkan dan dihapus secara permanen dari sistem. Anda yakin?',
+                                            confirmLabel: 'Hapus',
+                                            onConfirm: () async {
+                                              await ReportRepositoryImpl()
+                                                  .deleteReport(
+                                                    report.id,
+                                                    report.fotoUrl,
+                                                  );
+
+                                              if (context.mounted) {
+                                                ScaffoldMessenger.of(
+                                                  context,
+                                                ).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text(
+                                                      'Laporan berhasil dibatalkan & dihapus',
+                                                    ),
+                                                    backgroundColor: Colors.red,
+                                                  ),
+                                                );
+                                              }
+                                            },
                                           );
                                         },
                                         style: ElevatedButton.styleFrom(
-                                          backgroundColor: AppColors.errorRed.withOpacity(0.1),
+                                          backgroundColor: AppColors.errorRed
+                                              .withValues(alpha: 0.1),
                                           foregroundColor: AppColors.errorRed,
                                           elevation: 0,
-                                          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                                          minimumSize: const Size(0, 30),
-                                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 14,
+                                            vertical: 8,
+                                          ),
+                                          minimumSize: const Size(0, 32),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                            side: BorderSide(
+                                              color: AppColors.errorRed
+                                                  .withValues(alpha: 0.3),
+                                              width: 1.5,
+                                            ),
+                                          ),
                                         ),
-                                        child: const Text("Batalkan", style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold)),
+                                        child: const Text(
+                                          "Batalkan",
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
                                       ),
                                     ],
                                   ),
@@ -406,7 +453,7 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.08),
+                color: color.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: color, size: 36),

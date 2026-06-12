@@ -2,6 +2,7 @@ import 'firebase_options.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:mobileprogramming_finalproject/ui/profile/profile_viewmodel.dart';
 import 'package:mobileprogramming_finalproject/ui/dashboard/dashboard_viewmodel.dart';
@@ -15,17 +16,19 @@ void main() async {
     anonKey:
         'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNhbHllY25rYXV4eWNveGh2aHB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMzk4MjEsImV4cCI6MjA5NTkxNTgyMX0.UTITIorFrhLPU6tQRYIj1HlgPWOzO-1dlOn1EeuXViY',
   );
-  runApp(
-    MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (_) => ProfileViewModel()..loadUserInfo(),
-        ),
-        ChangeNotifierProvider(create: (_) => DashboardViewModel()),
-      ],
-      child: const MyApp(),
-    ),
-  );
+  await initializeDateFormatting('id_ID', null).then((_) {
+    runApp(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+            create: (_) => ProfileViewModel()..loadUserInfo(),
+          ),
+          ChangeNotifierProvider(create: (_) => DashboardViewModel()),
+        ],
+        child: const MyApp(),
+      ),
+    );
+  });
 }
 
 class MyApp extends StatelessWidget {

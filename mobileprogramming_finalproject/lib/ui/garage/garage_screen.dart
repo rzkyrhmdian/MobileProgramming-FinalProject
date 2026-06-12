@@ -5,9 +5,10 @@ import 'package:mobileprogramming_finalproject/domain/model/garage_vehicle.dart'
 import 'package:mobileprogramming_finalproject/ui/detail_garage/detail_garage_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/garage/add_garage_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/garage/garage_viewmodel.dart';
+import 'package:mobileprogramming_finalproject/ui/shared_widgets/confirm_action_dialog.dart';
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
 import 'package:mobileprogramming_finalproject/ui/main/main_screen.dart';
-  
+
 class GarageScreen extends StatefulWidget {
   const GarageScreen({super.key});
 
@@ -61,22 +62,43 @@ class _GarageScreenState extends State<GarageScreen> {
     );
 
     if (!context.mounted || selectedAction == null) return;
-    final isSuccess = await viewModel.handleVehicleAction(
-      actionType: selectedAction,
-      vehicle: vehicle,
-    );
 
-    if (!context.mounted) return;
-    if (isSuccess && selectedAction == 'delete') {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${vehicle.brand} berhasil dihapus dari garasi.'),
-        ),
+    if (selectedAction == 'edit') {
+      await viewModel.handleVehicleAction(
+        actionType: selectedAction,
+        vehicle: vehicle,
       );
-    } else if (viewModel.error.isNotEmpty) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(viewModel.error)));
+      return;
+    }
+
+    if (selectedAction == 'delete') {
+      showConfirmActionDialog(
+        context: context,
+        title: 'Hapus Kendaraan?',
+        message:
+            'Data ${vehicle.brand} dengan plat nomor ${vehicle.plateNumber} akan dihapus permanen dari garasi Anda. Anda yakin?',
+        confirmLabel: 'Hapus',
+        onConfirm: () async {
+          final isSuccess = await viewModel.handleVehicleAction(
+            actionType: 'delete',
+            vehicle: vehicle,
+          );
+
+          if (!context.mounted) return;
+          if (isSuccess) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('${vehicle.brand} berhasil dihapus dari garasi.'),
+                backgroundColor: AppColors.errorRed,
+              ),
+            );
+          } else if (viewModel.error.isNotEmpty) {
+            ScaffoldMessenger.of(
+              context,
+            ).showSnackBar(SnackBar(content: Text(viewModel.error)));
+          }
+        },
+      );
     }
   }
 
@@ -170,7 +192,7 @@ class _GarageScreenState extends State<GarageScreen> {
                                   builder: (context) => const AddGarageScreen(),
                                 ),
                               ).then((_) {
-                                // Refresh vehicles after adding
+                                if (!context.mounted) return;
                                 context.read<GarageViewModel>().loadVehicles();
                               });
                             },
@@ -201,14 +223,14 @@ class _GarageScreenState extends State<GarageScreen> {
                         if (viewModel.isLoading && viewModel.vehicles.isEmpty)
                           const Center(child: CircularProgressIndicator())
                         else if (viewModel.error.isNotEmpty)
-                          _buildMessageCard(
+                          _buildCenterMessage(
                             icon: Icons.error_outline_rounded,
                             title: 'Gagal memuat data',
                             message: viewModel.error,
                             color: AppColors.errorRed,
                           )
                         else if (viewModel.vehicles.isEmpty)
-                          _buildMessageCard(
+                          _buildCenterMessage(
                             icon: Icons.directions_car_outlined,
                             title: 'Belum ada kendaraan',
                             message:
@@ -239,50 +261,47 @@ class _GarageScreenState extends State<GarageScreen> {
     );
   }
 
-  Widget _buildMessageCard({
+  Widget _buildCenterMessage({
     required IconData icon,
     required String title,
     required String message,
     required Color color,
   }) {
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.92),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: color.withValues(alpha: 0.15)),
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Icon(icon, color: color),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  message,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[800],
-                    height: 1.4,
-                  ),
-                ),
-              ],
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.08),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 36),
             ),
-          ),
-        ],
+            const SizedBox(height: 16),
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: Colors.black87,
+              ),
+            ),
+            const SizedBox(height: 6),
+            Text(
+              message,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                color: Colors.grey.shade600,
+                height: 1.4,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -455,113 +474,6 @@ class _GarageScreenState extends State<GarageScreen> {
                   ),
                 ),
               ],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-//unused
-  void _showImageSourcePicker(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.transparent,
-      builder: (BuildContext bc) {
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(28),
-              topRight: Radius.circular(28),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 32),
-              const Text(
-                'Pilih Foto Kendaraan',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'Gunakan foto yang memperlihatkan plat nomor dengan jelas untuk verifikasi AI.',
-                style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
-              ),
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildPickerActionButton(
-                      icon: Icons.camera_enhance_rounded,
-                      label: 'Kamera',
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildPickerActionButton(
-                      icon: Icons.photo_library_rounded,
-                      label: 'Galeri',
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 32),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildPickerActionButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(20),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.grey.shade200),
-        ),
-        child: Column(
-          children: [
-            Icon(icon, color: AppColors.primary, size: 28),
-            const SizedBox(height: 8),
-            Text(
-              label,
-              style: const TextStyle(
-                fontSize: 14,
-                fontWeight: FontWeight.bold,
-                color: Colors.black87,
-              ),
             ),
           ],
         ),

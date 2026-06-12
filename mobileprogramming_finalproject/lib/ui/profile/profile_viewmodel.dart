@@ -79,6 +79,13 @@ class ProfileViewModel extends ChangeNotifier {
     }
   }
 
+  Future<void> clearProfile() async {
+    userInfo = null;
+    profileUrl = '';
+    error = '';
+    notifyListeners();
+  }
+
   Future<String> updatePhoto(File file, String userId) async {
     isLoading = true;
     error = '';

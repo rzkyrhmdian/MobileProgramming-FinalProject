@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import '../../domain/model/report_info.dart';
 
 class ReportRemoteDataSource {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -10,8 +11,9 @@ class ReportRemoteDataSource {
 
   Future<String> uploadReportImage(File file) async {
     final userId = _auth.currentUser?.uid ?? 'unknown';
-    final fileName = 'reports/${userId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
-    
+    final fileName =
+        'reports/${userId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+
     await _supabase.storage.from('reports').upload(fileName, file);
     return _supabase.storage.from('reports').getPublicUrl(fileName);
   }
@@ -37,8 +39,8 @@ class ReportRemoteDataSource {
       'longitude': longitude,
       'alamat': alamat,
       'fotoUrl': fotoUrl,
-      'status': 'Pending',
-      'createdAt': Timestamp.now(), 
+      'status': ReportStatus.dalamProses.firestoreValue,
+      'createdAt': Timestamp.now(),
     });
   }
 
@@ -65,6 +67,17 @@ class ReportRemoteDataSource {
     });
   }
 
+  Future<void> updateReportStatus({
+    required String reportId,
+    required ReportStatus status,
+    required String adminNotes,
+  }) async {
+    await _firestore.collection('laporan').doc(reportId).update({
+      'status': status.name,
+      'adminNotes': adminNotes,
+    });
+  }
+
   // FUNGSI BARU: Hapus Data Laporan di Firestore
   Future<void> deleteReportData(String id) async {
     await _firestore.collection('laporan').doc(id).delete();
@@ -88,6 +101,12 @@ class ReportRemoteDataSource {
     return _firestore
         .collection('laporan')
         .where('userId', isEqualTo: userId)
-        .snapshots(includeMetadataChanges: true); 
+        .snapshots(includeMetadataChanges: true);
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getAllReportsStream() {
+    return _firestore
+        .collection('laporan')
+        .snapshots(includeMetadataChanges: true);
   }
 }

@@ -53,7 +53,7 @@ class FirestoreDatasource {
     if (user == null) throw Exception('User not logged in');
 
     final vehicleRef = _db.collection('vehicles').doc(vehicleData['id']);
-    
+
     // override ownerId to ensure it matches current user
     final dataToSave = {
       ...vehicleData,
@@ -122,7 +122,7 @@ class FirestoreDatasource {
       'siPatuhTitle': snapData['title'],
       'siPatuhImageUrl':
           snapData['siPatuhImage'] ?? snapData['siPatuhImageUrl'],
-      'status': 'pending',
+      'status': 'dalam proses',
       'createdAt': FieldValue.serverTimestamp(),
       'updatedAt': FieldValue.serverTimestamp(),
     });
@@ -150,7 +150,7 @@ class FirestoreDatasource {
     return _db
         .collection('shared_files')
         .where('toUserID', isEqualTo: normalizedRecipientSiPatuhId)
-        .where('status', isEqualTo: 'pending')
+        .where('status', isEqualTo: 'dalam proses')
         .snapshots();
   }
 

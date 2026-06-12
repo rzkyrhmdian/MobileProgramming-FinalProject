@@ -6,8 +6,10 @@ import 'package:mobileprogramming_finalproject/ui/profile/profile_viewmodel.dart
 import 'package:mobileprogramming_finalproject/ui/profile/edit_profile_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/change_password/change_password_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/about/about_screen.dart';
+import 'package:mobileprogramming_finalproject/ui/shared_widgets/confirm_action_dialog.dart';
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
 import 'package:mobileprogramming_finalproject/ui/main/main_screen.dart';
+import 'package:mobileprogramming_finalproject/data/repository/auth_repository_impl.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -406,42 +408,21 @@ class ProfileScreen extends StatelessWidget {
   }
 
   void _showLogoutDialog(BuildContext context) {
-    showDialog(
+    showConfirmActionDialog(
       context: context,
-      builder: (dialogContext) => Theme(
-        data: Theme.of(context).copyWith(
-          textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
-        ),
-        child: AlertDialog(
-          title: const Text('Konfirmasi Logout'),
-          content: const Text('Apakah Anda yakin ingin keluar dari akun ini?'),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(dialogContext),
-              child: Text('Batal', style: TextStyle(color: Colors.grey[600])),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(dialogContext); // Tutup dialog
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const LandingScreen(),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red.shade700,
-              ),
-              child: const Text(
-                'Keluar',
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
-          ],
-          backgroundColor: Colors.white,
-        ),
-      ),
+      title: 'Konfirmasi Logout',
+      message: 'Apakah Anda yakin ingin keluar dari akun ini?',
+      confirmLabel: 'Keluar',
+      onConfirm: () async {
+        await AuthRepositoryImpl().signOut();
+        if (context.mounted) {
+          Provider.of<ProfileViewModel>(context, listen: false).clearProfile();
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LandingScreen()),
+          );
+        }
+      },
     );
   }
 }

@@ -133,7 +133,7 @@ Dashboard admin digunakan oleh petugas untuk:
 
 Status laporan:
 
-- Pending
+- Dalam Proses
 - In Progress
 - Resolved
 - Rejected

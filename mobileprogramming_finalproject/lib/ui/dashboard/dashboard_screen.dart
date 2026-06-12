@@ -72,7 +72,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     fit: BoxFit.cover,
                   ),
                 ),
-                padding: const EdgeInsets.only(top: 15),
+                padding: const EdgeInsets.only(top: 20),
                 child: SingleChildScrollView(
                   physics: const ClampingScrollPhysics(),
                   padding: const EdgeInsets.symmetric(
@@ -98,7 +98,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.1),
+                                        color: Colors.black.withValues(
+                                          alpha: 0.1,
+                                        ),
                                         blurRadius: 10,
                                         offset: const Offset(0, 4),
                                       ),
@@ -106,8 +108,16 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                   ),
                                   child: CircleAvatar(
                                     radius: 28,
+                                    backgroundColor: Colors.grey.shade200,
                                     backgroundImage: hasImage
                                         ? NetworkImage(avatar!)
+                                        : null,
+                                    child: !hasImage
+                                        ? Icon(
+                                            Icons.person_rounded,
+                                            size: 35,
+                                            color: Colors.grey.shade500,
+                                          )
                                         : null,
                                   ),
                                 ),
@@ -202,11 +212,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           final reports = snapshot.data ?? [];
 
                           final totalAduan = reports.length;
-                          final terverifikasi = reports.where((r) {
-                            final status = r.status.toLowerCase();
-                            return status == 'selesai' ||
-                                status == 'approved' ||
-                                status == 'terverifikasi';
+                          final selesai = reports.where((r) {
+                            return r.status == ReportStatus.selesai;
                           }).length;
                           final latestReport = reports.isNotEmpty
                               ? reports.first
@@ -219,7 +226,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                               borderRadius: BorderRadius.circular(24),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withOpacity(0.04),
+                                  color: Colors.black.withValues(alpha: 0.04),
                                   blurRadius: 16,
                                   offset: const Offset(0, 4),
                                 ),
@@ -258,8 +265,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                             : totalAduan.toString(),
                                         label: 'Total Aduan',
                                         color: AppColors.primary,
-                                        bgColor: AppColors.primary.withOpacity(
-                                          0.06,
+                                        bgColor: AppColors.primary.withValues(
+                                          alpha: 0.06,
                                         ),
                                       ),
                                     ),
@@ -268,8 +275,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                       child: _buildStatBox(
                                         value: isLoading
                                             ? '...'
-                                            : terverifikasi.toString(),
-                                        label: 'Terverifikasi',
+                                            : selesai.toString(),
+                                        label: 'Selesai',
                                         color: const Color(0xFF2E7D32),
                                         bgColor: const Color(0xFFE8F5E9),
                                       ),
@@ -484,7 +491,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
             style: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
-              color: color.withOpacity(0.8),
+              color: color.withValues(alpha: 0.8),
             ),
           ),
         ],
@@ -495,11 +502,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
   Widget _buildLatestReportTile(ReportInfo report) {
     Color statusColor = Colors.orange;
     Color statusBgColor = AppColors.bgWarning;
-    if (report.status.toLowerCase() == 'selesai' ||
-        report.status.toLowerCase() == 'approved') {
+    if (report.status == ReportStatus.selesai) {
       statusColor = Colors.green;
       statusBgColor = const Color(0xFFE8F5E9);
-    } else if (report.status.toLowerCase() == 'ditolak') {
+    } else if (report.status == ReportStatus.ditolak) {
       statusColor = Colors.red;
       statusBgColor = const Color(0xFFFFEBEE);
     }
@@ -562,7 +568,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              report.status,
+              report.status.toString().split('.').last.toUpperCase(),
               style: TextStyle(
                 color: statusColor,
                 fontSize: 10,
@@ -589,7 +595,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.04),
+              color: Colors.black.withValues(alpha: 0.04),
               blurRadius: 12,
               offset: const Offset(0, 4),
             ),
@@ -632,7 +638,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.secondary.withOpacity(0.1),
+        color: AppColors.secondary.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: AppColors.secondary, width: 1.5),
       ),
@@ -691,7 +697,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.secondary.withOpacity(0.1),
+                        color: AppColors.secondary.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(30),
                       ),
                       child: Text(

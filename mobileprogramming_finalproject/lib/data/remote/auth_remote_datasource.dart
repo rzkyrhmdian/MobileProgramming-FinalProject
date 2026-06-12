@@ -45,6 +45,7 @@ class AuthRemoteDatasource {
       data['profileImage'] = '';
       data['phoneNumber'] = '';
       data['address'] = '';
+      data['role'] = 'user';
     } else if (displayName != null) {
       data['displayName'] = displayName.trim();
     }
@@ -133,6 +134,7 @@ class AuthRemoteDatasource {
               'profileImage': '',
               'phoneNumber': '',
               'address': '',
+              'role': 'user',
             }, uid: result.user!.uid);
     } on FirebaseAuthException catch (e) {
       await _notify(
@@ -206,6 +208,7 @@ class AuthRemoteDatasource {
         profileImage: '',
         phoneNumber: '',
         address: '',
+        role: 'user',
       );
     } on FirebaseAuthException catch (e) {
       await _notify(

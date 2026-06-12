@@ -28,7 +28,7 @@ class ReportMapDetailScreen extends StatelessWidget {
           leading: Padding(
             padding: const EdgeInsets.all(8.0),
             child: CircleAvatar(
-              backgroundColor: Colors.white.withOpacity(0.9),
+              backgroundColor: Colors.white.withValues(alpha: 0.9),
               child: IconButton(
                 onPressed: () => Navigator.pop(context),
                 icon: const Icon(
