@@ -4,10 +4,11 @@ import 'package:provider/provider.dart';
 import 'package:mobileprogramming_finalproject/domain/model/garage_vehicle.dart';
 import 'package:mobileprogramming_finalproject/ui/detail_garage/detail_garage_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/garage/add_garage_screen.dart';
+import 'package:mobileprogramming_finalproject/ui/detail_garage/edit_detail_garage_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/garage/garage_viewmodel.dart';
+import 'package:mobileprogramming_finalproject/ui/shared_widgets/confirm_action_dialog.dart';
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
 import 'package:mobileprogramming_finalproject/ui/main/main_screen.dart';
-  
 class GarageScreen extends StatefulWidget {
   const GarageScreen({super.key});
 
@@ -61,22 +62,45 @@ class _GarageScreenState extends State<GarageScreen> {
     );
 
     if (!context.mounted || selectedAction == null) return;
-    final isSuccess = await viewModel.handleVehicleAction(
-      actionType: selectedAction,
-      vehicle: vehicle,
-    );
 
-    if (!context.mounted) return;
-    if (isSuccess && selectedAction == 'delete') {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('${vehicle.brand} berhasil dihapus dari garasi.'),
-        ),
-      );
-    } else if (viewModel.error.isNotEmpty) {
-      ScaffoldMessenger.of(
+    if (selectedAction == 'edit') {
+      Navigator.push(
         context,
-      ).showSnackBar(SnackBar(content: Text(viewModel.error)));
+        MaterialPageRoute(
+          builder: (context) => EditDetailGarageScreen(vehicle: vehicle),
+        ),
+      ).then((_) {
+        if (context.mounted) {
+          viewModel.loadVehicles();
+        }
+      });
+    } else if (selectedAction == 'delete') {
+      showConfirmActionDialog(
+        context: context,
+        title: 'Hapus Kendaraan?',
+        message: 'Data kendaraan ${vehicle.plateNumber} akan dihapus secara permanen dari garasi SiPatuh Anda.',
+        confirmLabel: 'Hapus',
+        cancelLabel: 'Batal',
+        onConfirm: () async {
+          final success = await viewModel.deleteVehicle(vehicle.id);
+          if (success && context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('${vehicle.brand} berhasil dihapus dari garasi.'),
+                backgroundColor: Colors.green,
+              ),
+            );
+            viewModel.loadVehicles();
+          } else if (context.mounted) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text(viewModel.error.isNotEmpty ? viewModel.error : 'Gagal menghapus kendaraan'),
+                backgroundColor: Colors.red,
+              ),
+            );
+          }
+        },
+      );
     }
   }
 
