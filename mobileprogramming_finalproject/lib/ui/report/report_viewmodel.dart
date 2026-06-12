@@ -1,13 +1,18 @@
 import 'dart:io';
+import 'dart:math'; // Tambahan untuk random ID Notifikasi
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:mobileprogramming_finalproject/data/repository/report_repository_impl.dart';
 import 'package:mobileprogramming_finalproject/domain/model/report_info.dart';
+import 'package:mobileprogramming_finalproject/data/repository/notification_repository_impl.dart'; // Import repo notifikasi
 
 class ReportViewModel extends ChangeNotifier {
   final ReportRepositoryImpl _repository = ReportRepositoryImpl();
+  // Inisialisasi Repo Notifikasi
+  final NotificationRepositoryImpl _notificationRepo = NotificationRepositoryImpl(); 
+  
   final platController = TextEditingController();
   final deskripsiController = TextEditingController();
   
@@ -19,7 +24,6 @@ class ReportViewModel extends ChangeNotifier {
   double? currentLongitude;
   String? selectedJenisInsiden;
 
-  // Variabel untuk menyimpan data bawaan jika mode Edit
   String? reportId;
   String? existingFotoUrl;
 
@@ -33,10 +37,8 @@ class ReportViewModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  // FUNGSI BARU: Mengecek apakah ini mode Edit atau Bikin Baru
   void initForm(ReportInfo? existingReport) {
     if (existingReport != null) {
-      // Mode Edit: Isi form dengan data yang sudah ada
       reportId = existingReport.id;
       platController.text = existingReport.platNomor;
       deskripsiController.text = existingReport.deskripsi;
@@ -46,7 +48,6 @@ class ReportViewModel extends ChangeNotifier {
       currentAddress = existingReport.alamat;
       existingFotoUrl = existingReport.fotoUrl;
     } else {
-      // Mode Baru: Cari lokasi GPS sekarang
       getCurrentLocation();
     }
   }
@@ -80,7 +81,6 @@ class ReportViewModel extends ChangeNotifier {
   }
 
   Future<bool> submitReport() async {
-    // Validasi Edit membolehkan selectedImage kosong (karena pakai foto lama)
     if ((selectedImage == null && existingFotoUrl == null) || 
         platController.text.isEmpty || 
         selectedJenisInsiden == null) {
@@ -109,6 +109,14 @@ class ReportViewModel extends ChangeNotifier {
           fotoBaru: selectedImage,
           fotoUrlLama: existingFotoUrl!,
         );
+
+        // TRIGGER NOTIFIKASI LOKAL (EDIT)
+        await _notificationRepo.createNotification(
+          id: Random().nextInt(10000), 
+          title: 'Laporan Diperbarui 📝', 
+          body: 'Perubahan pada laporan Anda berhasil disimpan dan sedang menunggu review admin.',
+        );
+
       } else {
         // Mode CREATE (Buat Baru)
         await _repository.submitReport(
@@ -119,6 +127,13 @@ class ReportViewModel extends ChangeNotifier {
           longitude: currentLongitude!,
           alamat: currentAddress,
           foto: selectedImage!,
+        );
+
+        // TRIGGER NOTIFIKASI LOKAL (BARU)
+        await _notificationRepo.createNotification(
+          id: Random().nextInt(10000), 
+          title: 'Laporan Diterima! 🚀', 
+          body: 'Laporan insiden Anda berhasil dikirim dan sedang dalam proses peninjauan.',
         );
       }
       return true; 
