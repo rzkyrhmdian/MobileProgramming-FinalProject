@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
+import 'package:mobileprogramming_finalproject/domain/model/notification_info.dart';
+import 'package:mobileprogramming_finalproject/data/repository/notification_repository_impl.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -9,20 +11,22 @@ class NotificationScreen extends StatefulWidget {
   State<NotificationScreen> createState() => _NotificationScreenState();
 }
 
-class _NotificationScreenState extends State<NotificationScreen>
-    with SingleTickerProviderStateMixin {
-  late TabController _tabController;
+class _NotificationScreenState extends State<NotificationScreen> {
+  late Stream<List<NotificationInfo>> _notifStream;
 
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _notifStream = NotificationRepositoryImpl().getUserNotificationsStream();
   }
 
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
+  String _getTimeAgo(DateTime? date) {
+    if (date == null) return 'Baru saja';
+    final difference = DateTime.now().difference(date);
+    if (difference.inDays > 0) return '${difference.inDays} Hari lalu';
+    if (difference.inHours > 0) return '${difference.inHours} Jam lalu';
+    if (difference.inMinutes > 0) return '${difference.inMinutes} Menit lalu';
+    return 'Baru saja';
   }
 
   @override
@@ -56,35 +60,6 @@ class _NotificationScreenState extends State<NotificationScreen>
               color: Colors.black,
             ),
           ),
-          bottom: PreferredSize(
-            preferredSize: const Size.fromHeight(50),
-            child: Container(
-              margin: const EdgeInsets.symmetric(horizontal: 20),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF1F3F5),
-                borderRadius: BorderRadius.circular(14),
-              ),
-              child: TabBar(
-                controller: _tabController,
-                indicatorSize: TabBarIndicatorSize.tab,
-                dividerColor: Colors.transparent,
-                indicator: BoxDecoration(
-                  color: AppColors.primary,
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                labelColor: Colors.white,
-                unselectedLabelColor: Colors.black54,
-                labelStyle: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
-                ),
-                tabs: const [
-                  Tab(text: 'Aktivitas'),
-                  Tab(text: 'Pengingat'),
-                ],
-              ),
-            ),
-          ),
         ),
         body: SizedBox.expand(
           child: Container(
@@ -95,15 +70,27 @@ class _NotificationScreenState extends State<NotificationScreen>
                 fit: BoxFit.cover,
               ),
             ),
-            padding: const EdgeInsets.only(top: kToolbarHeight + 80),
-            child: TabBarView(
-              controller: _tabController,
-              children: [
-                // 1. Konten Tab Aktivitas (Laporan)
-                _buildAktivitasTab(),
-                // 2. Konten Tab Pengingat (STNK/Garasi)
-                _buildPengingatTab(),
-              ],
+            padding: const EdgeInsets.only(top: kToolbarHeight + 20),
+            child: StreamBuilder<List<NotificationInfo>>(
+              stream: _notifStream,
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text(
+                      'Terjadi kesalahan: ${snapshot.error}',
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  );
+                }
+
+                final notifs = snapshot.data ?? [];
+
+                return _buildList(notifs, 'Belum ada notifikasi saat ini.');
+              },
             ),
           ),
         ),
@@ -111,163 +98,144 @@ class _NotificationScreenState extends State<NotificationScreen>
     );
   }
 
-  Widget _buildAktivitasTab() {
-    return ListView(
+  Widget _buildList(List<NotificationInfo> items, String emptyMessage) {
+    if (items.isEmpty) {
+      return Center(
+        child: Text(
+          emptyMessage,
+          style: TextStyle(color: Colors.grey.shade600),
+        ),
+      );
+    }
+    return ListView.builder(
       physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      children: [
-        _buildNotificationCard(
-          icon: Icons.check_circle_outline_rounded,
-          iconColor: const Color(0xFF2E7D32),
-          iconBgColor: const Color(0xFFE8F5E9),
-          title: 'Laporan Selesai Ditindak',
-          description:
-              'Aduan Parkir Liar Anda di Jl. Sudirman telah diverifikasi dan diselesaikan oleh petugas di lapangan. Terima kasih!',
-          time: '1 Jam yang lalu',
-          isUnread: false,
-        ),
-        _buildNotificationCard(
-          icon: Icons.hourglass_bottom_rounded,
-          iconColor: const Color(0xFFEF6C00),
-          iconBgColor: const Color(0xFFFFF3E0),
-          title: 'Laporan Sedang Diproses',
-          description:
-              'Laporan Kendaraan Terbengkalai di area Tunjungan saat ini berstatus "Diproses" dan masuk tahap validasi petugas.',
-          time: 'Kemarin',
-          isUnread: false,
-        ),
-        _buildNotificationCard(
-          icon: Icons.cancel_outlined,
-          iconColor: const Color(0xFFC62828),
-          iconBgColor: const Color(0xFFFFEBEE),
-          title: 'Laporan Ditolak',
-          description:
-              'Aduan plat nomor rusak tidak dapat diproses karena foto lampiran buram dan tidak memenuhi standar validasi AI OCR.',
-          time: '3 Hari yang lalu',
-          isUnread: false,
-        ),
-      ],
-    );
-  }
+      itemCount: items.length,
+      itemBuilder: (context, index) {
+        final notif = items[index];
 
-  Widget _buildPengingatTab() {
-    return ListView(
-      physics: const BouncingScrollPhysics(),
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-      children: [
-        _buildNotificationCard(
-          icon: Icons.warning_amber_rounded,
-          iconColor: const Color(0xFFFF7A45),
-          iconBgColor: const Color(0xFFFFEBE3),
-          title: 'Masa Berlaku STNK Hampir Habis!',
-          description:
-              'Kendaraan Honda Vario (L 1899 FZ) Anda akan segera kedaluwarsa dalam 12 hari lagi. Segera urus administrasi Anda.',
-          time: 'Baru saja',
-          isUnread: false,
-        ),
-        _buildNotificationCard(
-          icon: Icons.verified_user_outlined,
-          iconColor: AppColors.primary,
-          iconBgColor: AppColors.primary.withValues(alpha: 0.08),
-          title: 'Reminder Selesai Diatur',
-          description:
-              'Notifikasi otomatis untuk Toyota Avanza (B 8899 XYZ) berhasil disinkronkan dengan sistem Awesome Notifications aplikasi.',
-          time: '2 Hari yang lalu',
-          isUnread: false,
-        ),
-      ],
+        IconData icon = Icons.info_outline;
+        Color iconColor = AppColors.primary;
+        Color iconBgColor = AppColors.primary.withValues(alpha: 0.1);
+
+        // Styling Card Dinamis Berdasarkan Teks
+        if (notif.title.toLowerCase().contains('selesai')) {
+          icon = Icons.check_circle_outline_rounded;
+          iconColor = const Color(0xFF2E7D32);
+          iconBgColor = const Color(0xFFE8F5E9);
+        } else if (notif.title.toLowerCase().contains('tolak')) {
+          icon = Icons.cancel_outlined;
+          iconColor = const Color(0xFFC62828);
+          iconBgColor = const Color(0xFFFFEBEE);
+        } else if (notif.title.toLowerCase().contains('terima')) {
+          icon = Icons.hourglass_bottom_rounded;
+          iconColor = const Color(0xFFEF6C00);
+          iconBgColor = const Color(0xFFFFF3E0);
+        }
+
+        return _buildNotificationCard(
+          notif: notif,
+          icon: icon,
+          iconColor: iconColor,
+          iconBgColor: iconBgColor,
+        );
+      },
     );
   }
 
   Widget _buildNotificationCard({
+    required NotificationInfo notif,
     required IconData icon,
     required Color iconColor,
     required Color iconBgColor,
-    required String title,
-    required String description,
-    required String time,
-    required bool isUnread,
   }) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: isUnread
-            ? AppColors.primary.withValues(alpha: 0.03)
-            : Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: iconBgColor,
-              shape: BoxShape.circle,
+    return GestureDetector(
+      onTap: () {
+        if (!notif.isRead) {
+          NotificationRepositoryImpl().markAsRead(notif.id);
+        }
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 14),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: !notif.isRead
+              ? AppColors.primary.withValues(alpha: 0.04)
+              : Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
             ),
-            child: Icon(icon, color: iconColor, size: 22),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Text(
-                        title,
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: isUnread
-                              ? FontWeight.bold
-                              : FontWeight.w600,
-                          color: Colors.black87,
+          ],
+        ),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: iconBgColor,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: iconColor, size: 22),
+            ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Expanded(
+                        child: Text(
+                          notif.title,
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: !notif.isRead
+                                ? FontWeight.bold
+                                : FontWeight.w600,
+                            color: Colors.black87,
+                          ),
                         ),
                       ),
+                      if (!notif.isRead)
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: const BoxDecoration(
+                            color: AppColors.primary,
+                            shape: BoxShape.circle,
+                          ),
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    notif.body,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey.shade700,
+                      height: 1.4,
                     ),
-                    if (isUnread)
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: AppColors.primary,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  description,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey.shade700,
-                    height: 1.4,
                   ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  time,
-                  style: TextStyle(
-                    fontSize: 10,
-                    color: Colors.grey.shade500,
-                    fontWeight: FontWeight.w500,
+                  const SizedBox(height: 8),
+                  Text(
+                    _getTimeAgo(notif.createdAt),
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: Colors.grey.shade500,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

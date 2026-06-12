@@ -1,14 +1,17 @@
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:flutter/material.dart';
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class NotificationDatasource {
   static bool _isInitialized = false;
 
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   Future<void> initializeNotification() async {
-    if (_isInitialized) {
-      return;
-    }
+    if (_isInitialized) return;
 
     await AwesomeNotifications().initialize(
       null,
@@ -48,41 +51,16 @@ class NotificationDatasource {
 
   Future<bool> _ensurePermission({required bool promptIfNeeded}) async {
     final isAllowed = await AwesomeNotifications().isNotificationAllowed();
-    if (isAllowed) {
-      return true;
-    }
-
-    if (!promptIfNeeded) {
-      return false;
-    }
-
+    if (isAllowed) return true;
+    if (!promptIfNeeded) return false;
     await AwesomeNotifications().requestPermissionToSendNotifications();
     return AwesomeNotifications().isNotificationAllowed();
   }
 
-  static Future<void> _onNotificationCreateMethod(
-    ReceivedNotification receivedNotification,
-  ) async {
-    debugPrint('Notification created: ${receivedNotification.title}');
-  }
-
-  static Future<void> _onNotificationDisplayedMethod(
-    ReceivedNotification receivedNotification,
-  ) async {
-    debugPrint('Notification displayed: ${receivedNotification.title}');
-  }
-
-  static Future<void> _onDismissActionReceivedMethod(
-    ReceivedNotification receivedNotification,
-  ) async {
-    debugPrint('Notification dismissed: ${receivedNotification.title}');
-  }
-
-  static Future<void> _onActionReceivedMethod(
-    ReceivedNotification receivedNotification,
-  ) async {
-    debugPrint('Notification action received: ${receivedNotification.title}');
-  }
+  static Future<void> _onNotificationCreateMethod(ReceivedNotification receivedNotification) async {}
+  static Future<void> _onNotificationDisplayedMethod(ReceivedNotification receivedNotification) async {}
+  static Future<void> _onDismissActionReceivedMethod(ReceivedNotification receivedNotification) async {}
+  static Future<void> _onActionReceivedMethod(ReceivedNotification receivedNotification) async {}
 
   Future<void> createNotification({
     required final int id,
@@ -99,15 +77,10 @@ class NotificationDatasource {
     final Duration? interval,
   }) async {
     assert(!scheduled || (scheduled && interval != null));
-
-    if (!_isInitialized) {
-      await initializeNotification();
-    }
+    if (!_isInitialized) await initializeNotification();
 
     final isAllowed = await _ensurePermission(promptIfNeeded: false);
-    if (!isAllowed) {
-      return;
-    }
+    if (!isAllowed) return;
 
     await AwesomeNotifications().createNotification(
       content: NotificationContent(
@@ -131,5 +104,36 @@ class NotificationDatasource {
             )
           : null,
     );
+  }
+
+  Future<void> saveNotificationToFirestore({
+    required String userId,
+    required String title,
+    required String body,
+    String type = 'aktivitas',
+  }) async {
+    await _firestore.collection('notifikasi').add({
+      'userId': userId,
+      'title': title,
+      'body': body,
+      'type': type,
+      'isRead': false,
+      'createdAt': FieldValue.serverTimestamp(),
+    });
+  }
+
+  Stream<QuerySnapshot<Map<String, dynamic>>> getUserNotificationsStream() {
+    final userId = _auth.currentUser?.uid;
+    if (userId == null) return const Stream.empty();
+
+    return _firestore
+        .collection('notifikasi')
+        .where('userId', isEqualTo: userId)
+        // PERHATIKAN: .orderBy dihapus di sini agar tidak kena Index Error
+        .snapshots();
+  }
+
+  Future<void> markAsRead(String docId) async {
+    await _firestore.collection('notifikasi').doc(docId).update({'isRead': true});
   }
 }

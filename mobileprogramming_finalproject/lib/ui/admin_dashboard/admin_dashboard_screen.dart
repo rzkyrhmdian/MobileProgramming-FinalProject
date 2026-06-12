@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
 import 'package:mobileprogramming_finalproject/domain/model/report_info.dart';
 import 'package:mobileprogramming_finalproject/data/repository/report_repository_impl.dart';
+import 'package:mobileprogramming_finalproject/data/repository/notification_repository_impl.dart';
 import 'package:mobileprogramming_finalproject/ui/profile/profile_viewmodel.dart';
 import 'package:mobileprogramming_finalproject/ui/detail_report/detail_report_screen.dart';
 
@@ -187,6 +188,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                             status: ReportStatus.ditolak,
                             adminNotes: notesController.text.trim(),
                           );
+                          await NotificationRepositoryImpl().saveNotificationToFirestore(
+                            userId: report.userId,
+                            title: 'Laporan Ditolak ❌',
+                            body: 'Laporan plat ${report.platNomor} ditolak. Alasan: ${notesController.text.trim()}',
+                          );
                         },
                         borderRadius: BorderRadius.circular(15),
                         child: Container(
@@ -221,6 +227,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                             reportId: report.id,
                             status: ReportStatus.selesai,
                             adminNotes: notesController.text.trim(),
+                          );
+                          await NotificationRepositoryImpl().saveNotificationToFirestore(
+                            userId: report.userId,
+                            title: 'Laporan Selesai ✅',
+                            body: 'Laporan plat ${report.platNomor} telah diverifikasi. Catatan: ${notesController.text.trim()}',
                           );
                         },
                         borderRadius: BorderRadius.circular(15),
@@ -266,7 +277,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
           builder: (context, viewModel, _) {
             final user = viewModel.userInfo;
             final avatar = user?.profileImage;
-            final hasImage = user?.profileImage.isNotEmpty == true;
+            final hasImage = user?.profileImage?.isNotEmpty == true;
             final displayName = user?.displayName.isNotEmpty == true
                 ? user!.displayName
                 : 'Pengguna';
@@ -281,7 +292,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                   ),
                 ),
                 padding: const EdgeInsets.only(top: 20),
-                // --- BUNGKUS DENGAN STREAMBUILDER AGAR DATA ALIRAN LANGSUNG TERBACA ---
                 child: StreamBuilder<List<ReportInfo>>(
                   stream: _reportStream,
                   builder: (context, snapshot) {
@@ -326,7 +336,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Header Profil Admin
                           Padding(
                             padding: const EdgeInsets.symmetric(vertical: 16.0),
                             child: Row(
@@ -376,7 +385,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                         children: [
                                           Text(
                                             _getGreeting(),
-                                            style: TextStyle(
+                                            style: const TextStyle(
                                               fontSize: 24,
                                               color: AppColors.primary,
                                               fontWeight: FontWeight.bold,
@@ -418,7 +427,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                           ),
                           const SizedBox(height: 10),
 
-                          // Rangkuman Box Statistik
                           Container(
                             padding: const EdgeInsets.all(20),
                             decoration: BoxDecoration(
@@ -506,7 +514,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                           ),
                           const SizedBox(height: 28),
 
-                          // Input Bar Pencarian
                           TextField(
                             controller: _searchController,
                             onChanged: (value) {
@@ -554,7 +561,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                           ),
                           const SizedBox(height: 14),
 
-                          // Baris Chip Filter Status Horizontal
                           SingleChildScrollView(
                             scrollDirection: Axis.horizontal,
                             physics: const BouncingScrollPhysics(),
@@ -584,7 +590,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                           ),
                           const SizedBox(height: 20),
 
-                          // Output List Builder Data Kartu
                           filteredReports.isEmpty
                               ? Center(
                                   child: Padding(

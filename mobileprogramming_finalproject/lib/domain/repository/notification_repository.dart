@@ -1,3 +1,5 @@
+import 'package:mobileprogramming_finalproject/domain/model/notification_info.dart';
+
 abstract class NotificationRepository {
   Future<void> initializeNotification();
 
@@ -15,4 +17,14 @@ abstract class NotificationRepository {
     bool scheduled,
     Duration? interval,
   });
+
+  Future<void> saveNotificationToFirestore({
+    required String userId,
+    required String title,
+    required String body,
+    String type = 'aktivitas',
+  });
+
+  Stream<List<NotificationInfo>> getUserNotificationsStream();
+  Future<void> markAsRead(String docId);
 }

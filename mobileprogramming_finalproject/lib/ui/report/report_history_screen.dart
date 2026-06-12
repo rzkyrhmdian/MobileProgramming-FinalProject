@@ -5,9 +5,10 @@ import 'package:mobileprogramming_finalproject/data/repository/report_repository
 import 'package:mobileprogramming_finalproject/domain/model/report_info.dart';
 import 'package:mobileprogramming_finalproject/ui/report/report_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/report/report_map_detail_screen.dart';
-import 'package:mobileprogramming_finalproject/ui/detail_report/detail_report_screen.dart'; // IMPORT FILE DETAIL
+import 'package:mobileprogramming_finalproject/ui/detail_report/detail_report_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/shared_widgets/confirm_action_dialog.dart';
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
+import 'package:mobileprogramming_finalproject/data/repository/notification_repository_impl.dart';
 
 class ReportHistoryScreen extends StatefulWidget {
   const ReportHistoryScreen({super.key});
@@ -127,7 +128,6 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
                         "${date.day}/${date.month}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}";
 
                     return GestureDetector(
-                      // AKSI: KLIK KARTU AKAN MEMBUKA HALAMAN DETAIL LAPORAN
                       onTap: () {
                         Navigator.push(
                           context,
@@ -144,7 +144,7 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
                           borderRadius: BorderRadius.circular(20),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.04),
+                              color: Colors.black.withValues(alpha: 0.04),
                               blurRadius: 16,
                               offset: const Offset(0, 4),
                             ),
@@ -367,18 +367,31 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
                                                   'Laporan ini akan dibatalkan dan dihapus secara permanen dari sistem. Anda yakin?',
                                               confirmLabel: 'Hapus',
                                               onConfirm: () async {
-                                                await ReportRepositoryImpl()
-                                                    .deleteReport(
-                                                      report.id,
-                                                      report.fotoUrl,
-                                                    );
+                                                await ReportRepositoryImpl().deleteReport(
+                                                  report.id,
+                                                  report.fotoUrl,
+                                                );
+
+                                                try {
+                                                  final notifRepo = NotificationRepositoryImpl();
+                                                  await notifRepo.saveNotificationToFirestore(
+                                                    userId: report.userId,
+                                                    title: 'Laporan Dibatalkan',
+                                                    body: 'Laporan Anda untuk plat ${report.platNomor} telah berhasil dibatalkan.',
+                                                  );
+                                                  await notifRepo.createNotification(
+                                                    id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
+                                                    title: 'Laporan Dibatalkan',
+                                                    body: 'Laporan Anda untuk plat ${report.platNomor} telah berhasil dibatalkan.',
+                                                  );
+                                                } catch (e) {
+                                                  debugPrint('Gagal mengirim notif: $e');
+                                                }
 
                                                 if (context.mounted) {
                                                   ScaffoldMessenger.of(context).showSnackBar(
                                                     const SnackBar(
-                                                      content: Text(
-                                                        'Laporan berhasil dibatalkan & dihapus',
-                                                      ),
+                                                      content: Text('Laporan berhasil dibatalkan & dihapus'),
                                                       backgroundColor: Colors.red,
                                                     ),
                                                   );
@@ -387,8 +400,7 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
                                             );
                                           },
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: AppColors.errorRed
-                                                .withOpacity(0.1),
+                                            backgroundColor: AppColors.errorRed.withValues(alpha: 0.1),
                                             foregroundColor: AppColors.errorRed,
                                             elevation: 0,
                                             padding: const EdgeInsets.symmetric(
@@ -399,8 +411,7 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
                                             shape: RoundedRectangleBorder(
                                               borderRadius: BorderRadius.circular(8),
                                               side: BorderSide(
-                                                color: AppColors.errorRed
-                                                    .withOpacity(0.3),
+                                                color: AppColors.errorRed.withValues(alpha: 0.3),
                                                 width: 1.5,
                                               ),
                                             ),
@@ -462,7 +473,7 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
             Container(
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.08),
+                color: color.withValues(alpha: 0.08),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: color, size: 36),

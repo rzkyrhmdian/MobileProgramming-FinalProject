@@ -1,5 +1,6 @@
 import 'package:mobileprogramming_finalproject/data/remote/notification_datasource.dart';
 import 'package:mobileprogramming_finalproject/domain/repository/notification_repository.dart';
+import 'package:mobileprogramming_finalproject/domain/model/notification_info.dart';
 
 class NotificationRepositoryImpl implements NotificationRepository {
   NotificationRepositoryImpl({NotificationDatasource? datasource})
@@ -41,5 +42,44 @@ class NotificationRepositoryImpl implements NotificationRepository {
       scheduled: scheduled,
       interval: interval,
     );
+  }
+
+  @override
+  Future<void> saveNotificationToFirestore({
+    required String userId,
+    required String title,
+    required String body,
+    String type = 'aktivitas',
+  }) {
+    return _datasource.saveNotificationToFirestore(
+      userId: userId,
+      title: title,
+      body: body,
+      type: type,
+    );
+  }
+
+  @override
+  Stream<List<NotificationInfo>> getUserNotificationsStream() {
+    return _datasource.getUserNotificationsStream().map((snapshot) {
+      final notifs = snapshot.docs.map((doc) {
+        return NotificationInfo.fromMap(doc.data(), docId: doc.id);
+      }).toList();
+
+      // MENGURUTKAN NOTIFIKASI DARI YANG TERBARU (MENGGANTIKAN ORDERBY FIREBASE)
+      notifs.sort((a, b) {
+        if (a.createdAt == null && b.createdAt == null) return 0;
+        if (a.createdAt == null) return 1;
+        if (b.createdAt == null) return -1;
+        return b.createdAt!.compareTo(a.createdAt!);
+      });
+
+      return notifs;
+    });
+  }
+
+  @override
+  Future<void> markAsRead(String docId) {
+    return _datasource.markAsRead(docId);
   }
 }

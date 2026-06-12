@@ -1,18 +1,16 @@
 import 'dart:io';
-import 'dart:math'; // Tambahan untuk random ID Notifikasi
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:mobileprogramming_finalproject/data/repository/report_repository_impl.dart';
 import 'package:mobileprogramming_finalproject/domain/model/report_info.dart';
-import 'package:mobileprogramming_finalproject/data/repository/notification_repository_impl.dart'; // Import repo notifikasi
+import 'package:mobileprogramming_finalproject/data/repository/notification_repository_impl.dart';
 
 class ReportViewModel extends ChangeNotifier {
   final ReportRepositoryImpl _repository = ReportRepositoryImpl();
-  // Inisialisasi Repo Notifikasi
-  final NotificationRepositoryImpl _notificationRepo = NotificationRepositoryImpl(); 
-  
+  final NotificationRepositoryImpl _notificationRepo = NotificationRepositoryImpl();
   final platController = TextEditingController();
   final deskripsiController = TextEditingController();
   
@@ -96,8 +94,10 @@ class ReportViewModel extends ChangeNotifier {
     notifyListeners();
 
     try {
+      final myUserId = FirebaseAuth.instance.currentUser?.uid;
+
       if (reportId != null) {
-        // Mode UPDATE (Edit Laporan)
+        // SIMPAN LAPORAN EDIT
         await _repository.updateReport(
           id: reportId!,
           platNomor: platController.text,
@@ -110,15 +110,21 @@ class ReportViewModel extends ChangeNotifier {
           fotoUrlLama: existingFotoUrl!,
         );
 
-        // TRIGGER NOTIFIKASI LOKAL (EDIT)
-        await _notificationRepo.createNotification(
-          id: Random().nextInt(10000), 
-          title: 'Laporan Diperbarui 📝', 
-          body: 'Perubahan pada laporan Anda berhasil disimpan dan sedang menunggu review admin.',
-        );
+        // BUNGKUS NOTIFIKASI DENGAN TRY CATCH (AGAR AMAN)
+        try {
+          if (myUserId != null) {
+            await _notificationRepo.saveNotificationToFirestore(
+              userId: myUserId,
+              title: 'Laporan Diperbarui 📝',
+              body: 'Perubahan untuk plat ${platController.text} berhasil disimpan.',
+            );
+          }
+        } catch (notifErr) {
+          debugPrint('Gagal mengirim notif (Abaikan): $notifErr');
+        }
 
       } else {
-        // Mode CREATE (Buat Baru)
+        // SIMPAN LAPORAN BARU
         await _repository.submitReport(
           platNomor: platController.text,
           jenisInsiden: selectedJenisInsiden!,
@@ -129,14 +135,25 @@ class ReportViewModel extends ChangeNotifier {
           foto: selectedImage!,
         );
 
-        // TRIGGER NOTIFIKASI LOKAL (BARU)
-        await _notificationRepo.createNotification(
-          id: Random().nextInt(10000), 
-          title: 'Laporan Diterima! 🚀', 
-          body: 'Laporan insiden Anda berhasil dikirim dan sedang dalam proses peninjauan.',
-        );
+        // BUNGKUS NOTIFIKASI DENGAN TRY CATCH (AGAR AMAN)
+        try {
+          if (myUserId != null) {
+            await _notificationRepo.saveNotificationToFirestore(
+              userId: myUserId,
+              title: 'Laporan Diterima! 🚀',
+              body: 'Laporan Anda untuk plat ${platController.text} sedang di proses.',
+            );
+            await _notificationRepo.createNotification(
+              id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
+              title: 'Laporan Diterima! 🚀',
+              body: 'Laporan Anda untuk plat ${platController.text} sedang di proses.',
+            );
+          }
+        } catch (notifErr) {
+          debugPrint('Gagal mengirim notif (Abaikan): $notifErr');
+        }
       }
-      return true; 
+      return true; // PASTIKAN SELALU RETURN TRUE JIKA DATABASE SUKSES
     } catch (e) {
       debugPrint("Error saat kirim laporan: $e");
       return false; 
