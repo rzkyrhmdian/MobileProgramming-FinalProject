@@ -65,4 +65,48 @@ class DetailGarageViewModel extends ChangeNotifier {
       notifyListeners();
     }
   }
+
+  Future<bool> renewAnnualTax() async {
+    if (vehicle == null) return false;
+    isLoading = true;
+    error = '';
+    notifyListeners();
+    try {
+      final success = await _repository.renewAnnualTax(vehicle!);
+      if (success) {
+        await loadVehicle();
+      } else {
+        error = 'Gagal memperbarui pajak tahunan.';
+      }
+      return success;
+    } catch (e) {
+      error = 'Terjadi kesalahan.';
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<bool> renewFiveYearTax() async {
+    if (vehicle == null) return false;
+    isLoading = true;
+    error = '';
+    notifyListeners();
+    try {
+      final success = await _repository.renewFiveYearTax(vehicle!);
+      if (success) {
+        await loadVehicle();
+      } else {
+        error = 'Gagal memperbarui pajak 5 tahunan.';
+      }
+      return success;
+    } catch (e) {
+      error = 'Terjadi kesalahan.';
+      return false;
+    } finally {
+      isLoading = false;
+      notifyListeners();
+    }
+  }
 }
