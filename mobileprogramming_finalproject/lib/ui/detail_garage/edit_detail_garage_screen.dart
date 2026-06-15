@@ -19,6 +19,7 @@ class EditDetailGarageScreen extends StatefulWidget {
 class _EditDetailGarageScreenState extends State<EditDetailGarageScreen> {
   late TextEditingController _plateController;
   late TextEditingController _brandController;
+  late TextEditingController _regionController;
   late TextEditingController _colorController;
   late TextEditingController _annualTaxExpController;
   late TextEditingController _fiveYearTaxExpController;
@@ -30,6 +31,7 @@ class _EditDetailGarageScreenState extends State<EditDetailGarageScreen> {
     super.initState();
     _plateController = TextEditingController(text: widget.vehicle.plateNumber);
     _brandController = TextEditingController(text: widget.vehicle.brand);
+    _regionController = TextEditingController(text: widget.vehicle.region);
     _colorController = TextEditingController(text: widget.vehicle.color);
     _annualTaxExpController = TextEditingController(text: _formatDate(widget.vehicle.annualTaxExpiry));
     _fiveYearTaxExpController = TextEditingController(text: _formatDate(widget.vehicle.fiveYearTaxExpiry));
@@ -64,6 +66,7 @@ class _EditDetailGarageScreenState extends State<EditDetailGarageScreen> {
   void dispose() {
     _plateController.dispose();
     _brandController.dispose();
+    _regionController.dispose();
     _colorController.dispose();
     _annualTaxExpController.dispose();
     _fiveYearTaxExpController.dispose();
@@ -150,6 +153,18 @@ class _EditDetailGarageScreenState extends State<EditDetailGarageScreen> {
                         ),
                         const SizedBox(height: 16),
 
+                        _buildLabel('Region Kendaraan'),
+                        CustomTextField(
+                          controller: _regionController,
+                          hint: 'Contoh: JAWA TIMUR',
+                          icon: Icons.map_outlined,
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black87,
+                          keyboardType: TextInputType.text,
+                          onChanged: (value) {},
+                        ),
+                        const SizedBox(height: 16),
+
                         _buildLabel('Warna Kendaraan'),
                         CustomTextField(
                           controller: _colorController,
@@ -201,6 +216,7 @@ class _EditDetailGarageScreenState extends State<EditDetailGarageScreen> {
                             final updatedVehicle = widget.vehicle.copyWith(
                               plateNumber: _plateController.text,
                               brand: _brandController.text,
+                              region: _regionController.text,
                               color: _colorController.text,
                               annualTaxExpiry: _parseDate(_annualTaxExpController.text),
                               fiveYearTaxExpiry: _parseDate(_fiveYearTaxExpController.text),

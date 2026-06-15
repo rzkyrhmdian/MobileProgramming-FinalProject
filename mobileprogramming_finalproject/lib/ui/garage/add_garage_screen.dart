@@ -174,6 +174,14 @@ class _AddGarageScreenState extends State<AddGarageScreen> {
                       ),
                       const SizedBox(height: 16),
                       CustomTextField(
+                        hint: 'Region (Contoh: JAWA TIMUR)',
+                        icon: Icons.map_outlined,
+                        onChanged: _viewModel.updateRegion,
+                        validator: (val) =>
+                            val!.isEmpty ? 'Masukkan region kendaraan' : null,
+                      ),
+                      const SizedBox(height: 16),
+                      CustomTextField(
                         controller: _annualTaxExpController,
                         hint: 'Jatuh Tempo Pajak Tahunan',
                         icon: Icons.calendar_month_outlined,

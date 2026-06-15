@@ -9,6 +9,8 @@ import 'package:mobileprogramming_finalproject/ui/notifikasi/notifikasi_screen.d
 import 'package:mobileprogramming_finalproject/ui/report/report_screen.dart';
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
 import 'package:mobileprogramming_finalproject/ui/profile/profile_viewmodel.dart';
+import 'package:mobileprogramming_finalproject/data/repository/garage_repository_impl.dart';
+import 'package:mobileprogramming_finalproject/domain/model/garage_vehicle.dart';
 
 class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
@@ -151,7 +153,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      'Adakah yang bisa dilaporkan hari ini?',
+                                      'Ada yang bisa dilaporkan hari ini?',
                                       style: TextStyle(
                                         fontSize: 12,
                                         color: AppColors.primary.withValues(
@@ -332,13 +334,104 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       ),
 
                       const SizedBox(height: 28),
-                      _buildSTNKAlertCard(
-                        vehicleName: 'Honda Vario',
-                        platNumber: 'L 1899 FZ',
-                        expiryDate: 'Jun 2027',
-                        monthLeft: 12,
+                      FutureBuilder<List<GarageVehicle>>(
+                        future: GarageRepositoryImpl().getVehicles(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.waiting) {
+                            return const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: CircularProgressIndicator(),
+                              ),
+                            );
+                          }
+                          if (snapshot.hasError) {
+                            return const SizedBox.shrink();
+                          }
+                          final vehicles = snapshot.data ?? [];
+                          if (vehicles.isEmpty) {
+                            return const SizedBox.shrink();
+                          }
+
+                          final now = DateTime.now();
+                          final today = DateTime(now.year, now.month, now.day);
+                          final List<_TaxAlert> alerts = [];
+
+                          for (final vehicle in vehicles) {
+                            // Annual tax alert
+                            final annualExpiry = DateTime(vehicle.annualTaxExpiry.year, vehicle.annualTaxExpiry.month, vehicle.annualTaxExpiry.day);
+                            final annualDiff = annualExpiry.difference(today).inDays;
+                            alerts.add(_TaxAlert(
+                              vehicle: vehicle,
+                              title: 'Pajak Tahunan',
+                              expiryDate: vehicle.annualTaxExpiry,
+                              diffInDays: annualDiff,
+                            ));
+
+                            // Five year STNK alert
+                            final fiveYearExpiry = DateTime(vehicle.fiveYearTaxExpiry.year, vehicle.fiveYearTaxExpiry.month, vehicle.fiveYearTaxExpiry.day);
+                            final fiveYearDiff = fiveYearExpiry.difference(today).inDays;
+                            alerts.add(_TaxAlert(
+                              vehicle: vehicle,
+                              title: 'Masa Berlaku STNK',
+                              expiryDate: vehicle.fiveYearTaxExpiry,
+                              diffInDays: fiveYearDiff,
+                            ));
+                          }
+
+                          // Sort by diffInDays ascending (closest to expiry first)
+                          alerts.sort((a, b) => a.diffInDays.compareTo(b.diffInDays));
+
+                          final closestAlert = alerts.first;
+                          final vehicle = closestAlert.vehicle;
+                          final title = closestAlert.title;
+                          final expiryDate = closestAlert.expiryDate;
+                          final diffInDays = closestAlert.diffInDays;
+
+                          // Format month and year
+                          const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+                          final expiryDateStr = "${monthNames[expiryDate.month - 1]} ${expiryDate.year}";
+
+                          // Calculate remainingText and colors
+                          String remainingText;
+                          Color baseColor;
+                          Color bgColor;
+
+                          if (diffInDays < 0) {
+                            remainingText = 'Terlambat ${diffInDays.abs()} hari';
+                            baseColor = AppColors.errorRed;
+                            bgColor = AppColors.bgErrorRed;
+                          } else if (diffInDays == 0) {
+                            remainingText = 'Jatuh tempo HARI INI';
+                            baseColor = AppColors.warning;
+                            bgColor = AppColors.bgWarning;
+                          } else if (diffInDays < 30) {
+                            remainingText = 'Sisa $diffInDays hari';
+                            baseColor = AppColors.warning;
+                            bgColor = AppColors.bgWarning;
+                          } else {
+                            final monthLeft = (diffInDays / 30).ceil();
+                            remainingText = 'Sisa $monthLeft bulan';
+                            baseColor = AppColors.secondary;
+                            bgColor = AppColors.secondary.withValues(alpha: 0.1);
+                          }
+
+                          return Column(
+                            children: [
+                              _buildSTNKAlertCard(
+                                title: title,
+                                vehicleName: vehicle.brand,
+                                platNumber: vehicle.plateNumber,
+                                expiryDate: expiryDateStr,
+                                remainingText: remainingText,
+                                baseColor: baseColor,
+                                bgColor: bgColor,
+                              ),
+                              const SizedBox(height: 24),
+                            ],
+                          );
+                        },
                       ),
-                      const SizedBox(height: 24),
                       const Text(
                         'Akses Cepat',
                         style: TextStyle(
@@ -629,26 +722,29 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   Widget _buildSTNKAlertCard({
+    required String title,
     required String vehicleName,
     required String platNumber,
     required String expiryDate,
-    required int monthLeft,
+    required String remainingText,
+    required Color baseColor,
+    required Color bgColor,
   }) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: AppColors.secondary.withValues(alpha: 0.1),
+        color: bgColor,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: AppColors.secondary, width: 1.5),
+        border: Border.all(color: baseColor, width: 1.5),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: const BoxDecoration(
-              color: AppColors.secondary,
+            decoration: BoxDecoration(
+              color: baseColor,
               shape: BoxShape.circle,
             ),
             child: const Icon(
@@ -662,9 +758,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Masa Berlaku STNK',
-                  style: TextStyle(
+                Text(
+                  title,
+                  style: const TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
                     color: AppColors.primary,
@@ -697,15 +793,15 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
-                        color: AppColors.secondary.withValues(alpha: 0.1),
+                        color: baseColor.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(30),
                       ),
                       child: Text(
-                        'Sisa $monthLeft bulan',
-                        style: const TextStyle(
+                        remainingText,
+                        style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.secondary,
+                          color: baseColor,
                         ),
                       ),
                     ),
@@ -718,4 +814,18 @@ class _DashboardScreenState extends State<DashboardScreen> {
       ),
     );
   }
+}
+
+class _TaxAlert {
+  final GarageVehicle vehicle;
+  final String title;
+  final DateTime expiryDate;
+  final int diffInDays;
+
+  _TaxAlert({
+    required this.vehicle,
+    required this.title,
+    required this.expiryDate,
+    required this.diffInDays,
+  });
 }

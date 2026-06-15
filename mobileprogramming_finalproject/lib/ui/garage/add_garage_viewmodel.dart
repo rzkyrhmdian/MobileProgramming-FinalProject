@@ -19,6 +19,7 @@ class AddGarageViewModel extends ChangeNotifier {
   String _brand = '';
   String _category = '';
   String _plateNumber = '';
+  String _region = '';
   DateTime _annualTaxExpiry = DateTime.now();
   DateTime _fiveYearTaxExpiry = DateTime.now();
   bool _isAnnualPaid = false;
@@ -38,6 +39,7 @@ class AddGarageViewModel extends ChangeNotifier {
   void updateBrand(String val) => _brand = val;
   void updateCategory(String val) => _category = val;
   void updatePlateNumber(String val) => _plateNumber = val;
+  void updateRegion(String val) => _region = val;
   void updateAnnualTaxExpiry(DateTime val) => _annualTaxExpiry = val;
   void updateFiveYearTaxExpiry(DateTime val) => _fiveYearTaxExpiry = val;
   void updateColor(String val) => _color = val;
@@ -82,9 +84,9 @@ class AddGarageViewModel extends ChangeNotifier {
         isAnnualPaid: _isAnnualPaid,
         isFiveYearPaid: _isFiveYearPaid,
         color: _color,
-        region: 'METRO JAYA', // Default value for now
+        region: _region,
         category: _category,
-        imageUrl: '', // Will be updated in repository after upload
+        imageUrl: '',
       );
 
       await _garageRepository.addVehicle(newVehicle, imageFile: _imageFile);
