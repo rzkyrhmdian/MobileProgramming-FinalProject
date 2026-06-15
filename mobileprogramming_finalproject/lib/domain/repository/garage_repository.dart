@@ -11,4 +11,8 @@ abstract class GarageRepository {
   Future<bool> addVehicle(GarageVehicle vehicle, {File? imageFile});
 
   Future<bool> updateVehicle(GarageVehicle vehicle);
+
+  Future<bool> renewAnnualTax(GarageVehicle vehicle);
+
+  Future<bool> renewFiveYearTax(GarageVehicle vehicle);
 }

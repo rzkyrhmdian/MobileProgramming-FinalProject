@@ -4,9 +4,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mobileprogramming_finalproject/domain/repository/garage_repository.dart';
 import 'package:mobileprogramming_finalproject/data/repository/garage_repository_impl.dart';
 import 'package:mobileprogramming_finalproject/domain/model/garage_vehicle.dart';
+import 'package:mobileprogramming_finalproject/data/repository/notification_repository_impl.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class AddGarageViewModel extends ChangeNotifier {
   final GarageRepository _garageRepository;
+  final NotificationRepositoryImpl _notificationRepo = NotificationRepositoryImpl();
   final ImagePicker _imagePicker;
 
   AddGarageViewModel({GarageRepository? garageRepository, ImagePicker? imagePicker})
@@ -16,7 +19,11 @@ class AddGarageViewModel extends ChangeNotifier {
   String _brand = '';
   String _category = '';
   String _plateNumber = '';
-  String _stnkExp = '';
+  String _region = '';
+  DateTime _annualTaxExpiry = DateTime.now();
+  DateTime _fiveYearTaxExpiry = DateTime.now();
+  bool _isAnnualPaid = false;
+  bool _isFiveYearPaid = false;
   String _color = '';
   File? _imageFile;
 
@@ -26,11 +33,15 @@ class AddGarageViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String get error => _error;
   File? get imageFile => _imageFile;
+  bool get isAnnualPaid => _isAnnualPaid;
+  bool get isFiveYearPaid => _isFiveYearPaid;
 
   void updateBrand(String val) => _brand = val;
   void updateCategory(String val) => _category = val;
   void updatePlateNumber(String val) => _plateNumber = val;
-  void updateStnkExp(String val) => _stnkExp = val;
+  void updateRegion(String val) => _region = val;
+  void updateAnnualTaxExpiry(DateTime val) => _annualTaxExpiry = val;
+  void updateFiveYearTaxExpiry(DateTime val) => _fiveYearTaxExpiry = val;
   void updateColor(String val) => _color = val;
 
   Future<void> pickImage(ImageSource source) async {
@@ -68,17 +79,39 @@ class AddGarageViewModel extends ChangeNotifier {
         id: 'vehicle_${DateTime.now().millisecondsSinceEpoch}',
         brand: _brand,
         plateNumber: _plateNumber,
-        stnkExpiration: _stnkExp,
+        annualTaxExpiry: _annualTaxExpiry,
+        fiveYearTaxExpiry: _fiveYearTaxExpiry,
+        isAnnualPaid: _isAnnualPaid,
+        isFiveYearPaid: _isFiveYearPaid,
         color: _color,
-        region: 'METRO JAYA', // Default value for now
-        status: GarageVehicleStatus.aman, // Default value for now
-        statusText: 'Pajak Aman', // Default value for now
-        badgeText: 'Aman', // Default value for now
+        region: _region,
         category: _category,
-        imageUrl: '', // Will be updated in repository after upload
+        imageUrl: '',
       );
 
       await _garageRepository.addVehicle(newVehicle, imageFile: _imageFile);
+
+      // Schedule notifications for the new vehicle
+      await _notificationRepo.scheduleVehicleTaxNotifications(newVehicle);
+
+      // Instant push notification and firestore save
+      final myUserId = FirebaseAuth.instance.currentUser?.uid;
+      if (myUserId != null) {
+        try {
+          await _notificationRepo.saveNotificationToFirestore(
+            userId: myUserId,
+            title: 'Kendaraan Ditambahkan 🚗',
+            body: 'Kendaraan ${newVehicle.plateNumber} berhasil ditambahkan ke garasi Anda.',
+          );
+          await _notificationRepo.createNotification(
+            id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
+            title: 'Kendaraan Ditambahkan 🚗',
+            body: 'Kendaraan ${newVehicle.plateNumber} berhasil ditambahkan ke garasi Anda.',
+          );
+        } catch (e) {
+          debugPrint('Gagal mengirim notif instan: $e');
+        }
+      }
 
       _isLoading = false;
       notifyListeners();

@@ -3,7 +3,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:mobileprogramming_finalproject/domain/model/report_info.dart';
 import 'package:mobileprogramming_finalproject/ui/report/report_map_detail_screen.dart';
-
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
 
 class DetailReportScreen extends StatelessWidget {
@@ -18,14 +17,11 @@ class DetailReportScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     Color statusColor = AppColors.warning;
     Color statusBg = AppColors.bgWarning;
-    final cleanStatus = report.status.toString().split('.').last.toLowerCase();
 
-    if (cleanStatus == 'selesai' ||
-        cleanStatus == 'approved' ||
-        cleanStatus == 'resolved') {
+    if (report.status == ReportStatus.selesai) {
       statusColor = AppColors.success;
       statusBg = AppColors.bgSuccess;
-    } else if (cleanStatus == 'ditolak') {
+    } else if (report.status == ReportStatus.ditolak) {
       statusColor = AppColors.errorRed;
       statusBg = AppColors.bgErrorRed;
     }
@@ -78,7 +74,11 @@ class DetailReportScreen extends StatelessWidget {
                 children: [
                   _buildHeroImage(
                     report.fotoUrl,
-                    report.status.toString().split('.').last.toUpperCase(),
+                    report.status == ReportStatus.dalamProses
+                        ? 'DALAM PROSES'
+                        : report.status == ReportStatus.selesai
+                            ? 'SELESAI'
+                            : 'DITOLAK',
                     statusColor,
                     statusBg,
                   ),
@@ -121,13 +121,14 @@ class DetailReportScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
+                          color: Colors.black.withOpacity(0.05),
                           blurRadius: 16,
                           offset: const Offset(0, 4),
                         ),
                       ],
                     ),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         _buildDetailRow(
                           Icons.campaign_outlined,
@@ -144,13 +145,26 @@ class DetailReportScreen extends StatelessWidget {
                         _buildDetailRow(
                           Icons.verified_user_outlined,
                           'Status Verifikasi Laporan',
-                          report.status
-                              .toString()
-                              .split('.')
-                              .last
-                              .toUpperCase(),
+                          report.status == ReportStatus.dalamProses
+                              ? 'DALAM PROSES'
+                              : report.status == ReportStatus.selesai
+                                  ? 'SELESAI'
+                                  : 'DITOLAK',
                           valueColor: statusColor,
                         ),
+
+                        // ========================================================
+                        // TEMPAT MENAMPILKAN NOTE DARI ADMIN (EKSKLUSIF DI SINI)
+                        // ========================================================
+                        if (report.adminNotes != null && report.adminNotes!.isNotEmpty) ...[
+                          const SizedBox(height: 24),
+                          _buildDetailRow(
+                            Icons.rate_review_outlined,
+                            'Catatan Tambahan dari Admin',
+                            report.adminNotes!,
+                            valueColor: Colors.blue.shade900,
+                          ),
+                        ],
                       ],
                     ),
                   ),
@@ -172,7 +186,7 @@ class DetailReportScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
+                          color: Colors.black.withOpacity(0.05),
                           blurRadius: 16,
                           offset: const Offset(0, 4),
                         ),
@@ -202,9 +216,7 @@ class DetailReportScreen extends StatelessWidget {
                               ),
                             );
                           },
-                          borderRadius: BorderRadius.circular(
-                            12,
-                          ), // Menjaga clip splash tinta tetap rapi
+                          borderRadius: BorderRadius.circular(12), 
                           child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 4.0),
                             child: Row(
@@ -242,8 +254,7 @@ class DetailReportScreen extends StatelessWidget {
                                         style: const TextStyle(
                                           fontSize: 14,
                                           fontWeight: FontWeight.bold,
-                                          color: AppColors
-                                              .accent, // Diberi warna aksen agar terlihat interaktif
+                                          color: AppColors.accent, 
                                         ),
                                       ),
                                       const SizedBox(height: 2),
@@ -305,7 +316,7 @@ class DetailReportScreen extends StatelessWidget {
         ),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: Colors.black.withOpacity(0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           ),
@@ -322,7 +333,7 @@ class DetailReportScreen extends StatelessWidget {
                 color: statusBg,
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(
-                  color: statusColor.withValues(alpha: 0.5),
+                  color: statusColor.withOpacity(0.5),
                   width: 1,
                 ),
               ),

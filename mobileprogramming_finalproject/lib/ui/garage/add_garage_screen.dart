@@ -16,16 +16,18 @@ class AddGarageScreen extends StatefulWidget {
 class _AddGarageScreenState extends State<AddGarageScreen> {
   final AddGarageViewModel _viewModel = AddGarageViewModel();
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _stnkExpController = TextEditingController();
+  final TextEditingController _annualTaxExpController = TextEditingController();
+  final TextEditingController _fiveYearTaxExpController = TextEditingController();
 
   @override
   void dispose() {
     _viewModel.dispose();
-    _stnkExpController.dispose();
+    _annualTaxExpController.dispose();
+    _fiveYearTaxExpController.dispose();
     super.dispose();
   }
 
-  Future<void> _selectDate(BuildContext context) async {
+  Future<void> _selectDate(BuildContext context, bool isAnnual) async {
     final DateTime? picked = await showDatePicker(
       context: context,
       initialDate: DateTime.now(),
@@ -34,8 +36,13 @@ class _AddGarageScreenState extends State<AddGarageScreen> {
     );
     if (picked != null) {
       final formattedDate = "${picked.day} ${_getMonthName(picked.month)} ${picked.year}";
-      _stnkExpController.text = formattedDate;
-      _viewModel.updateStnkExp(formattedDate);
+      if (isAnnual) {
+        _annualTaxExpController.text = formattedDate;
+        _viewModel.updateAnnualTaxExpiry(picked);
+      } else {
+        _fiveYearTaxExpController.text = formattedDate;
+        _viewModel.updateFiveYearTaxExpiry(picked);
+      }
     }
   }
 
@@ -167,14 +174,33 @@ class _AddGarageScreenState extends State<AddGarageScreen> {
                       ),
                       const SizedBox(height: 16),
                       CustomTextField(
-                        controller: _stnkExpController,
-                        hint: 'Masa Berlaku STNK (Pilih Tanggal)',
+                        hint: 'Region (Contoh: JAWA TIMUR)',
+                        icon: Icons.map_outlined,
+                        onChanged: _viewModel.updateRegion,
+                        validator: (val) =>
+                            val!.isEmpty ? 'Masukkan region kendaraan' : null,
+                      ),
+                      const SizedBox(height: 16),
+                      CustomTextField(
+                        controller: _annualTaxExpController,
+                        hint: 'Jatuh Tempo Pajak Tahunan',
                         icon: Icons.calendar_month_outlined,
                         readOnly: true,
-                        onTap: () => _selectDate(context),
-                        onChanged: (val) {}, // ditangani oleh controller
+                        onTap: () => _selectDate(context, true),
+                        onChanged: (val) {},
                         validator: (val) =>
-                            val!.isEmpty ? 'Pilih masa berlaku STNK' : null,
+                            val!.isEmpty ? 'Pilih masa berlaku pajak tahunan' : null,
+                      ),
+                      const SizedBox(height: 16),
+                      CustomTextField(
+                        controller: _fiveYearTaxExpController,
+                        hint: 'Akhir Masa Berlaku STNK',
+                        icon: Icons.calendar_today_outlined,
+                        readOnly: true,
+                        onTap: () => _selectDate(context, false),
+                        onChanged: (val) {},
+                        validator: (val) =>
+                            val!.isEmpty ? 'Pilih akhir masa berlaku STNK' : null,
                       ),
                       const SizedBox(height: 16),
                       CustomTextField(

@@ -5,8 +5,10 @@ import 'package:mobileprogramming_finalproject/data/repository/report_repository
 import 'package:mobileprogramming_finalproject/domain/model/report_info.dart';
 import 'package:mobileprogramming_finalproject/ui/report/report_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/report/report_map_detail_screen.dart';
+import 'package:mobileprogramming_finalproject/ui/detail_report/detail_report_screen.dart';
 import 'package:mobileprogramming_finalproject/ui/shared_widgets/confirm_action_dialog.dart';
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
+import 'package:mobileprogramming_finalproject/data/repository/notification_repository_impl.dart';
 
 class ReportHistoryScreen extends StatefulWidget {
   const ReportHistoryScreen({super.key});
@@ -125,293 +127,311 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
                     final formattedDate =
                         "${date.day}/${date.month}/${date.year} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}";
 
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
-                            blurRadius: 16,
-                            offset: const Offset(0, 4),
+                    return GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DetailReportScreen(report: report),
                           ),
-                        ],
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(14),
-                              border: Border.all(color: Colors.grey.shade100),
+                        );
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.04),
+                              blurRadius: 16,
+                              offset: const Offset(0, 4),
                             ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(14),
-                              child: Image.network(
-                                report.fotoUrl,
-                                width: 85,
-                                height: 85,
-                                fit: BoxFit.cover,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    Container(
-                                      width: 85,
-                                      height: 85,
-                                      color: Colors.grey.shade100,
-                                      child: Icon(
-                                        Icons.image_not_supported_outlined,
-                                        color: Colors.grey.shade400,
-                                        size: 24,
+                          ],
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(color: Colors.grey.shade100),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(14),
+                                child: Image.network(
+                                  report.fotoUrl,
+                                  width: 85,
+                                  height: 85,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      Container(
+                                        width: 85,
+                                        height: 85,
+                                        color: Colors.grey.shade100,
+                                        child: Icon(
+                                          Icons.image_not_supported_outlined,
+                                          color: Colors.grey.shade400,
+                                          size: 24,
+                                        ),
                                       ),
-                                    ),
+                                ),
                               ),
                             ),
-                          ),
-                          const SizedBox(width: 14),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      report.jenisInsiden,
-                                      style: const TextStyle(
-                                        color: AppColors.primary,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 13,
-                                      ),
-                                    ),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: statusBg,
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                      child: Text(
-                                        statusText,
-                                        style: TextStyle(
-                                          color: statusColor,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 10,
-                                          letterSpacing: 0.3,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 4),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 6,
-                                    vertical: 2,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.shade100,
-                                    borderRadius: BorderRadius.circular(6),
-                                  ),
-                                  child: Text(
-                                    report.platNomor,
-                                    style: GoogleFonts.jetBrainsMono(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 12,
-                                      color: AppColors.primary,
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  report.deskripsi,
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey.shade600,
-                                    height: 1.3,
-                                  ),
-                                ),
-                                const SizedBox(height: 12),
-                                const Divider(color: Colors.black12, height: 1),
-                                const SizedBox(height: 10),
-
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    InkWell(
-                                      onTap: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) =>
-                                                ReportMapDetailScreen(
-                                                  report: report,
-                                                ),
-                                          ),
-                                        );
-                                      },
-                                      borderRadius: BorderRadius.circular(6),
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 4.0,
-                                        ),
-                                        child: Row(
-                                          children: const [
-                                            Icon(
-                                              Icons.location_on_outlined,
-                                              size: 14,
-                                              color: AppColors.accent,
-                                            ),
-                                            SizedBox(width: 4),
-                                            Text(
-                                              "Lokasi Kejadian",
-                                              style: TextStyle(
-                                                fontSize: 11,
-                                                color: AppColors.primary,
-                                                fontWeight: FontWeight.bold,
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                    ),
-                                    Row(
-                                      children: [
-                                        Icon(
-                                          Icons.access_time_rounded,
-                                          size: 12,
-                                          color: Colors.grey.shade400,
-                                        ),
-                                        const SizedBox(width: 4),
-                                        Text(
-                                          formattedDate,
-                                          style: TextStyle(
-                                            fontSize: 10,
-                                            color: Colors.grey.shade500,
-                                            fontWeight: FontWeight.w500,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-
-                                if (report.status ==
-                                    ReportStatus.dalamProses) ...[
-                                  const SizedBox(height: 12),
+                            const SizedBox(width: 14),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
                                     children: [
-                                      OutlinedButton(
-                                        onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ReportScreen(
-                                                    existingReport: report,
-                                                  ),
-                                            ),
-                                          );
-                                        },
-                                        style: OutlinedButton.styleFrom(
-                                          foregroundColor: AppColors.primary,
-                                          side: const BorderSide(
+                                      Expanded(
+                                        child: Text(
+                                          report.jenisInsiden,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
                                             color: AppColors.primary,
-                                            width: 1.5,
-                                          ),
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 14,
-                                            vertical: 8,
-                                          ),
-                                          minimumSize: const Size(0, 32),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              8,
-                                            ),
-                                          ),
-                                        ),
-                                        child: const Text(
-                                          "Edit",
-                                          style: TextStyle(
-                                            fontSize: 11,
                                             fontWeight: FontWeight.bold,
+                                            fontSize: 13,
                                           ),
                                         ),
                                       ),
-                                      const SizedBox(width: 8),
-                                      ElevatedButton(
-                                        onPressed: () {
-                                          showConfirmActionDialog(
-                                            context: context,
-                                            title: 'Batalkan Laporan?',
-                                            message:
-                                                'Laporan ini akan dibatalkan dan dihapus secara permanen dari sistem. Anda yakin?',
-                                            confirmLabel: 'Hapus',
-                                            onConfirm: () async {
-                                              await ReportRepositoryImpl()
-                                                  .deleteReport(
-                                                    report.id,
-                                                    report.fotoUrl,
-                                                  );
-
-                                              if (context.mounted) {
-                                                ScaffoldMessenger.of(
-                                                  context,
-                                                ).showSnackBar(
-                                                  const SnackBar(
-                                                    content: Text(
-                                                      'Laporan berhasil dibatalkan & dihapus',
-                                                    ),
-                                                    backgroundColor: Colors.red,
-                                                  ),
-                                                );
-                                              }
-                                            },
-                                          );
-                                        },
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: AppColors.errorRed
-                                              .withValues(alpha: 0.1),
-                                          foregroundColor: AppColors.errorRed,
-                                          elevation: 0,
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 14,
-                                            vertical: 8,
-                                          ),
-                                          minimumSize: const Size(0, 32),
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              8,
-                                            ),
-                                            side: BorderSide(
-                                              color: AppColors.errorRed
-                                                  .withValues(alpha: 0.3),
-                                              width: 1.5,
-                                            ),
-                                          ),
+                                      const SizedBox(width: 4),
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 4,
                                         ),
-                                        child: const Text(
-                                          "Batalkan",
+                                        decoration: BoxDecoration(
+                                          color: statusBg,
+                                          borderRadius: BorderRadius.circular(8),
+                                        ),
+                                        child: Text(
+                                          statusText,
                                           style: TextStyle(
-                                            fontSize: 11,
+                                            color: statusColor,
                                             fontWeight: FontWeight.bold,
+                                            fontSize: 10,
+                                            letterSpacing: 0.3,
                                           ),
                                         ),
                                       ),
                                     ],
                                   ),
+                                  const SizedBox(height: 4),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade100,
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      report.platNomor,
+                                      style: GoogleFonts.jetBrainsMono(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 12,
+                                        color: AppColors.primary,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    report.deskripsi,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.grey.shade600,
+                                      height: 1.3,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  const Divider(color: Colors.black12, height: 1),
+                                  const SizedBox(height: 10),
+
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      InkWell(
+                                        onTap: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  ReportMapDetailScreen(
+                                                    report: report,
+                                                  ),
+                                            ),
+                                          );
+                                        },
+                                        borderRadius: BorderRadius.circular(6),
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 4.0,
+                                          ),
+                                          child: Row(
+                                            children: const [
+                                              Icon(
+                                                Icons.location_on_outlined,
+                                                size: 14,
+                                                color: AppColors.accent,
+                                              ),
+                                              SizedBox(width: 4),
+                                              Text(
+                                                "Lokasi Kejadian",
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  color: AppColors.primary,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      Row(
+                                        children: [
+                                          Icon(
+                                            Icons.access_time_rounded,
+                                            size: 12,
+                                            color: Colors.grey.shade400,
+                                          ),
+                                          const SizedBox(width: 4),
+                                          Text(
+                                            formattedDate,
+                                            style: TextStyle(
+                                              fontSize: 10,
+                                              color: Colors.grey.shade500,
+                                              fontWeight: FontWeight.w500,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+
+                                  if (report.status == ReportStatus.dalamProses) ...[
+                                    const SizedBox(height: 12),
+                                    Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: [
+                                        OutlinedButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ReportScreen(
+                                                      existingReport: report,
+                                                    ),
+                                              ),
+                                            );
+                                          },
+                                          style: OutlinedButton.styleFrom(
+                                            foregroundColor: AppColors.primary,
+                                            side: const BorderSide(
+                                              color: AppColors.primary,
+                                              width: 1.5,
+                                            ),
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 14,
+                                              vertical: 8,
+                                            ),
+                                            minimumSize: const Size(0, 32),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(8),
+                                            ),
+                                          ),
+                                          child: const Text(
+                                            "Edit",
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 8),
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            showConfirmActionDialog(
+                                              context: context,
+                                              title: 'Batalkan Laporan?',
+                                              message:
+                                                  'Laporan ini akan dibatalkan dan dihapus secara permanen dari sistem. Anda yakin?',
+                                              confirmLabel: 'Hapus',
+                                              onConfirm: () async {
+                                                await ReportRepositoryImpl().deleteReport(
+                                                  report.id,
+                                                  report.fotoUrl,
+                                                );
+
+                                                try {
+                                                  final notifRepo = NotificationRepositoryImpl();
+                                                  await notifRepo.saveNotificationToFirestore(
+                                                    userId: report.userId,
+                                                    title: 'Laporan Dibatalkan',
+                                                    body: 'Laporan Anda untuk plat ${report.platNomor} telah berhasil dibatalkan.',
+                                                  );
+                                                  await notifRepo.createNotification(
+                                                    id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
+                                                    title: 'Laporan Dibatalkan',
+                                                    body: 'Laporan Anda untuk plat ${report.platNomor} telah berhasil dibatalkan.',
+                                                  );
+                                                } catch (e) {
+                                                  debugPrint('Gagal mengirim notif: $e');
+                                                }
+
+                                                if (context.mounted) {
+                                                  ScaffoldMessenger.of(context).showSnackBar(
+                                                    const SnackBar(
+                                                      content: Text('Laporan berhasil dibatalkan & dihapus'),
+                                                      backgroundColor: Colors.red,
+                                                    ),
+                                                  );
+                                                }
+                                              },
+                                            );
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            backgroundColor: AppColors.errorRed.withValues(alpha: 0.1),
+                                            foregroundColor: AppColors.errorRed,
+                                            elevation: 0,
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 14,
+                                              vertical: 8,
+                                            ),
+                                            minimumSize: const Size(0, 32),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(8),
+                                              side: BorderSide(
+                                                color: AppColors.errorRed.withValues(alpha: 0.3),
+                                                width: 1.5,
+                                              ),
+                                            ),
+                                          ),
+                                          child: const Text(
+                                            "Batalkan",
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
                                 ],
-                              ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     );
                   },

@@ -19,8 +19,10 @@ class EditDetailGarageScreen extends StatefulWidget {
 class _EditDetailGarageScreenState extends State<EditDetailGarageScreen> {
   late TextEditingController _plateController;
   late TextEditingController _brandController;
+  late TextEditingController _regionController;
   late TextEditingController _colorController;
-  late TextEditingController _stnkController;
+  late TextEditingController _annualTaxExpController;
+  late TextEditingController _fiveYearTaxExpController;
   late TextEditingController _vinController;
   bool _isLoading = false;
 
@@ -29,17 +31,45 @@ class _EditDetailGarageScreenState extends State<EditDetailGarageScreen> {
     super.initState();
     _plateController = TextEditingController(text: widget.vehicle.plateNumber);
     _brandController = TextEditingController(text: widget.vehicle.brand);
+    _regionController = TextEditingController(text: widget.vehicle.region);
     _colorController = TextEditingController(text: widget.vehicle.color);
-    _stnkController = TextEditingController(text: widget.vehicle.stnkExpiration);
+    _annualTaxExpController = TextEditingController(text: _formatDate(widget.vehicle.annualTaxExpiry));
+    _fiveYearTaxExpController = TextEditingController(text: _formatDate(widget.vehicle.fiveYearTaxExpiry));
     _vinController = TextEditingController(text: 'MHRRU1870JKXXXXXX'); // Dummy
+  }
+
+  String _formatDate(DateTime date) {
+    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    return "${date.day} ${months[date.month - 1]} ${date.year}";
+  }
+
+  Future<void> _selectDate(BuildContext context, bool isAnnual) async {
+    final DateTime initialDate = isAnnual ? widget.vehicle.annualTaxExpiry : widget.vehicle.fiveYearTaxExpiry;
+    final DateTime? picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(2100),
+    );
+    if (picked != null) {
+      setState(() {
+        if (isAnnual) {
+          _annualTaxExpController.text = _formatDate(picked);
+        } else {
+          _fiveYearTaxExpController.text = _formatDate(picked);
+        }
+      });
+    }
   }
 
   @override
   void dispose() {
     _plateController.dispose();
     _brandController.dispose();
+    _regionController.dispose();
     _colorController.dispose();
-    _stnkController.dispose();
+    _annualTaxExpController.dispose();
+    _fiveYearTaxExpController.dispose();
     _vinController.dispose();
     super.dispose();
   }
@@ -123,6 +153,18 @@ class _EditDetailGarageScreenState extends State<EditDetailGarageScreen> {
                         ),
                         const SizedBox(height: 16),
 
+                        _buildLabel('Region Kendaraan'),
+                        CustomTextField(
+                          controller: _regionController,
+                          hint: 'Contoh: JAWA TIMUR',
+                          icon: Icons.map_outlined,
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black87,
+                          keyboardType: TextInputType.text,
+                          onChanged: (value) {},
+                        ),
+                        const SizedBox(height: 16),
+
                         _buildLabel('Warna Kendaraan'),
                         CustomTextField(
                           controller: _colorController,
@@ -135,14 +177,28 @@ class _EditDetailGarageScreenState extends State<EditDetailGarageScreen> {
                         ),
                         const SizedBox(height: 16),
 
-                        _buildLabel('Masa Berlaku STNK'),
+                        _buildLabel('Jatuh Tempo Pajak Tahunan'),
                         CustomTextField(
-                          controller: _stnkController,
-                          hint: 'Masukkan Masa Berlaku STNK',
+                          controller: _annualTaxExpController,
+                          hint: 'Pilih Masa Berlaku',
                           icon: Icons.calendar_today_outlined,
                           backgroundColor: Colors.white,
                           foregroundColor: Colors.black87,
-                          keyboardType: TextInputType.datetime,
+                          readOnly: true,
+                          onTap: () => _selectDate(context, true),
+                          onChanged: (value) {},
+                        ),
+                        const SizedBox(height: 16),
+
+                        _buildLabel('Akhir Masa Berlaku STNK'),
+                        CustomTextField(
+                          controller: _fiveYearTaxExpController,
+                          hint: 'Pilih Akhir Masa Berlaku STNK',
+                          icon: Icons.calendar_month_outlined,
+                          backgroundColor: Colors.white,
+                          foregroundColor: Colors.black87,
+                          readOnly: true,
+                          onTap: () => _selectDate(context, false),
                           onChanged: (value) {},
                         ),
                       ],
@@ -160,8 +216,12 @@ class _EditDetailGarageScreenState extends State<EditDetailGarageScreen> {
                             final updatedVehicle = widget.vehicle.copyWith(
                               plateNumber: _plateController.text,
                               brand: _brandController.text,
+                              region: _regionController.text,
                               color: _colorController.text,
-                              stnkExpiration: _stnkController.text,
+                              annualTaxExpiry: _parseDate(_annualTaxExpController.text),
+                              fiveYearTaxExpiry: _parseDate(_fiveYearTaxExpController.text),
+                              isAnnualPaid: widget.vehicle.isAnnualPaid,
+                              isFiveYearPaid: widget.vehicle.isFiveYearPaid,
                             );
 
                             final repository = GarageRepositoryImpl();
@@ -220,5 +280,21 @@ class _EditDetailGarageScreenState extends State<EditDetailGarageScreen> {
         ),
       ),
     );
+  }
+
+  DateTime _parseDate(String dateStr) {
+    const months = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    try {
+      final parts = dateStr.split(' ');
+      if (parts.length == 3) {
+        final day = int.parse(parts[0]);
+        final month = months.indexOf(parts[1]) + 1;
+        final year = int.parse(parts[2]);
+        return DateTime(year, month, day);
+      }
+    } catch (e) {
+      // fallback
+    }
+    return DateTime.now();
   }
 }

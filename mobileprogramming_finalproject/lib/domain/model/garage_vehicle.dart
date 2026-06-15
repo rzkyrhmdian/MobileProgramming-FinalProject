@@ -5,10 +5,10 @@ class GarageVehicle {
   final String brand;
   final String plateNumber;
   final String region;
-  final String stnkExpiration;
-  final GarageVehicleStatus status;
-  final String statusText;
-  final String badgeText;
+  final DateTime annualTaxExpiry;
+  final DateTime fiveYearTaxExpiry;
+  final bool isAnnualPaid;
+  final bool isFiveYearPaid;
   final String color;
   final String category;
   final String imageUrl;
@@ -18,24 +18,73 @@ class GarageVehicle {
     required this.brand,
     required this.plateNumber,
     required this.region,
-    required this.stnkExpiration,
-    required this.status,
-    required this.statusText,
-    required this.badgeText,
+    required this.annualTaxExpiry,
+    required this.fiveYearTaxExpiry,
+    required this.isAnnualPaid,
+    required this.isFiveYearPaid,
     required this.color,
     required this.category,
     required this.imageUrl,
   });
+
+  GarageVehicleStatus _calculateStatus(DateTime expiry, bool isPaid) {
+    if (isPaid) return GarageVehicleStatus.aman;
+    final today = DateTime.now();
+    final todayDate = DateTime(today.year, today.month, today.day);
+    final expiryDate = DateTime(expiry.year, expiry.month, expiry.day);
+    
+    if (todayDate.isAfter(expiryDate)) {
+      return GarageVehicleStatus.terlambat;
+    }
+    
+    final difference = expiryDate.difference(todayDate).inDays;
+    if (difference <= 30) {
+      return GarageVehicleStatus.mendekati;
+    }
+    
+    return GarageVehicleStatus.aman;
+  }
+
+  GarageVehicleStatus get annualTaxStatus => _calculateStatus(annualTaxExpiry, isAnnualPaid);
+  GarageVehicleStatus get fiveYearTaxStatus => _calculateStatus(fiveYearTaxExpiry, isFiveYearPaid);
+
+  String _getStatusText(GarageVehicleStatus status, String type) {
+    switch (status) {
+      case GarageVehicleStatus.aman:
+        return 'Pajak $type Aman';
+      case GarageVehicleStatus.mendekati:
+        return 'Pajak $type Mendekati Jatuh Tempo';
+      case GarageVehicleStatus.terlambat:
+        return 'Pajak $type Terlambat';
+    }
+  }
+
+  String get annualTaxStatusText => _getStatusText(annualTaxStatus, 'Tahunan');
+  String get fiveYearTaxStatusText => _getStatusText(fiveYearTaxStatus, 'STNK');
+
+  String _getBadgeText(GarageVehicleStatus status) {
+    switch (status) {
+      case GarageVehicleStatus.aman:
+        return 'Aman';
+      case GarageVehicleStatus.mendekati:
+        return 'Mendekati';
+      case GarageVehicleStatus.terlambat:
+        return 'Terlambat';
+    }
+  }
+
+  String get annualTaxBadgeText => _getBadgeText(annualTaxStatus);
+  String get fiveYearTaxBadgeText => _getBadgeText(fiveYearTaxStatus);
 
   GarageVehicle copyWith({
     String? id,
     String? brand,
     String? plateNumber,
     String? region,
-    String? stnkExpiration,
-    GarageVehicleStatus? status,
-    String? statusText,
-    String? badgeText,
+    DateTime? annualTaxExpiry,
+    DateTime? fiveYearTaxExpiry,
+    bool? isAnnualPaid,
+    bool? isFiveYearPaid,
     String? color,
     String? category,
     String? imageUrl,
@@ -45,10 +94,10 @@ class GarageVehicle {
       brand: brand ?? this.brand,
       plateNumber: plateNumber ?? this.plateNumber,
       region: region ?? this.region,
-      stnkExpiration: stnkExpiration ?? this.stnkExpiration,
-      status: status ?? this.status,
-      statusText: statusText ?? this.statusText,
-      badgeText: badgeText ?? this.badgeText,
+      annualTaxExpiry: annualTaxExpiry ?? this.annualTaxExpiry,
+      fiveYearTaxExpiry: fiveYearTaxExpiry ?? this.fiveYearTaxExpiry,
+      isAnnualPaid: isAnnualPaid ?? this.isAnnualPaid,
+      isFiveYearPaid: isFiveYearPaid ?? this.isFiveYearPaid,
       color: color ?? this.color,
       category: category ?? this.category,
       imageUrl: imageUrl ?? this.imageUrl,
@@ -69,10 +118,10 @@ class GarageVehicle {
             brand == other.brand &&
             plateNumber == other.plateNumber &&
             region == other.region &&
-            stnkExpiration == other.stnkExpiration &&
-            status == other.status &&
-            statusText == other.statusText &&
-            badgeText == other.badgeText &&
+            annualTaxExpiry == other.annualTaxExpiry &&
+            fiveYearTaxExpiry == other.fiveYearTaxExpiry &&
+            isAnnualPaid == other.isAnnualPaid &&
+            isFiveYearPaid == other.isFiveYearPaid &&
             color == other.color &&
             category == other.category &&
             imageUrl == other.imageUrl;
@@ -84,10 +133,10 @@ class GarageVehicle {
         brand.hashCode ^
         plateNumber.hashCode ^
         region.hashCode ^
-        stnkExpiration.hashCode ^
-        status.hashCode ^
-        statusText.hashCode ^
-        badgeText.hashCode ^
+        annualTaxExpiry.hashCode ^
+        fiveYearTaxExpiry.hashCode ^
+        isAnnualPaid.hashCode ^
+        isFiveYearPaid.hashCode ^
         color.hashCode ^
         category.hashCode ^
         imageUrl.hashCode;

@@ -127,21 +127,27 @@ class DetailGarageScreen extends StatelessWidget {
                                 child: Column(
                                   children: [
                                     _buildDetailRow(
-                                      Icons.badge_outlined,
-                                      'Nomor Plat (TNKB)',
-                                      vehicle.plateNumber,
-                                    ),
-                                    const SizedBox(height: 30),
-                                    _buildDetailRow(
                                       Icons.calendar_today_outlined,
-                                      'Masa Berlaku STNK',
-                                      vehicle.stnkExpiration,
+                                      'Jatuh Tempo Pajak Tahunan',
+                                      _formatDate(vehicle.annualTaxExpiry),
                                     ),
-                                    const SizedBox(height: 30),
+                                    const SizedBox(height: 15),
                                     _buildDetailRow(
                                       Icons.verified_user_outlined,
-                                      'Status Pajak',
-                                      vehicle.statusText,
+                                      'Status Pajak Tahunan',
+                                      vehicle.annualTaxStatusText,
+                                    ),
+                                    const SizedBox(height: 30),
+                                    _buildDetailRow(
+                                      Icons.calendar_month_outlined,
+                                      'Akhir Masa Berlaku STNK',
+                                      _formatDate(vehicle.fiveYearTaxExpiry),
+                                    ),
+                                    const SizedBox(height: 15),
+                                    _buildDetailRow(
+                                      Icons.verified_outlined,
+                                      'Status STNK',
+                                      vehicle.fiveYearTaxStatusText,
                                     ),
                                   ],
                                 ),
@@ -174,28 +180,70 @@ class DetailGarageScreen extends StatelessWidget {
                                 child: Column(
                                   children: [
                                     _buildDetailRow(
+                                      Icons.badge_outlined,
+                                      'Nomor Plat (TNKB)',
+                                      vehicle.plateNumber,
+                                    ),
+                                    const SizedBox(height: 15),
+                                    _buildDetailRow(
                                       Icons.directions_car_filled_outlined,
                                       'Merk & Tipe',
                                       vehicle.brand,
                                     ),
-                                    const SizedBox(height: 30),
+                                    const SizedBox(height: 15),
                                     _buildDetailRow(
                                       Icons.palette_outlined,
                                       'Warna Kendaraan',
                                       vehicle.color,
                                     ),
-                                    const SizedBox(height: 30),
+                                    const SizedBox(height: 15),
                                     _buildDetailRow(
                                       Icons.category_outlined,
                                       'Jenis Kendaraan',
                                       vehicle.category,
                                     ),
+                                    const SizedBox(height: 15),
+                                    _buildDetailRow(
+                                      Icons.map_outlined,
+                                      'Region Kendaraan',
+                                      vehicle.region,
+                                    ),
                                   ],
                                 ),
                               ),
                               const SizedBox(height: 30),
-                              Column(
-                                children: [
+                                Column(
+                                  children: [
+                                    if (vehicle.annualTaxStatus != GarageVehicleStatus.aman || vehicle.fiveYearTaxStatus != GarageVehicleStatus.aman)
+                                    SizedBox(
+                                    width: double.infinity,
+                                    height: 52,
+                                    child: ElevatedButton.icon(
+                                      onPressed: () => _showRenewTaxDialog(context, viewModel),
+                                      icon: const Icon(
+                                        Icons.check_circle_outline,
+                                        size: 22,
+                                      ),
+                                      label: const Text(
+                                        'Sudah Bayar Pajak?',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.green.shade600,
+                                        foregroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            15,
+                                          ),
+                                        ),
+                                        elevation: 0,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
                                   SizedBox(
                                     width: double.infinity,
                                     height: 52,
@@ -289,6 +337,11 @@ class DetailGarageScreen extends StatelessWidget {
     );
   }
 
+  String _formatDate(DateTime date) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
+    return "${date.day} ${months[date.month - 1]} ${date.year}";
+  }
+
   Widget _buildHeroImage(GarageVehicle vehicle) {
     return Container(
       height: 200,
@@ -377,6 +430,79 @@ class DetailGarageScreen extends StatelessWidget {
             ),
           );
         }
+      },
+    );
+  }
+
+  void _showRenewTaxDialog(BuildContext context, DetailGarageViewModel viewModel) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: const Text('Perbarui Pajak', style: TextStyle(fontWeight: FontWeight.bold)),
+          content: const Text('Pilih jenis pajak yang sudah Anda bayar untuk memperbarui tanggal jatuh temponya di sistem.'),
+          actions: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  ),
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Batal'),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          final success = await viewModel.renewAnnualTax();
+                          if (success && context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Pajak Tahunan berhasil diperbarui'), backgroundColor: Colors.green),
+                            );
+                          }
+                        },
+                        child: const Text('Tahunan'),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primary,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                        ),
+                        onPressed: () async {
+                          Navigator.pop(context);
+                          final success = await viewModel.renewFiveYearTax();
+                          if (success && context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(content: Text('Masa berlaku STNK & Pajak Tahunan berhasil diperbarui'), backgroundColor: Colors.green),
+                            );
+                          }
+                        },
+                        child: const Text('STNK'),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
+        );
       },
     );
   }
