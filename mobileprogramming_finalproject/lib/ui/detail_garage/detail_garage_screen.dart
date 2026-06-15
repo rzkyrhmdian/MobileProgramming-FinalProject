@@ -212,6 +212,35 @@ class DetailGarageScreen extends StatelessWidget {
                                     width: double.infinity,
                                     height: 52,
                                     child: ElevatedButton.icon(
+                                      onPressed: () => _showRenewTaxDialog(context, viewModel),
+                                      icon: const Icon(
+                                        Icons.payment_rounded,
+                                        size: 22,
+                                      ),
+                                      label: const Text(
+                                        'Bayar Pajak (Perbarui Tanggal)',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.green.shade600,
+                                        foregroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            15,
+                                          ),
+                                        ),
+                                        elevation: 0,
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                  SizedBox(
+                                    width: double.infinity,
+                                    height: 52,
+                                    child: ElevatedButton.icon(
                                       onPressed: () {
                                         Navigator.push(
                                           context,
@@ -394,6 +423,59 @@ class DetailGarageScreen extends StatelessWidget {
             ),
           );
         }
+      },
+    );
+  }
+
+  void _showRenewTaxDialog(BuildContext context, DetailGarageViewModel viewModel) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          title: const Text('Perbarui Pajak', style: TextStyle(fontWeight: FontWeight.bold)),
+          content: const Text('Pilih jenis pajak yang sudah Anda bayar untuk memperbarui tanggal jatuh temponya di sistem.'),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text('Batal', style: TextStyle(color: Colors.grey)),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              onPressed: () async {
+                Navigator.pop(context);
+                final success = await viewModel.renewAnnualTax();
+                if (success && context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Pajak Tahunan berhasil diperbarui'), backgroundColor: Colors.green),
+                  );
+                }
+              },
+              child: const Text('Tahunan'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.primary,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+              ),
+              onPressed: () async {
+                Navigator.pop(context);
+                final success = await viewModel.renewFiveYearTax();
+                if (success && context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Pajak 5 Tahunan & Tahunan berhasil diperbarui'), backgroundColor: Colors.green),
+                  );
+                }
+              },
+              child: const Text('5 Tahunan'),
+            ),
+          ],
+        );
       },
     );
   }

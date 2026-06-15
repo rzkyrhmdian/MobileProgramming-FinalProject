@@ -126,4 +126,36 @@ class GarageRepositoryImpl implements GarageRepository {
       return false;
     }
   }
+
+  @override
+  Future<bool> renewAnnualTax(GarageVehicle vehicle) async {
+    final updatedVehicle = vehicle.copyWith(
+      annualTaxExpiry: DateTime(
+        vehicle.annualTaxExpiry.year + 1,
+        vehicle.annualTaxExpiry.month,
+        vehicle.annualTaxExpiry.day,
+      ),
+      isAnnualPaid: false,
+    );
+    return updateVehicle(updatedVehicle);
+  }
+
+  @override
+  Future<bool> renewFiveYearTax(GarageVehicle vehicle) async {
+    final updatedVehicle = vehicle.copyWith(
+      fiveYearTaxExpiry: DateTime(
+        vehicle.fiveYearTaxExpiry.year + 5,
+        vehicle.fiveYearTaxExpiry.month,
+        vehicle.fiveYearTaxExpiry.day,
+      ),
+      annualTaxExpiry: DateTime(
+        vehicle.annualTaxExpiry.year + 1,
+        vehicle.annualTaxExpiry.month,
+        vehicle.annualTaxExpiry.day,
+      ),
+      isAnnualPaid: false,
+      isFiveYearPaid: false,
+    );
+    return updateVehicle(updatedVehicle);
+  }
 }
