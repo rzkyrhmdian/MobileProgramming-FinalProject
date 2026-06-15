@@ -317,28 +317,6 @@ class _GarageScreenState extends State<GarageScreen> {
     required GarageViewModel viewModel,
     required GarageVehicle vehicle,
   }) {
-    Color statusColor;
-    Color statusBg;
-    IconData statusIcon;
-
-    switch (vehicle.status) {
-      case GarageVehicleStatus.aman:
-        statusColor = AppColors.success;
-        statusBg = AppColors.bgSuccess;
-        statusIcon = Icons.check_circle_outline_rounded;
-        break;
-      case GarageVehicleStatus.mendekati:
-        statusColor = AppColors.warning;
-        statusBg = AppColors.bgWarning;
-        statusIcon = Icons.warning_amber_rounded;
-        break;
-      case GarageVehicleStatus.terlambat:
-        statusColor = AppColors.errorRed;
-        statusBg = AppColors.bgErrorRed;
-        statusIcon = Icons.error_outline_rounded;
-        break;
-    }
-
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
@@ -417,76 +395,87 @@ class _GarageScreenState extends State<GarageScreen> {
               ),
             ),
             const SizedBox(height: 14),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              decoration: BoxDecoration(
-                color: statusBg,
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                children: [
-                  Icon(statusIcon, color: statusColor, size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      vehicle.statusText,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: statusColor,
-                      ),
-                    ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8,
-                      vertical: 3,
-                    ),
-                    decoration: BoxDecoration(
-                      color: statusColor,
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Text(
-                      vehicle.badgeText,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 10,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            _buildTaxStatusRow(
+              'Tahunan',
+              vehicle.annualTaxStatus,
+              vehicle.annualTaxStatusText,
+              vehicle.annualTaxBadgeText,
             ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Icon(
-                  Icons.calendar_month_outlined,
-                  size: 16,
-                  color: AppColors.primary.withValues(alpha: 0.9),
-                ),
-                const SizedBox(width: 6),
-                Text(
-                  'Masa Berlaku STNK:',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: AppColors.primary.withValues(alpha: 0.9),
-                  ),
-                ),
-                const Spacer(),
-                Text(
-                  vehicle.stnkExpiration,
-                  style: const TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: Colors.black87,
-                  ),
-                ),
-              ],
+            const SizedBox(height: 8),
+            _buildTaxStatusRow(
+              '5 Tahunan',
+              vehicle.fiveYearTaxStatus,
+              vehicle.fiveYearTaxStatusText,
+              vehicle.fiveYearTaxBadgeText,
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildTaxStatusRow(String title, GarageVehicleStatus status, String statusText, String badgeText) {
+    Color statusColor;
+    Color statusBg;
+    IconData statusIcon;
+
+    switch (status) {
+      case GarageVehicleStatus.aman:
+        statusColor = AppColors.success;
+        statusBg = AppColors.bgSuccess;
+        statusIcon = Icons.check_circle_outline_rounded;
+        break;
+      case GarageVehicleStatus.mendekati:
+        statusColor = AppColors.warning;
+        statusBg = AppColors.bgWarning;
+        statusIcon = Icons.warning_amber_rounded;
+        break;
+      case GarageVehicleStatus.terlambat:
+        statusColor = AppColors.errorRed;
+        statusBg = AppColors.bgErrorRed;
+        statusIcon = Icons.error_outline_rounded;
+        break;
+    }
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+      decoration: BoxDecoration(
+        color: statusBg,
+        borderRadius: BorderRadius.circular(10),
+      ),
+      child: Row(
+        children: [
+          Icon(statusIcon, color: statusColor, size: 20),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              statusText,
+              style: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: statusColor,
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(
+              horizontal: 8,
+              vertical: 3,
+            ),
+            decoration: BoxDecoration(
+              color: statusColor,
+              borderRadius: BorderRadius.circular(6),
+            ),
+            child: Text(
+              badgeText,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

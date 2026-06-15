@@ -2,43 +2,43 @@ import 'package:mobileprogramming_finalproject/domain/model/garage_vehicle.dart'
 
 class GarageLocalDataSource {
   final List<GarageVehicle> _vehicles = [
-    const GarageVehicle(
+    GarageVehicle(
       id: 'garage-001',
       brand: 'Honda CR-V',
       plateNumber: 'B 1234 PAT',
       region: 'METRO JAYA',
-      stnkExpiration: '12 Okt 2028',
-      status: GarageVehicleStatus.aman,
-      statusText: 'Pajak Aman',
-      badgeText: 'Aman',
+      annualTaxExpiry: DateTime.now().add(const Duration(days: 365)),
+      fiveYearTaxExpiry: DateTime.now().add(const Duration(days: 365 * 5)),
+      isAnnualPaid: true,
+      isFiveYearPaid: true,
       color: 'Obsidian Black Metallic',
       category: 'SUV / Penumpang',
       imageUrl:
           'https://images.unsplash.com/photo-1503376780353-7e6692767b70?auto=format&fit=crop&q=80&w=800',
     ),
-    const GarageVehicle(
+    GarageVehicle(
       id: 'garage-002',
       brand: 'Toyota Avanza',
       plateNumber: 'B 8899 XYZ',
       region: 'METRO JAYA',
-      stnkExpiration: '15 Mar 2027',
-      status: GarageVehicleStatus.mendekati,
-      statusText: 'Pajak Mendekati Jatuh Tempo',
-      badgeText: '7 Hari Lagi',
+      annualTaxExpiry: DateTime.now().add(const Duration(days: 15)),
+      fiveYearTaxExpiry: DateTime.now().add(const Duration(days: 365 * 3)),
+      isAnnualPaid: false,
+      isFiveYearPaid: true,
       color: 'Silver Metallic',
       category: 'MPV / Penumpang',
       imageUrl:
           'https://images.unsplash.com/photo-1541899481282-d53bffe3c35d?auto=format&fit=crop&q=80&w=800',
     ),
-    const GarageVehicle(
+    GarageVehicle(
       id: 'garage-003',
       brand: 'Yamaha NMAX',
       plateNumber: 'B 5678 TUH',
       region: 'METRO JAYA',
-      stnkExpiration: '20 Jan 2026',
-      status: GarageVehicleStatus.terlambat,
-      statusText: 'Pajak Terlambat / Kedaluwarsa',
-      badgeText: 'Terlambat',
+      annualTaxExpiry: DateTime.now().subtract(const Duration(days: 10)),
+      fiveYearTaxExpiry: DateTime.now().add(const Duration(days: 365)),
+      isAnnualPaid: false,
+      isFiveYearPaid: true,
       color: 'Matte Grey',
       category: 'Sepeda Motor',
       imageUrl:

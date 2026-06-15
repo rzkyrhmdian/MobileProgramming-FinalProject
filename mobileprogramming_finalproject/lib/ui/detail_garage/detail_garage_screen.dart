@@ -134,14 +134,26 @@ class DetailGarageScreen extends StatelessWidget {
                                     const SizedBox(height: 30),
                                     _buildDetailRow(
                                       Icons.calendar_today_outlined,
-                                      'Masa Berlaku STNK',
-                                      vehicle.stnkExpiration,
+                                      'Jatuh Tempo Pajak Tahunan',
+                                      _formatDate(vehicle.annualTaxExpiry),
+                                    ),
+                                    const SizedBox(height: 15),
+                                    _buildDetailRow(
+                                      Icons.verified_user_outlined,
+                                      'Status Pajak Tahunan',
+                                      vehicle.annualTaxStatusText,
                                     ),
                                     const SizedBox(height: 30),
                                     _buildDetailRow(
-                                      Icons.verified_user_outlined,
-                                      'Status Pajak',
-                                      vehicle.statusText,
+                                      Icons.calendar_month_outlined,
+                                      'Jatuh Tempo Pajak 5 Tahunan',
+                                      _formatDate(vehicle.fiveYearTaxExpiry),
+                                    ),
+                                    const SizedBox(height: 15),
+                                    _buildDetailRow(
+                                      Icons.verified_outlined,
+                                      'Status Pajak 5 Tahunan',
+                                      vehicle.fiveYearTaxStatusText,
                                     ),
                                   ],
                                 ),
@@ -287,6 +299,11 @@ class DetailGarageScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  String _formatDate(DateTime date) {
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agt', 'Sep', 'Okt', 'Nov', 'Des'];
+    return "${date.day} ${months[date.month - 1]} ${date.year}";
   }
 
   Widget _buildHeroImage(GarageVehicle vehicle) {

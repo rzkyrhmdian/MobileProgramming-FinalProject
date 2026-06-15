@@ -16,7 +16,10 @@ class AddGarageViewModel extends ChangeNotifier {
   String _brand = '';
   String _category = '';
   String _plateNumber = '';
-  String _stnkExp = '';
+  DateTime _annualTaxExpiry = DateTime.now();
+  DateTime _fiveYearTaxExpiry = DateTime.now();
+  bool _isAnnualPaid = true;
+  bool _isFiveYearPaid = true;
   String _color = '';
   File? _imageFile;
 
@@ -26,11 +29,22 @@ class AddGarageViewModel extends ChangeNotifier {
   bool get isLoading => _isLoading;
   String get error => _error;
   File? get imageFile => _imageFile;
+  bool get isAnnualPaid => _isAnnualPaid;
+  bool get isFiveYearPaid => _isFiveYearPaid;
 
   void updateBrand(String val) => _brand = val;
   void updateCategory(String val) => _category = val;
   void updatePlateNumber(String val) => _plateNumber = val;
-  void updateStnkExp(String val) => _stnkExp = val;
+  void updateAnnualTaxExpiry(DateTime val) => _annualTaxExpiry = val;
+  void updateFiveYearTaxExpiry(DateTime val) => _fiveYearTaxExpiry = val;
+  void updateIsAnnualPaid(bool val) {
+    _isAnnualPaid = val;
+    notifyListeners();
+  }
+  void updateIsFiveYearPaid(bool val) {
+    _isFiveYearPaid = val;
+    notifyListeners();
+  }
   void updateColor(String val) => _color = val;
 
   Future<void> pickImage(ImageSource source) async {
@@ -68,12 +82,12 @@ class AddGarageViewModel extends ChangeNotifier {
         id: 'vehicle_${DateTime.now().millisecondsSinceEpoch}',
         brand: _brand,
         plateNumber: _plateNumber,
-        stnkExpiration: _stnkExp,
+        annualTaxExpiry: _annualTaxExpiry,
+        fiveYearTaxExpiry: _fiveYearTaxExpiry,
+        isAnnualPaid: _isAnnualPaid,
+        isFiveYearPaid: _isFiveYearPaid,
         color: _color,
         region: 'METRO JAYA', // Default value for now
-        status: GarageVehicleStatus.aman, // Default value for now
-        statusText: 'Pajak Aman', // Default value for now
-        badgeText: 'Aman', // Default value for now
         category: _category,
         imageUrl: '', // Will be updated in repository after upload
       );
