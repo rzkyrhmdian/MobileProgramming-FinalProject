@@ -1,6 +1,7 @@
 import 'package:mobileprogramming_finalproject/data/remote/notification_datasource.dart';
 import 'package:mobileprogramming_finalproject/domain/repository/notification_repository.dart';
 import 'package:mobileprogramming_finalproject/domain/model/notification_info.dart';
+import 'package:mobileprogramming_finalproject/domain/model/garage_vehicle.dart';
 
 class NotificationRepositoryImpl implements NotificationRepository {
   NotificationRepositoryImpl({NotificationDatasource? datasource})
@@ -81,5 +82,15 @@ class NotificationRepositoryImpl implements NotificationRepository {
   @override
   Future<void> markAsRead(String docId) {
     return _datasource.markAsRead(docId);
+  }
+
+  @override
+  Future<void> scheduleVehicleTaxNotifications(GarageVehicle vehicle) {
+    return _datasource.scheduleVehicleTaxNotifications(vehicle);
+  }
+
+  @override
+  Future<void> cancelVehicleNotifications(String vehicleId) {
+    return _datasource.cancelVehicleNotifications(vehicleId);
   }
 }

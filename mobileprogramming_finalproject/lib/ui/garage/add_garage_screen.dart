@@ -183,30 +183,16 @@ class _AddGarageScreenState extends State<AddGarageScreen> {
                         validator: (val) =>
                             val!.isEmpty ? 'Pilih masa berlaku pajak tahunan' : null,
                       ),
-                      const SizedBox(height: 8),
-                      SwitchListTile(
-                        title: const Text('Sudah Dibayar (Tahunan)?', style: TextStyle(fontSize: 14)),
-                        value: _viewModel.isAnnualPaid,
-                        activeColor: AppColors.primary,
-                        onChanged: (val) => _viewModel.updateIsAnnualPaid(val),
-                      ),
                       const SizedBox(height: 16),
                       CustomTextField(
                         controller: _fiveYearTaxExpController,
-                        hint: 'Jatuh Tempo Pajak 5 Tahunan (STNK)',
+                        hint: 'Akhir Masa Berlaku STNK',
                         icon: Icons.calendar_today_outlined,
                         readOnly: true,
                         onTap: () => _selectDate(context, false),
                         onChanged: (val) {},
                         validator: (val) =>
-                            val!.isEmpty ? 'Pilih masa berlaku STNK 5 Tahunan' : null,
-                      ),
-                      const SizedBox(height: 8),
-                      SwitchListTile(
-                        title: const Text('Sudah Dibayar (5 Tahunan)?', style: TextStyle(fontSize: 14)),
-                        value: _viewModel.isFiveYearPaid,
-                        activeColor: AppColors.primary,
-                        onChanged: (val) => _viewModel.updateIsFiveYearPaid(val),
+                            val!.isEmpty ? 'Pilih akhir masa berlaku STNK' : null,
                       ),
                       const SizedBox(height: 16),
                       CustomTextField(

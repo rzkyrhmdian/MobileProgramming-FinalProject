@@ -1,4 +1,5 @@
 import 'package:mobileprogramming_finalproject/domain/model/notification_info.dart';
+import 'package:mobileprogramming_finalproject/domain/model/garage_vehicle.dart';
 
 abstract class NotificationRepository {
   Future<void> initializeNotification();
@@ -27,4 +28,7 @@ abstract class NotificationRepository {
 
   Stream<List<NotificationInfo>> getUserNotificationsStream();
   Future<void> markAsRead(String docId);
+
+  Future<void> scheduleVehicleTaxNotifications(GarageVehicle vehicle);
+  Future<void> cancelVehicleNotifications(String vehicleId);
 }

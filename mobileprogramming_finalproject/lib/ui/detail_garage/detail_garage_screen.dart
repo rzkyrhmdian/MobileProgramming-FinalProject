@@ -146,13 +146,13 @@ class DetailGarageScreen extends StatelessWidget {
                                     const SizedBox(height: 30),
                                     _buildDetailRow(
                                       Icons.calendar_month_outlined,
-                                      'Jatuh Tempo Pajak 5 Tahunan',
+                                      'Akhir Masa Berlaku STNK',
                                       _formatDate(vehicle.fiveYearTaxExpiry),
                                     ),
                                     const SizedBox(height: 15),
                                     _buildDetailRow(
                                       Icons.verified_outlined,
-                                      'Status Pajak 5 Tahunan',
+                                      'Status STNK',
                                       vehicle.fiveYearTaxStatusText,
                                     ),
                                   ],
@@ -468,11 +468,11 @@ class DetailGarageScreen extends StatelessWidget {
                 final success = await viewModel.renewFiveYearTax();
                 if (success && context.mounted) {
                   ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(content: Text('Pajak 5 Tahunan & Tahunan berhasil diperbarui'), backgroundColor: Colors.green),
+                    const SnackBar(content: Text('Masa berlaku STNK & Pajak Tahunan berhasil diperbarui'), backgroundColor: Colors.green),
                   );
                 }
               },
-              child: const Text('5 Tahunan'),
+              child: const Text('STNK'),
             ),
           ],
         );

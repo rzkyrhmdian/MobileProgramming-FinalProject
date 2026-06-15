@@ -403,7 +403,7 @@ class _GarageScreenState extends State<GarageScreen> {
             ),
             const SizedBox(height: 8),
             _buildTaxStatusRow(
-              '5 Tahunan',
+              'STNK',
               vehicle.fiveYearTaxStatus,
               vehicle.fiveYearTaxStatusText,
               vehicle.fiveYearTaxBadgeText,

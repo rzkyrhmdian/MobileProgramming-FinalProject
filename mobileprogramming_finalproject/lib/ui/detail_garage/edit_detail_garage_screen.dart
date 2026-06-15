@@ -22,8 +22,6 @@ class _EditDetailGarageScreenState extends State<EditDetailGarageScreen> {
   late TextEditingController _colorController;
   late TextEditingController _annualTaxExpController;
   late TextEditingController _fiveYearTaxExpController;
-  bool _isAnnualPaid = true;
-  bool _isFiveYearPaid = true;
   late TextEditingController _vinController;
   bool _isLoading = false;
 
@@ -35,8 +33,6 @@ class _EditDetailGarageScreenState extends State<EditDetailGarageScreen> {
     _colorController = TextEditingController(text: widget.vehicle.color);
     _annualTaxExpController = TextEditingController(text: _formatDate(widget.vehicle.annualTaxExpiry));
     _fiveYearTaxExpController = TextEditingController(text: _formatDate(widget.vehicle.fiveYearTaxExpiry));
-    _isAnnualPaid = widget.vehicle.isAnnualPaid;
-    _isFiveYearPaid = widget.vehicle.isFiveYearPaid;
     _vinController = TextEditingController(text: 'MHRRU1870JKXXXXXX'); // Dummy
   }
 
@@ -177,40 +173,18 @@ class _EditDetailGarageScreenState extends State<EditDetailGarageScreen> {
                           onTap: () => _selectDate(context, true),
                           onChanged: (value) {},
                         ),
-                        const SizedBox(height: 8),
-                        SwitchListTile(
-                          title: const Text('Sudah Dibayar (Tahunan)?', style: TextStyle(fontSize: 14)),
-                          value: _isAnnualPaid,
-                          activeColor: AppColors.primary,
-                          onChanged: (val) {
-                            setState(() {
-                              _isAnnualPaid = val;
-                            });
-                          },
-                        ),
                         const SizedBox(height: 16),
 
-                        _buildLabel('Jatuh Tempo Pajak 5 Tahunan'),
+                        _buildLabel('Akhir Masa Berlaku STNK'),
                         CustomTextField(
                           controller: _fiveYearTaxExpController,
-                          hint: 'Pilih Masa Berlaku',
+                          hint: 'Pilih Akhir Masa Berlaku STNK',
                           icon: Icons.calendar_month_outlined,
                           backgroundColor: Colors.white,
                           foregroundColor: Colors.black87,
                           readOnly: true,
                           onTap: () => _selectDate(context, false),
                           onChanged: (value) {},
-                        ),
-                        const SizedBox(height: 8),
-                        SwitchListTile(
-                          title: const Text('Sudah Dibayar (5 Tahunan)?', style: TextStyle(fontSize: 14)),
-                          value: _isFiveYearPaid,
-                          activeColor: AppColors.primary,
-                          onChanged: (val) {
-                            setState(() {
-                              _isFiveYearPaid = val;
-                            });
-                          },
                         ),
                       ],
                     ),
@@ -230,8 +204,8 @@ class _EditDetailGarageScreenState extends State<EditDetailGarageScreen> {
                               color: _colorController.text,
                               annualTaxExpiry: _parseDate(_annualTaxExpController.text),
                               fiveYearTaxExpiry: _parseDate(_fiveYearTaxExpController.text),
-                              isAnnualPaid: _isAnnualPaid,
-                              isFiveYearPaid: _isFiveYearPaid,
+                              isAnnualPaid: widget.vehicle.isAnnualPaid,
+                              isFiveYearPaid: widget.vehicle.isFiveYearPaid,
                             );
 
                             final repository = GarageRepositoryImpl();

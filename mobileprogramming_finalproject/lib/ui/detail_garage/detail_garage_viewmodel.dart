@@ -2,6 +2,8 @@ import 'package:flutter/foundation.dart';
 import 'package:mobileprogramming_finalproject/data/repository/garage_repository_impl.dart';
 import 'package:mobileprogramming_finalproject/domain/model/garage_vehicle.dart';
 import 'package:mobileprogramming_finalproject/domain/repository/garage_repository.dart';
+import 'package:mobileprogramming_finalproject/data/repository/notification_repository_impl.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class DetailGarageViewModel extends ChangeNotifier {
   DetailGarageViewModel({
@@ -12,6 +14,7 @@ class DetailGarageViewModel extends ChangeNotifier {
 
   String _plateNumber;
   final GarageRepository _repository;
+  final NotificationRepositoryImpl _notificationRepo = NotificationRepositoryImpl();
 
   void updatePlateNumber(String newPlate) {
     _plateNumber = newPlate;
@@ -74,7 +77,31 @@ class DetailGarageViewModel extends ChangeNotifier {
     try {
       final success = await _repository.renewAnnualTax(vehicle!);
       if (success) {
+        await _notificationRepo.cancelVehicleNotifications(vehicle!.id);
+        
+        final myUserId = FirebaseAuth.instance.currentUser?.uid;
+        if (myUserId != null) {
+          try {
+            await _notificationRepo.saveNotificationToFirestore(
+              userId: myUserId,
+              title: 'Pajak Tahunan Diperbarui ✅',
+              body: 'Masa berlaku pajak tahunan kendaraan ${vehicle!.plateNumber} berhasil diperbarui.',
+            );
+            await _notificationRepo.createNotification(
+              id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
+              title: 'Pajak Tahunan Diperbarui ✅',
+              body: 'Masa berlaku pajak tahunan kendaraan ${vehicle!.plateNumber} berhasil diperbarui.',
+            );
+          } catch (e) {
+            debugPrint('Gagal mengirim notif firestore: $e');
+          }
+        }
+
         await loadVehicle();
+        
+        if (vehicle != null) {
+          await _notificationRepo.scheduleVehicleTaxNotifications(vehicle!);
+        }
       } else {
         error = 'Gagal memperbarui pajak tahunan.';
       }
@@ -96,9 +123,33 @@ class DetailGarageViewModel extends ChangeNotifier {
     try {
       final success = await _repository.renewFiveYearTax(vehicle!);
       if (success) {
+        await _notificationRepo.cancelVehicleNotifications(vehicle!.id);
+        
+        final myUserId = FirebaseAuth.instance.currentUser?.uid;
+        if (myUserId != null) {
+          try {
+            await _notificationRepo.saveNotificationToFirestore(
+              userId: myUserId,
+              title: 'STNK Diperbarui ✅',
+              body: 'Masa berlaku STNK kendaraan ${vehicle!.plateNumber} berhasil diperbarui.',
+            );
+            await _notificationRepo.createNotification(
+              id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
+              title: 'STNK Diperbarui ✅',
+              body: 'Masa berlaku STNK kendaraan ${vehicle!.plateNumber} berhasil diperbarui.',
+            );
+          } catch (e) {
+            debugPrint('Gagal mengirim notif firestore: $e');
+          }
+        }
+
         await loadVehicle();
+
+        if (vehicle != null) {
+          await _notificationRepo.scheduleVehicleTaxNotifications(vehicle!);
+        }
       } else {
-        error = 'Gagal memperbarui pajak 5 tahunan.';
+        error = 'Gagal memperbarui masa berlaku STNK.';
       }
       return success;
     } catch (e) {

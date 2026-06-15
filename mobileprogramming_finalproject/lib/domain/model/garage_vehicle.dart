@@ -60,7 +60,7 @@ class GarageVehicle {
   }
 
   String get annualTaxStatusText => _getStatusText(annualTaxStatus, 'Tahunan');
-  String get fiveYearTaxStatusText => _getStatusText(fiveYearTaxStatus, '5 Tahunan');
+  String get fiveYearTaxStatusText => _getStatusText(fiveYearTaxStatus, 'STNK');
 
   String _getBadgeText(GarageVehicleStatus status) {
     switch (status) {

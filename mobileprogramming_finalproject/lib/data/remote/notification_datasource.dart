@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:mobileprogramming_finalproject/domain/model/garage_vehicle.dart';
 
 class NotificationDatasource {
   static bool _isInitialized = false;
@@ -68,9 +69,9 @@ class NotificationDatasource {
     required final String body,
     final String? summary,
     final Map<String, String>? payload,
-    final ActionType actionType = ActionType.Default,
-    final NotificationLayout notificationLayout = NotificationLayout.Default,
-    final NotificationCategory? category,
+    final dynamic actionType,
+    final dynamic notificationLayout,
+    final dynamic category,
     final String? bigPicture,
     final List<NotificationActionButton>? actionButtons,
     final bool scheduled = false,
@@ -79,7 +80,7 @@ class NotificationDatasource {
     assert(!scheduled || (scheduled && interval != null));
     if (!_isInitialized) await initializeNotification();
 
-    final isAllowed = await _ensurePermission(promptIfNeeded: false);
+    final isAllowed = await _ensurePermission(promptIfNeeded: true);
     if (!isAllowed) return;
 
     await AwesomeNotifications().createNotification(
@@ -88,8 +89,8 @@ class NotificationDatasource {
         channelKey: 'basic_channel',
         title: title,
         body: body,
-        actionType: actionType,
-        notificationLayout: notificationLayout,
+        actionType: actionType ?? ActionType.Default,
+        notificationLayout: notificationLayout ?? NotificationLayout.Default,
         summary: summary,
         category: category,
         payload: payload,
@@ -135,5 +136,64 @@ class NotificationDatasource {
 
   Future<void> markAsRead(String docId) async {
     await _firestore.collection('notifikasi').doc(docId).update({'isRead': true});
+  }
+
+  Future<void> scheduleVehicleTaxNotifications(GarageVehicle vehicle) async {
+    if (!_isInitialized) await initializeNotification();
+    await cancelVehicleNotifications(vehicle.id);
+
+    final now = DateTime.now();
+    final timeZone = await AwesomeNotifications().getLocalTimeZoneIdentifier();
+
+    void scheduleForDate(DateTime expiryDate, String taxType, bool isPaid) async {
+      if (isPaid) return;
+
+      final intervals = [30, 7, 3, 1, 0];
+      for (int daysBefore in intervals) {
+        final scheduleDate = expiryDate.subtract(Duration(days: daysBefore));
+        if (scheduleDate.isAfter(now)) {
+          final int notificationId = '${vehicle.id}_${taxType}_$daysBefore'.hashCode.abs();
+          
+          String title = 'Peringatan Pajak $taxType';
+          String body = daysBefore == 0 
+              ? 'Pajak $taxType kendaraan ${vehicle.plateNumber} jatuh tempo HARI INI!'
+              : 'Pajak $taxType kendaraan ${vehicle.plateNumber} akan jatuh tempo dalam $daysBefore hari.';
+
+          await AwesomeNotifications().createNotification(
+            content: NotificationContent(
+              id: notificationId,
+              channelKey: 'basic_channel',
+              title: title,
+              body: body,
+              category: NotificationCategory.Reminder,
+            ),
+            schedule: NotificationCalendar(
+              year: scheduleDate.year,
+              month: scheduleDate.month,
+              day: scheduleDate.day,
+              hour: 9, 
+              minute: 0,
+              second: 0,
+              timeZone: timeZone,
+              preciseAlarm: true,
+            ),
+          );
+        }
+      }
+    }
+
+    scheduleForDate(vehicle.annualTaxExpiry, 'Tahunan', vehicle.isAnnualPaid);
+    scheduleForDate(vehicle.fiveYearTaxExpiry, 'STNK', vehicle.isFiveYearPaid);
+  }
+
+  Future<void> cancelVehicleNotifications(String vehicleId) async {
+    if (!_isInitialized) await initializeNotification();
+    final intervals = [30, 7, 3, 1, 0];
+    for (String taxType in ['Tahunan', 'STNK']) {
+      for (int daysBefore in intervals) {
+        final int notificationId = '${vehicleId}_${taxType}_$daysBefore'.hashCode.abs();
+        await AwesomeNotifications().cancel(notificationId);
+      }
+    }
   }
 }
