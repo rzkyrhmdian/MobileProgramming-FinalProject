@@ -3,23 +3,19 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
 import 'package:mobileprogramming_finalproject/domain/model/report_info.dart';
-import 'package:mobileprogramming_finalproject/data/repository/report_repository_impl.dart';
-import 'package:mobileprogramming_finalproject/data/repository/notification_repository_impl.dart';
 import 'package:mobileprogramming_finalproject/ui/profile/profile_viewmodel.dart';
 import 'package:mobileprogramming_finalproject/ui/detail_report/detail_report_screen.dart';
+import 'package:mobileprogramming_finalproject/ui/admin_dashboard/admin_dashboard_viewmodel.dart';
 
 class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
 
   @override
-  State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
+  State<AdminDashboardScreen> createState() => _AdminDashboardContentState();
 }
 
-class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
+class _AdminDashboardContentState extends State<AdminDashboardScreen> {
   final TextEditingController _searchController = TextEditingController();
-  late Stream<List<ReportInfo>> _reportStream;
-  String _searchQuery = '';
-  ReportStatus? _selectedStatusFilter;
 
   @override
   void dispose() {
@@ -27,28 +23,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     super.dispose();
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _reportStream = ReportRepositoryImpl().getAllReports();
-  }
-
-  String _getGreeting() {
-    final hour = DateTime.now().hour;
-    if (hour < 12) return 'Pagi,';
-    if (hour < 17) return 'Siang,';
-    return 'Malam,';
-  }
-
-  String _getTimeAgo(DateTime date) {
-    final difference = DateTime.now().difference(date);
-    if (difference.inDays > 0) return '${difference.inDays} Hari lalu';
-    if (difference.inHours > 0) return '${difference.inHours} Jam lalu';
-    if (difference.inMinutes > 0) return '${difference.inMinutes} Menit lalu';
-    return 'Baru saja';
-  }
-
-  void _openReviewBottomSheet(BuildContext context, ReportInfo report) {
+  void _openReviewBottomSheet(
+    BuildContext context,
+    AdminDashboardViewModel viewModel,
+    ReportInfo report,
+  ) {
     final notesController = TextEditingController(
       text: report.adminNotes ?? '',
     );
@@ -183,15 +162,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       child: InkWell(
                         onTap: () async {
                           Navigator.pop(context);
-                          await ReportRepositoryImpl().updateReportStatus(
-                            reportId: report.id,
-                            status: ReportStatus.ditolak,
-                            adminNotes: notesController.text.trim(),
-                          );
-                          await NotificationRepositoryImpl().saveNotificationToFirestore(
-                            userId: report.userId,
-                            title: 'Laporan Ditolak ❌',
-                            body: 'Laporan plat ${report.platNomor} ditolak. Alasan: ${notesController.text.trim()}',
+                          await viewModel.rejectReport(
+                            report,
+                            notesController.text.trim(),
                           );
                         },
                         borderRadius: BorderRadius.circular(15),
@@ -223,15 +196,9 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       child: InkWell(
                         onTap: () async {
                           Navigator.pop(context);
-                          await ReportRepositoryImpl().updateReportStatus(
-                            reportId: report.id,
-                            status: ReportStatus.selesai,
-                            adminNotes: notesController.text.trim(),
-                          );
-                          await NotificationRepositoryImpl().saveNotificationToFirestore(
-                            userId: report.userId,
-                            title: 'Laporan Selesai ✅',
-                            body: 'Laporan plat ${report.platNomor} telah diverifikasi. Catatan: ${notesController.text.trim()}',
+                          await viewModel.resolveReport(
+                            report,
+                            notesController.text.trim(),
                           );
                         },
                         borderRadius: BorderRadius.circular(15),
@@ -267,6 +234,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final viewModel = context.watch<AdminDashboardViewModel>();
+
     return Theme(
       data: Theme.of(context).copyWith(
         textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
@@ -274,8 +243,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
       child: Scaffold(
         extendBodyBehindAppBar: true,
         body: Consumer<ProfileViewModel>(
-          builder: (context, viewModel, _) {
-            final user = viewModel.userInfo;
+          builder: (context, profileViewModel, _) {
+            final user = profileViewModel.userInfo;
             final avatar = user?.profileImage;
             final hasImage = user?.profileImage?.isNotEmpty == true;
             final displayName = user?.displayName.isNotEmpty == true
@@ -293,7 +262,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ),
                 padding: const EdgeInsets.only(top: 20),
                 child: StreamBuilder<List<ReportInfo>>(
-                  stream: _reportStream,
+                  stream: viewModel.reportStream,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return const Center(child: CircularProgressIndicator());
@@ -305,7 +274,6 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     }
 
                     final allReports = snapshot.data ?? [];
-
                     final int totalReports = allReports.length;
                     final int pendingCount = allReports
                         .where((r) => r.status == ReportStatus.dalamProses)
@@ -317,15 +285,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                         .where((r) => r.status == ReportStatus.ditolak)
                         .length;
 
-                    final filteredReports = allReports.where((report) {
-                      final matchesSearch = report.platNomor
-                          .toLowerCase()
-                          .contains(_searchQuery.toLowerCase());
-                      final matchesFilter =
-                          _selectedStatusFilter == null ||
-                          report.status == _selectedStatusFilter;
-                      return matchesSearch && matchesFilter;
-                    }).toList();
+                    final filteredReports = viewModel.filterReports(allReports);
 
                     return SingleChildScrollView(
                       physics: const ClampingScrollPhysics(),
@@ -384,7 +344,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                                       Row(
                                         children: [
                                           Text(
-                                            _getGreeting(),
+                                            viewModel.getGreeting(),
                                             style: const TextStyle(
                                               fontSize: 24,
                                               color: AppColors.primary,
@@ -516,11 +476,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
 
                           TextField(
                             controller: _searchController,
-                            onChanged: (value) {
-                              setState(() {
-                                _searchQuery = value;
-                              });
-                            },
+                            onChanged: (value) =>
+                                viewModel.setSearchQuery(value),
                             style: const TextStyle(
                               color: Colors.black87,
                               fontSize: 14,
@@ -566,24 +523,24 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                             physics: const BouncingScrollPhysics(),
                             child: Row(
                               children: [
+                                _buildFilterChip('Semua', null, viewModel),
+                                const SizedBox(width: 8),
                                 _buildFilterChip(
-                                  label: 'Semua',
-                                  targetFilter: null,
+                                  'Dalam Proses',
+                                  ReportStatus.dalamProses,
+                                  viewModel,
                                 ),
                                 const SizedBox(width: 8),
                                 _buildFilterChip(
-                                  label: 'Dalam Proses',
-                                  targetFilter: ReportStatus.dalamProses,
+                                  'Selesai',
+                                  ReportStatus.selesai,
+                                  viewModel,
                                 ),
                                 const SizedBox(width: 8),
                                 _buildFilterChip(
-                                  label: 'Selesai',
-                                  targetFilter: ReportStatus.selesai,
-                                ),
-                                const SizedBox(width: 8),
-                                _buildFilterChip(
-                                  label: 'Ditolak',
-                                  targetFilter: ReportStatus.ditolak,
+                                  'Ditolak',
+                                  ReportStatus.ditolak,
+                                  viewModel,
                                 ),
                               ],
                             ),
@@ -608,8 +565,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                               : Column(
                                   children: filteredReports
                                       .map(
-                                        (report) =>
-                                            _buildReportCard(report, context),
+                                        (report) => _buildReportCard(
+                                          report,
+                                          context,
+                                          viewModel,
+                                        ),
                                       )
                                       .toList(),
                                 ),
@@ -626,19 +586,17 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  Widget _buildFilterChip({
-    required String label,
-    required ReportStatus? targetFilter,
-  }) {
-    final bool isSelected = _selectedStatusFilter == targetFilter;
+  Widget _buildFilterChip(
+    String label,
+    ReportStatus? targetFilter,
+    AdminDashboardViewModel viewModel,
+  ) {
+    final bool isSelected = viewModel.selectedStatusFilter == targetFilter;
     return ChoiceChip(
       label: Text(label),
       selected: isSelected,
-      onSelected: (bool selected) {
-        setState(() {
-          _selectedStatusFilter = targetFilter;
-        });
-      },
+      onSelected: (bool selected) =>
+          viewModel.setSelectedStatusFilter(targetFilter),
       selectedColor: AppColors.primary,
       backgroundColor: Colors.grey.shade50,
       labelStyle: TextStyle(
@@ -692,7 +650,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     );
   }
 
-  Widget _buildReportCard(ReportInfo report, BuildContext context) {
+  Widget _buildReportCard(
+    ReportInfo report,
+    BuildContext context,
+    AdminDashboardViewModel viewModel,
+  ) {
     Color statusColor = AppColors.warning;
     Color statusBg = AppColors.bgWarning;
     String displayStatusText = 'DALAM PROSES';
@@ -803,7 +765,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  'Lokasi: ${report.alamat.split(',').first} • ${_getTimeAgo(report.createdAt)}',
+                  'Lokasi: ${report.alamat.split(',').first} • ${viewModel.getTimeAgo(report.createdAt)}',
                   style: TextStyle(fontSize: 11, color: Colors.grey.shade500),
                 ),
                 if (report.adminNotes != null &&
@@ -833,8 +795,11 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                       SizedBox(
                         height: 36,
                         child: OutlinedButton(
-                          onPressed: () =>
-                              _openReviewBottomSheet(context, report),
+                          onPressed: () => _openReviewBottomSheet(
+                            context,
+                            viewModel,
+                            report,
+                          ),
                           style: OutlinedButton.styleFrom(
                             foregroundColor: AppColors.primary,
                             side: const BorderSide(

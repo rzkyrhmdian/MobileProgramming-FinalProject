@@ -6,7 +6,9 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:mobileprogramming_finalproject/ui/profile/profile_viewmodel.dart';
 import 'package:mobileprogramming_finalproject/ui/dashboard/dashboard_viewmodel.dart';
+import 'package:mobileprogramming_finalproject/ui/notifikasi/notifikasi_viewmodel.dart';
 import 'package:mobileprogramming_finalproject/ui/navigation/landing_screen.dart';
+import 'package:mobileprogramming_finalproject/ui/admin_dashboard/admin_dashboard_viewmodel.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +26,8 @@ void main() async {
             create: (_) => ProfileViewModel()..loadUserInfo(),
           ),
           ChangeNotifierProvider(create: (_) => DashboardViewModel()),
+          ChangeNotifierProvider(create: (_) => NotifikasiViewModel()),
+          ChangeNotifierProvider(create: (_) => AdminDashboardViewModel()),
         ],
         child: const MyApp(),
       ),

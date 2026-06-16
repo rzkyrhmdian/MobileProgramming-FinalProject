@@ -10,14 +10,15 @@ import 'package:mobileprogramming_finalproject/data/repository/notification_repo
 
 class ReportViewModel extends ChangeNotifier {
   final ReportRepositoryImpl _repository = ReportRepositoryImpl();
-  final NotificationRepositoryImpl _notificationRepo = NotificationRepositoryImpl();
+  final NotificationRepositoryImpl _notificationRepo =
+      NotificationRepositoryImpl();
   final platController = TextEditingController();
   final deskripsiController = TextEditingController();
-  
+
   File? selectedImage;
   bool isLoading = false;
   String currentAddress = "Mencari lokasi...";
-  
+
   double? currentLatitude;
   double? currentLongitude;
   String? selectedJenisInsiden;
@@ -26,7 +27,11 @@ class ReportViewModel extends ChangeNotifier {
   String? existingFotoUrl;
 
   final List<String> jenisInsidenList = [
-    'Parkir Liar', 'Ganjil Genap', 'Pelanggaran Rambu', 'Kecelakaan', 'Lainnya'
+    'Parkir Liar',
+    'Ganjil Genap',
+    'Pelanggaran Rambu',
+    'Kecelakaan',
+    'Lainnya',
   ];
   final ImagePicker _picker = ImagePicker();
 
@@ -67,9 +72,13 @@ class ReportViewModel extends ChangeNotifier {
       currentLatitude = position.latitude;
       currentLongitude = position.longitude;
 
-      List<Placemark> placemarks = await placemarkFromCoordinates(position.latitude, position.longitude);
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
       if (placemarks.isNotEmpty) {
-        currentAddress = "${placemarks.first.street}, ${placemarks.first.subAdministrativeArea}";
+        currentAddress =
+            "${placemarks.first.street}, ${placemarks.first.subAdministrativeArea}";
       }
       notifyListeners();
     } catch (e) {
@@ -79,8 +88,8 @@ class ReportViewModel extends ChangeNotifier {
   }
 
   Future<bool> submitReport() async {
-    if ((selectedImage == null && existingFotoUrl == null) || 
-        platController.text.isEmpty || 
+    if ((selectedImage == null && existingFotoUrl == null) ||
+        platController.text.isEmpty ||
         selectedJenisInsiden == null) {
       return false;
     }
@@ -115,14 +124,14 @@ class ReportViewModel extends ChangeNotifier {
           if (myUserId != null) {
             await _notificationRepo.saveNotificationToFirestore(
               userId: myUserId,
-              title: 'Laporan Diperbarui 📝',
-              body: 'Perubahan untuk plat ${platController.text} berhasil disimpan.',
+              title: 'Laporan Diperbarui',
+              body:
+                  'Perubahan untuk plat ${platController.text} berhasil disimpan.',
             );
           }
         } catch (notifErr) {
           debugPrint('Gagal mengirim notif (Abaikan): $notifErr');
         }
-
       } else {
         // SIMPAN LAPORAN BARU
         await _repository.submitReport(
@@ -140,13 +149,15 @@ class ReportViewModel extends ChangeNotifier {
           if (myUserId != null) {
             await _notificationRepo.saveNotificationToFirestore(
               userId: myUserId,
-              title: 'Laporan Diterima! 🚀',
-              body: 'Laporan Anda untuk plat ${platController.text} sedang di proses.',
+              title: 'Laporan Diterima!',
+              body:
+                  'Laporan Anda untuk plat ${platController.text} sedang di proses.',
             );
             await _notificationRepo.createNotification(
               id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
-              title: 'Laporan Diterima! 🚀',
-              body: 'Laporan Anda untuk plat ${platController.text} sedang di proses.',
+              title: 'Laporan Diterima!',
+              body:
+                  'Laporan Anda untuk plat ${platController.text} sedang di proses.',
             );
           }
         } catch (notifErr) {
@@ -156,7 +167,7 @@ class ReportViewModel extends ChangeNotifier {
       return true; // PASTIKAN SELALU RETURN TRUE JIKA DATABASE SUKSES
     } catch (e) {
       debugPrint("Error saat kirim laporan: $e");
-      return false; 
+      return false;
     } finally {
       isLoading = false;
       notifyListeners();

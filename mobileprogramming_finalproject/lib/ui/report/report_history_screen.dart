@@ -132,7 +132,8 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => DetailReportScreen(report: report),
+                            builder: (context) =>
+                                DetailReportScreen(report: report),
                           ),
                         );
                       },
@@ -199,7 +200,7 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
                                           ),
                                         ),
                                       ),
-                                      const SizedBox(width: 4),
+                                      const SizedBox(width: 8),
                                       Container(
                                         padding: const EdgeInsets.symmetric(
                                           horizontal: 8,
@@ -207,7 +208,9 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
                                         ),
                                         decoration: BoxDecoration(
                                           color: statusBg,
-                                          borderRadius: BorderRadius.circular(8),
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
                                         ),
                                         child: Text(
                                           statusText,
@@ -252,50 +255,64 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
                                     ),
                                   ),
                                   const SizedBox(height: 12),
-                                  const Divider(color: Colors.black12, height: 1),
+                                  const Divider(
+                                    color: Colors.black12,
+                                    height: 1,
+                                  ),
                                   const SizedBox(height: 10),
 
                                   Row(
                                     mainAxisAlignment:
                                         MainAxisAlignment.spaceBetween,
                                     children: [
-                                      InkWell(
-                                        onTap: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  ReportMapDetailScreen(
-                                                    report: report,
-                                                  ),
-                                            ),
-                                          );
-                                        },
-                                        borderRadius: BorderRadius.circular(6),
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 4.0,
+                                      Expanded(
+                                        child: InkWell(
+                                          onTap: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    ReportMapDetailScreen(
+                                                      report: report,
+                                                    ),
+                                              ),
+                                            );
+                                          },
+                                          borderRadius: BorderRadius.circular(
+                                            6,
                                           ),
-                                          child: Row(
-                                            children: const [
-                                              Icon(
-                                                Icons.location_on_outlined,
-                                                size: 14,
-                                                color: AppColors.accent,
-                                              ),
-                                              SizedBox(width: 4),
-                                              Text(
-                                                "Lokasi Kejadian",
-                                                style: TextStyle(
-                                                  fontSize: 11,
-                                                  color: AppColors.primary,
-                                                  fontWeight: FontWeight.bold,
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              vertical: 4.0,
+                                            ),
+                                            child: Row(
+                                              mainAxisSize: MainAxisSize.min,
+                                              children: const [
+                                                Icon(
+                                                  Icons.location_on_outlined,
+                                                  size: 14,
+                                                  color: AppColors.accent,
                                                 ),
-                                              ),
-                                            ],
+                                                SizedBox(width: 4),
+                                                Flexible(
+                                                  child: Text(
+                                                    "Lokasi Kejadian",
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    style: TextStyle(
+                                                      fontSize: 11,
+                                                      color: AppColors.primary,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
                                           ),
                                         ),
                                       ),
+                                      const SizedBox(width: 8),
                                       Row(
                                         children: [
                                           Icon(
@@ -317,112 +334,146 @@ class _ReportHistoryScreenState extends State<ReportHistoryScreen> {
                                     ],
                                   ),
 
-                                  if (report.status == ReportStatus.dalamProses) ...[
+                                  if (report.status ==
+                                      ReportStatus.dalamProses) ...[
                                     const SizedBox(height: 12),
                                     Row(
                                       mainAxisAlignment: MainAxisAlignment.end,
                                       children: [
-                                        OutlinedButton(
-                                          onPressed: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    ReportScreen(
-                                                      existingReport: report,
-                                                    ),
-                                              ),
-                                            );
-                                          },
-                                          style: OutlinedButton.styleFrom(
-                                            foregroundColor: AppColors.primary,
-                                            side: const BorderSide(
-                                              color: AppColors.primary,
-                                              width: 1.5,
-                                            ),
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 14,
-                                              vertical: 8,
-                                            ),
-                                            minimumSize: const Size(0, 32),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(8),
-                                            ),
-                                          ),
-                                          child: const Text(
-                                            "Edit",
-                                            style: TextStyle(
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.bold,
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 8),
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            showConfirmActionDialog(
-                                              context: context,
-                                              title: 'Batalkan Laporan?',
-                                              message:
-                                                  'Laporan ini akan dibatalkan dan dihapus secara permanen dari sistem. Anda yakin?',
-                                              confirmLabel: 'Hapus',
-                                              onConfirm: () async {
-                                                await ReportRepositoryImpl().deleteReport(
-                                                  report.id,
-                                                  report.fotoUrl,
+                                        Wrap(
+                                          spacing: 8,
+                                          runSpacing: 8,
+                                          alignment: WrapAlignment.end,
+                                          children: [
+                                            OutlinedButton(
+                                              onPressed: () {
+                                                Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        ReportScreen(
+                                                          existingReport:
+                                                              report,
+                                                        ),
+                                                  ),
                                                 );
-
-                                                try {
-                                                  final notifRepo = NotificationRepositoryImpl();
-                                                  await notifRepo.saveNotificationToFirestore(
-                                                    userId: report.userId,
-                                                    title: 'Laporan Dibatalkan',
-                                                    body: 'Laporan Anda untuk plat ${report.platNomor} telah berhasil dibatalkan.',
-                                                  );
-                                                  await notifRepo.createNotification(
-                                                    id: DateTime.now().millisecondsSinceEpoch.remainder(100000),
-                                                    title: 'Laporan Dibatalkan',
-                                                    body: 'Laporan Anda untuk plat ${report.platNomor} telah berhasil dibatalkan.',
-                                                  );
-                                                } catch (e) {
-                                                  debugPrint('Gagal mengirim notif: $e');
-                                                }
-
-                                                if (context.mounted) {
-                                                  ScaffoldMessenger.of(context).showSnackBar(
-                                                    const SnackBar(
-                                                      content: Text('Laporan berhasil dibatalkan & dihapus'),
-                                                      backgroundColor: Colors.red,
-                                                    ),
-                                                  );
-                                                }
                                               },
-                                            );
-                                          },
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: AppColors.errorRed.withValues(alpha: 0.1),
-                                            foregroundColor: AppColors.errorRed,
-                                            elevation: 0,
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 14,
-                                              vertical: 8,
-                                            ),
-                                            minimumSize: const Size(0, 32),
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius: BorderRadius.circular(8),
-                                              side: BorderSide(
-                                                color: AppColors.errorRed.withValues(alpha: 0.3),
-                                                width: 1.5,
+                                              style: OutlinedButton.styleFrom(
+                                                foregroundColor:
+                                                    AppColors.primary,
+                                                side: const BorderSide(
+                                                  color: AppColors.primary,
+                                                  width: 1.5,
+                                                ),
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 14,
+                                                      vertical: 8,
+                                                    ),
+                                                minimumSize: const Size(0, 32),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                ),
+                                              ),
+                                              child: const Text(
+                                                "Edit",
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                          child: const Text(
-                                            "Batalkan",
-                                            style: TextStyle(
-                                              fontSize: 11,
-                                              fontWeight: FontWeight.bold,
+                                            ElevatedButton(
+                                              onPressed: () {
+                                                showConfirmActionDialog(
+                                                  context: context,
+                                                  title: 'Batalkan Laporan?',
+                                                  message:
+                                                      'Laporan ini akan dibatalkan dan dihapus secara permanen dari sistem. Anda yakin?',
+                                                  confirmLabel: 'Hapus',
+                                                  onConfirm: () async {
+                                                    await ReportRepositoryImpl()
+                                                        .deleteReport(
+                                                          report.id,
+                                                          report.fotoUrl,
+                                                        );
+
+                                                    try {
+                                                      final notifRepo =
+                                                          NotificationRepositoryImpl();
+                                                      await notifRepo
+                                                          .saveNotificationToFirestore(
+                                                            userId:
+                                                                report.userId,
+                                                            title:
+                                                                'Laporan Dibatalkan',
+                                                            body:
+                                                                'Laporan Anda untuk plat ${report.platNomor} telah berhasil dibatalkan.',
+                                                          );
+                                                      await notifRepo.createNotification(
+                                                        id: DateTime.now()
+                                                            .millisecondsSinceEpoch
+                                                            .remainder(100000),
+                                                        title:
+                                                            'Laporan Dibatalkan',
+                                                        body:
+                                                            'Laporan Anda untuk plat ${report.platNomor} telah berhasil dibatalkan.',
+                                                      );
+                                                    } catch (e) {
+                                                      debugPrint(
+                                                        'Gagal mengirim notif: $e',
+                                                      );
+                                                    }
+
+                                                    if (context.mounted) {
+                                                      ScaffoldMessenger.of(
+                                                        context,
+                                                      ).showSnackBar(
+                                                        const SnackBar(
+                                                          content: Text(
+                                                            'Laporan berhasil dibatalkan & dihapus',
+                                                          ),
+                                                          backgroundColor:
+                                                              Colors.red,
+                                                        ),
+                                                      );
+                                                    }
+                                                  },
+                                                );
+                                              },
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor: AppColors
+                                                    .errorRed
+                                                    .withValues(alpha: 0.1),
+                                                foregroundColor:
+                                                    AppColors.errorRed,
+                                                elevation: 0,
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 14,
+                                                      vertical: 8,
+                                                    ),
+                                                minimumSize: const Size(0, 32),
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(8),
+                                                  side: BorderSide(
+                                                    color: AppColors.errorRed
+                                                        .withValues(alpha: 0.3),
+                                                    width: 1.5,
+                                                  ),
+                                                ),
+                                              ),
+                                              child: const Text(
+                                                "Batalkan",
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
                                             ),
-                                          ),
+                                          ],
                                         ),
                                       ],
                                     ),

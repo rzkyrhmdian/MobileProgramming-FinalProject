@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:mobileprogramming_finalproject/utils/colors.dart';
 import 'package:mobileprogramming_finalproject/domain/model/notification_info.dart';
 import 'package:mobileprogramming_finalproject/data/repository/notification_repository_impl.dart';
+import 'package:mobileprogramming_finalproject/ui/notifikasi/notifikasi_viewmodel.dart';
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({super.key});
@@ -20,17 +22,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
     _notifStream = NotificationRepositoryImpl().getUserNotificationsStream();
   }
 
-  String _getTimeAgo(DateTime? date) {
-    if (date == null) return 'Baru saja';
-    final difference = DateTime.now().difference(date);
-    if (difference.inDays > 0) return '${difference.inDays} Hari lalu';
-    if (difference.inHours > 0) return '${difference.inHours} Jam lalu';
-    if (difference.inMinutes > 0) return '${difference.inMinutes} Menit lalu';
-    return 'Baru saja';
-  }
-
   @override
   Widget build(BuildContext context) {
+    final notifVm = Provider.of<NotifikasiViewModel>(context, listen: false);
     return Theme(
       data: Theme.of(context).copyWith(
         textTheme: GoogleFonts.poppinsTextTheme(Theme.of(context).textTheme),
@@ -89,7 +83,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
                 final notifs = snapshot.data ?? [];
 
-                return _buildList(notifs, 'Belum ada notifikasi saat ini.');
+                return _buildList(
+                  notifs,
+                  'Belum ada notifikasi saat ini.',
+                  notifVm,
+                );
               },
             ),
           ),
@@ -98,7 +96,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
     );
   }
 
-  Widget _buildList(List<NotificationInfo> items, String emptyMessage) {
+  Widget _buildList(
+    List<NotificationInfo> items,
+    String emptyMessage,
+    NotifikasiViewModel viewModel_,
+  ) {
     if (items.isEmpty) {
       return Center(
         child: Text(
@@ -113,24 +115,33 @@ class _NotificationScreenState extends State<NotificationScreen> {
       itemCount: items.length,
       itemBuilder: (context, index) {
         final notif = items[index];
+        final type = viewModel_.getNotificationType(notif.title);
 
-        IconData icon = Icons.info_outline;
-        Color iconColor = AppColors.primary;
-        Color iconBgColor = AppColors.primary.withValues(alpha: 0.1);
+        IconData icon;
+        Color iconColor;
+        Color iconBgColor;
 
-        // Styling Card Dinamis Berdasarkan Teks
-        if (notif.title.toLowerCase().contains('selesai')) {
-          icon = Icons.check_circle_outline_rounded;
-          iconColor = const Color(0xFF2E7D32);
-          iconBgColor = const Color(0xFFE8F5E9);
-        } else if (notif.title.toLowerCase().contains('tolak')) {
-          icon = Icons.cancel_outlined;
-          iconColor = const Color(0xFFC62828);
-          iconBgColor = const Color(0xFFFFEBEE);
-        } else if (notif.title.toLowerCase().contains('terima')) {
-          icon = Icons.hourglass_bottom_rounded;
-          iconColor = const Color(0xFFEF6C00);
-          iconBgColor = const Color(0xFFFFF3E0);
+        switch (type) {
+          case NotificationType.selesai:
+            icon = Icons.check_circle_outline_rounded;
+            iconColor = const Color(0xFF2E7D32);
+            iconBgColor = const Color(0xFFE8F5E9);
+            break;
+          case NotificationType.tolak:
+            icon = Icons.cancel_outlined;
+            iconColor = const Color(0xFFC62828);
+            iconBgColor = const Color(0xFFFFEBEE);
+            break;
+          case NotificationType.terima:
+            icon = Icons.hourglass_bottom_rounded;
+            iconColor = const Color(0xFFEF6C00);
+            iconBgColor = const Color(0xFFFFF3E0);
+            break;
+          case NotificationType.info:
+            icon = Icons.info_outline;
+            iconColor = AppColors.primary;
+            iconBgColor = AppColors.primary.withValues(alpha: 0.1);
+            break;
         }
 
         return _buildNotificationCard(
@@ -138,6 +149,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
           icon: icon,
           iconColor: iconColor,
           iconBgColor: iconBgColor,
+          viewModel: viewModel_,
         );
       },
     );
@@ -148,6 +160,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
     required IconData icon,
     required Color iconColor,
     required Color iconBgColor,
+    required NotifikasiViewModel viewModel,
   }) {
     return GestureDetector(
       onTap: () {
@@ -224,7 +237,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    _getTimeAgo(notif.createdAt),
+                    viewModel.getTimeAgo(notif.createdAt),
                     style: TextStyle(
                       fontSize: 10,
                       color: Colors.grey.shade500,

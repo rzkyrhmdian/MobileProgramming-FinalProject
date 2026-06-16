@@ -89,83 +89,95 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Row(
-                              children: [
-                                Container(
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: Colors.white,
-                                      width: 3,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black.withValues(
-                                          alpha: 0.1,
-                                        ),
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 4),
+                            Expanded(
+                              child: Row(
+                                children: [
+                                  Container(
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: Colors.white,
+                                        width: 3,
                                       ),
-                                    ],
-                                  ),
-                                  child: CircleAvatar(
-                                    radius: 28,
-                                    backgroundColor: Colors.grey.shade200,
-                                    backgroundImage: hasImage
-                                        ? NetworkImage(avatar!)
-                                        : null,
-                                    child: !hasImage
-                                        ? Icon(
-                                            Icons.person_rounded,
-                                            size: 35,
-                                            color: Colors.grey.shade500,
-                                          )
-                                        : null,
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Row(
-                                      children: [
-                                        Text(
-                                          _getGreeting(),
-                                          style: TextStyle(
-                                            fontSize: 24,
-                                            color: AppColors.primary,
-                                            fontWeight: FontWeight.bold,
-                                            letterSpacing: -0.5,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(
+                                            alpha: 0.1,
                                           ),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 4),
                                         ),
-                                        const SizedBox(width: 4),
+                                      ],
+                                    ),
+                                    child: CircleAvatar(
+                                      radius: 28,
+                                      backgroundColor: Colors.grey.shade200,
+                                      backgroundImage: hasImage
+                                          ? NetworkImage(avatar!)
+                                          : null,
+                                      child: !hasImage
+                                          ? Icon(
+                                              Icons.person_rounded,
+                                              size: 35,
+                                              color: Colors.grey.shade500,
+                                            )
+                                          : null,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Wrap(
+                                          crossAxisAlignment:
+                                              WrapCrossAlignment.center,
+                                          children: [
+                                            Text(
+                                              _getGreeting(),
+                                              style: const TextStyle(
+                                                fontSize: 24,
+                                                color: AppColors.primary,
+                                                fontWeight: FontWeight.bold,
+                                                letterSpacing: -0.5,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 4),
+                                            Expanded(
+                                              child: Text(
+                                                '$displayName!',
+                                                maxLines: 1,
+                                                overflow: TextOverflow.ellipsis,
+                                                style: const TextStyle(
+                                                  fontSize: 24,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: AppColors.primary,
+                                                  letterSpacing: -0.5,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 4),
                                         Text(
-                                          '$displayName!',
+                                          'Ada yang bisa dilaporkan hari ini?',
                                           style: TextStyle(
-                                            fontSize: 24,
-                                            fontWeight: FontWeight.bold,
-                                            color: AppColors.primary,
-                                            letterSpacing: -0.5,
+                                            fontSize: 12,
+                                            color: AppColors.primary.withValues(
+                                              alpha: 0.8,
+                                            ),
+                                            fontWeight: FontWeight.w400,
                                           ),
                                         ),
                                       ],
                                     ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      'Ada yang bisa dilaporkan hari ini?',
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: AppColors.primary.withValues(
-                                          alpha: 0.8,
-                                        ),
-                                        fontWeight: FontWeight.w400,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
+                                  ),
+                                ],
+                              ),
                             ),
+                            const SizedBox(width: 8),
                             GestureDetector(
                               onTap: () {
                                 Navigator.push(
@@ -191,9 +203,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       // KOTAK STATISTIK DINAMIS & LAPORAN TERBARU
                       // ========================================================
                       StreamBuilder<List<ReportInfo>>(
-                        stream: _reportStream, // 3. GUNAKAN VARIABEL DI SINI
+                        stream: _reportStream,
                         builder: (context, snapshot) {
-                          // Menangkap error jika Firestore butuh Index
                           if (snapshot.hasError) {
                             return Container(
                               padding: const EdgeInsets.all(20),
@@ -337,7 +348,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       FutureBuilder<List<GarageVehicle>>(
                         future: GarageRepositoryImpl().getVehicles(),
                         builder: (context, snapshot) {
-                          if (snapshot.connectionState == ConnectionState.waiting) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
                             return const Center(
                               child: Padding(
                                 padding: EdgeInsets.all(16.0),
@@ -359,28 +371,46 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
                           for (final vehicle in vehicles) {
                             // Annual tax alert
-                            final annualExpiry = DateTime(vehicle.annualTaxExpiry.year, vehicle.annualTaxExpiry.month, vehicle.annualTaxExpiry.day);
-                            final annualDiff = annualExpiry.difference(today).inDays;
-                            alerts.add(_TaxAlert(
-                              vehicle: vehicle,
-                              title: 'Pajak Tahunan',
-                              expiryDate: vehicle.annualTaxExpiry,
-                              diffInDays: annualDiff,
-                            ));
+                            final annualExpiry = DateTime(
+                              vehicle.annualTaxExpiry.year,
+                              vehicle.annualTaxExpiry.month,
+                              vehicle.annualTaxExpiry.day,
+                            );
+                            final annualDiff = annualExpiry
+                                .difference(today)
+                                .inDays;
+                            alerts.add(
+                              _TaxAlert(
+                                vehicle: vehicle,
+                                title: 'Pajak Tahunan',
+                                expiryDate: vehicle.annualTaxExpiry,
+                                diffInDays: annualDiff,
+                              ),
+                            );
 
                             // Five year STNK alert
-                            final fiveYearExpiry = DateTime(vehicle.fiveYearTaxExpiry.year, vehicle.fiveYearTaxExpiry.month, vehicle.fiveYearTaxExpiry.day);
-                            final fiveYearDiff = fiveYearExpiry.difference(today).inDays;
-                            alerts.add(_TaxAlert(
-                              vehicle: vehicle,
-                              title: 'Masa Berlaku STNK',
-                              expiryDate: vehicle.fiveYearTaxExpiry,
-                              diffInDays: fiveYearDiff,
-                            ));
+                            final fiveYearExpiry = DateTime(
+                              vehicle.fiveYearTaxExpiry.year,
+                              vehicle.fiveYearTaxExpiry.month,
+                              vehicle.fiveYearTaxExpiry.day,
+                            );
+                            final fiveYearDiff = fiveYearExpiry
+                                .difference(today)
+                                .inDays;
+                            alerts.add(
+                              _TaxAlert(
+                                vehicle: vehicle,
+                                title: 'Masa Berlaku STNK',
+                                expiryDate: vehicle.fiveYearTaxExpiry,
+                                diffInDays: fiveYearDiff,
+                              ),
+                            );
                           }
 
                           // Sort by diffInDays ascending (closest to expiry first)
-                          alerts.sort((a, b) => a.diffInDays.compareTo(b.diffInDays));
+                          alerts.sort(
+                            (a, b) => a.diffInDays.compareTo(b.diffInDays),
+                          );
 
                           final closestAlert = alerts.first;
                           final vehicle = closestAlert.vehicle;
@@ -389,8 +419,22 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           final diffInDays = closestAlert.diffInDays;
 
                           // Format month and year
-                          const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
-                          final expiryDateStr = "${monthNames[expiryDate.month - 1]} ${expiryDate.year}";
+                          const monthNames = [
+                            'Jan',
+                            'Feb',
+                            'Mar',
+                            'Apr',
+                            'Mei',
+                            'Jun',
+                            'Jul',
+                            'Agu',
+                            'Sep',
+                            'Okt',
+                            'Nov',
+                            'Des',
+                          ];
+                          final expiryDateStr =
+                              "${monthNames[expiryDate.month - 1]} ${expiryDate.year}";
 
                           // Calculate remainingText and colors
                           String remainingText;
@@ -398,7 +442,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                           Color bgColor;
 
                           if (diffInDays < 0) {
-                            remainingText = 'Terlambat ${diffInDays.abs()} hari';
+                            remainingText =
+                                'Terlambat ${diffInDays.abs()} hari';
                             baseColor = AppColors.errorRed;
                             bgColor = AppColors.bgErrorRed;
                           } else if (diffInDays == 0) {
@@ -413,7 +458,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
                             final monthLeft = (diffInDays / 30).ceil();
                             remainingText = 'Sisa $monthLeft bulan';
                             baseColor = AppColors.secondary;
-                            bgColor = AppColors.secondary.withValues(alpha: 0.1);
+                            bgColor = AppColors.secondary.withValues(
+                              alpha: 0.1,
+                            );
                           }
 
                           return Column(
@@ -743,10 +790,7 @@ class _DashboardScreenState extends State<DashboardScreen> {
         children: [
           Container(
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: baseColor,
-              shape: BoxShape.circle,
-            ),
+            decoration: BoxDecoration(color: baseColor, shape: BoxShape.circle),
             child: const Icon(
               Icons.access_time_filled_rounded,
               color: Colors.white,

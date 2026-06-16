@@ -35,7 +35,7 @@ class _SignupScreenState extends State<SignupScreen> {
           SnackBar(
             content: Text(
               _viewModel.error,
-              style: TextStyle(
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 14,
                 fontFamily: 'Poppins',
@@ -72,129 +72,154 @@ class _SignupScreenState extends State<SignupScreen> {
             ),
           ),
           body: Container(
-            padding: const EdgeInsets.all(32.0),
             decoration: const BoxDecoration(
               image: DecorationImage(
                 image: AssetImage('assets/images/backgroundSiPatuh.png'),
                 fit: BoxFit.cover,
               ),
             ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                const Text(
-                  'Sign Up',
-                  style: TextStyle(
-                    fontFamily: 'Poppins',
-                    fontWeight: FontWeight.bold,
-                    fontSize: 35,
-                    color: AppColors.primary,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      // Memaksa tinggi konten minimal setinggi layar agar konten tetap di tengah vertikal
+                      minHeight: constraints.maxHeight,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(32.0),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SizedBox(height: kToolbarHeight + 30),
+                          const Text(
+                            'Sign Up',
+                            style: TextStyle(
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.bold,
+                              fontSize: 35,
+                              color: AppColors.primary,
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                          Form(
+                            key: _formKey,
+                            child: Column(
+                              children: [
+                                CustomTextField(
+                                  hint: 'Nama Lengkap',
+                                  icon: Icons.person_outline,
+                                  onChanged: _viewModel.updateFullName,
+                                  validator: (val) => val!.isEmpty
+                                      ? 'Masukkan nama lengkap'
+                                      : null,
+                                ),
+                                const SizedBox(height: 16),
+                                CustomTextField(
+                                  hint: 'Masukkan email',
+                                  icon: Icons.email_outlined,
+                                  onChanged: _viewModel.updateEmail,
+                                  validator: (val) =>
+                                      val!.isEmpty ? 'Masukkan email' : null,
+                                  keyboardType: TextInputType.emailAddress,
+                                ),
+                                const SizedBox(height: 16),
+                                CustomTextField(
+                                  hint: 'Masukkan password',
+                                  icon: Icons.lock_outline,
+                                  obscureText: _viewModel.isPasswordObscure,
+                                  onChanged: _viewModel.updatePassword,
+                                  validator: (val) => val!.length < 6
+                                      ? 'Password harus minimal 6 karakter'
+                                      : null,
+                                  suffixIcon: Padding(
+                                    padding: const EdgeInsets.only(right: 12.0),
+                                    child: IconButton(
+                                      icon: Icon(
+                                        _viewModel.isPasswordObscure
+                                            ? Icons.visibility_off
+                                            : Icons.visibility,
+                                      ),
+                                      onPressed:
+                                          _viewModel.togglePasswordObscure,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                CustomTextField(
+                                  hint: 'Konfirmasi password',
+                                  icon: Icons.lock_outline,
+                                  obscureText:
+                                      _viewModel.isConfirmPasswordObscure,
+                                  onChanged: _viewModel.updateConfirmPassword,
+                                  validator: (val) => val!.isEmpty
+                                      ? 'Konfirmasi password Anda'
+                                      : null,
+                                  suffixIcon: Padding(
+                                    padding: const EdgeInsets.only(right: 12.0),
+                                    child: IconButton(
+                                      icon: Icon(
+                                        _viewModel.isConfirmPasswordObscure
+                                            ? Icons.visibility_off
+                                            : Icons.visibility,
+                                      ),
+                                      onPressed: _viewModel
+                                          .toggleConfirmPasswordObscure,
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 32),
+                                CustomButton(
+                                  onTap: _tryRegister,
+                                  height: 65,
+                                  width: double.infinity,
+                                  borderRadius: 50.0,
+                                  label: _viewModel.isLoading
+                                      ? 'Loading...'
+                                      : 'Sign Up',
+                                  fontSize: 18,
+                                  fontColor: Colors.white,
+                                  backgroundColor: AppColors.primary,
+                                ),
+                                const SizedBox(height: 32),
+                                CustomLink(
+                                  onPressed: () {
+                                    Navigator.pushReplacement(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const LoginScreen(),
+                                      ),
+                                    );
+                                  },
+                                  label: 'Sudah punya akun?',
+                                  labelLink: 'Log In',
+                                  fontSize: 14,
+                                  fontFamily: 'Poppins',
+                                ),
+                                if (_viewModel.error.isNotEmpty) ...[
+                                  const SizedBox(height: 8),
+                                  Text(
+                                    _viewModel.error,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ],
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 24),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 32),
-                Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      CustomTextField(
-                        hint: 'Nama Lengkap',
-                        icon: Icons.person_outline,
-                        onChanged: _viewModel.updateFullName,
-                        validator: (val) =>
-                            val!.isEmpty ? 'Masukkan nama lengkap' : null,
-                      ),
-                      const SizedBox(height: 16),
-                      CustomTextField(
-                        hint: 'Masukkan email',
-                        icon: Icons.email_outlined,
-                        onChanged: _viewModel.updateEmail,
-                        validator: (val) =>
-                            val!.isEmpty ? 'Masukkan email' : null,
-                        keyboardType: TextInputType.emailAddress,
-                      ),
-                      const SizedBox(height: 16),
-                      CustomTextField(
-                        hint: 'Masukkan password',
-                        icon: Icons.lock_outline,
-                        obscureText: _viewModel.isPasswordObscure,
-                        onChanged: _viewModel.updatePassword,
-                        validator: (val) => val!.length < 6
-                            ? 'Password harus minimal 6 karakter'
-                            : null,
-                        suffixIcon: Padding(
-                          padding: const EdgeInsets.only(right: 12.0),
-                          child: IconButton(
-                            icon: Icon(
-                              _viewModel.isPasswordObscure
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
-                            ),
-                            onPressed: _viewModel.togglePasswordObscure,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      CustomTextField(
-                        hint: 'Konfirmasi password',
-                        icon: Icons.lock_outline,
-                        obscureText: _viewModel.isConfirmPasswordObscure,
-                        onChanged: _viewModel.updateConfirmPassword,
-                        validator: (val) =>
-                            val!.isEmpty ? 'Konfirmasi password Anda' : null,
-                        suffixIcon: Padding(
-                          padding: const EdgeInsets.only(right: 12.0),
-                          child: IconButton(
-                            icon: Icon(
-                              _viewModel.isConfirmPasswordObscure
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
-                            ),
-                            onPressed: _viewModel.toggleConfirmPasswordObscure,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 32),
-                      CustomButton(
-                        onTap: _tryRegister,
-                        height: 65,
-                        width: double.infinity,
-                        borderRadius: 50.0,
-                        label: _viewModel.isLoading ? 'Loading...' : 'Sign Up',
-                        fontSize: 18,
-                        fontColor: Colors.white,
-                        backgroundColor: AppColors.primary,
-                      ),
-                      const SizedBox(height: 32),
-                      CustomLink(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const LoginScreen(),
-                            ),
-                          );
-                        },
-                        label: 'Sudah punya akun?',
-                        labelLink: 'Log In',
-                        fontSize: 14,
-                        fontFamily: 'Poppins',
-                      ),
-                      if (_viewModel.error.isNotEmpty) ...[
-                        const SizedBox(height: 8),
-                        Text(
-                          _viewModel.error,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                          ),
-                          textAlign: TextAlign.center,
-                        ),
-                      ],
-                    ],
-                  ),
-                ),
-              ],
+                );
+              },
             ),
           ),
         );
