@@ -1,12 +1,38 @@
-import 'package:flutter/material.dart';
-import 'package:mobileprogramming_finalproject/screens/landing_page.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:mobileprogramming_finalproject/ui/profile/profile_viewmodel.dart';
+import 'package:mobileprogramming_finalproject/ui/dashboard/dashboard_viewmodel.dart';
+import 'package:mobileprogramming_finalproject/ui/notifikasi/notifikasi_viewmodel.dart';
+import 'package:mobileprogramming_finalproject/ui/navigation/landing_screen.dart';
+import 'package:mobileprogramming_finalproject/ui/admin_dashboard/admin_dashboard_viewmodel.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  runApp(const MyApp());
+  await Supabase.initialize(
+    url: 'https://calyecnkauxycoxhvhpy.supabase.co',
+    anonKey:
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNhbHllY25rYXV4eWNveGh2aHB5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAzMzk4MjEsImV4cCI6MjA5NTkxNTgyMX0.UTITIorFrhLPU6tQRYIj1HlgPWOzO-1dlOn1EeuXViY',
+  );
+  await initializeDateFormatting('id_ID', null).then((_) {
+    runApp(
+      MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+            create: (_) => ProfileViewModel()..loadUserInfo(),
+          ),
+          ChangeNotifierProvider(create: (_) => DashboardViewModel()),
+          ChangeNotifierProvider(create: (_) => NotifikasiViewModel()),
+          ChangeNotifierProvider(create: (_) => AdminDashboardViewModel()),
+        ],
+        child: const MyApp(),
+      ),
+    );
+  });
 }
 
 class MyApp extends StatelessWidget {
@@ -16,7 +42,7 @@ class MyApp extends StatelessWidget {
     return (MaterialApp(
       title: 'SiPatuh',
       theme: ThemeData(visualDensity: VisualDensity.adaptivePlatformDensity),
-      home: LandingPage(),
+      home: const LandingScreen(),
       debugShowCheckedModeBanner: false,
     ));
   }
